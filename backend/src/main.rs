@@ -1,4 +1,5 @@
 mod db;
+mod jetstream;
 mod models;
 mod routes;
 
@@ -23,7 +24,11 @@ async fn main() -> Result<()> {
     // Build our application with a route
     let app = Router::new()
         .nest("/api/interests", routes::interests_router())
-        .with_state(db);
+        .with_state(db.clone());
+
+    tokio::spawn(async move {
+        jetstream::subscribe_to_jetstream(&db).await;
+    });
 
     // Run it with hyper on localhost:3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

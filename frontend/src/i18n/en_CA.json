@@ -1,4 +1,5 @@
 {
+  "layout.interests.description": "Track the latest trends and insights",
   "interests": "Interests",
   "interests.add": "Add Interest",
   "interests.add.placeholder": "Enter a keyword to track...",

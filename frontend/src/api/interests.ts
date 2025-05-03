@@ -4,12 +4,14 @@ import config from "@/lib/config";
 export interface Interest {
   id: number;
   subject: string;
+  description: string;
   keywords: string[];
   created_at: string;
 }
 
 export interface CreateInterest {
   subject: string;
+  description: string;
   keywords: string[];
 }
 
@@ -22,6 +24,33 @@ export const useInterests = () => {
       const response = await fetch(`${API_BASE_URL}/interests`);
       if (!response.ok) {
         throw new Error("Failed to fetch interests");
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useInterestUrls = (id: number) => {
+  return useQuery<Record<string, number>>({
+    queryKey: ["interest-urls", id],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/interests/${id}/urls`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch interest urls");
+      }
+      return response.json();
+    },
+    refetchInterval: 200,
+  });
+};
+
+export const useInterestTags = (id: number) => {
+  return useQuery<Record<string, number>>({
+    queryKey: ["interest-tags", id],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/interests/${id}/tags`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch interest tags");
       }
       return response.json();
     },

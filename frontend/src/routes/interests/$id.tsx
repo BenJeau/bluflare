@@ -6,8 +6,20 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
 import config from "@/lib/config";
-import { useDeleteInterest } from "@/api/interests";
+import {
+  useDeleteInterest,
+  useInterestTags,
+  useInterestUrls,
+} from "@/api/interests";
 import { Badge } from "@/components/ui/badge";
+import { usePosts } from "@/api/posts";
+import clsx from "clsx";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export const Route = createFileRoute("/interests/$id")({
   component: InterestDetail,
@@ -33,6 +45,10 @@ function InterestDetail() {
       return response.json();
     },
   });
+
+  const { data: posts } = usePosts(Number(id));
+  const { data: urls } = useInterestUrls(Number(id));
+  const { data: tags } = useInterestTags(Number(id));
 
   const deleteInterest = useDeleteInterest();
 
@@ -60,8 +76,13 @@ function InterestDetail() {
             </Link>
           </Button>
           <h2 className="text-xl font-bold">
-            {interest.subject}
-            <p className="text-sm text-muted-foreground">
+            <span className="flex gap-2 items-baseline">
+              {interest.subject}
+              <p className="text-sm font-normal italic">
+                {interest.description}
+              </p>
+            </span>
+            <p className="text-sm text-muted-foreground font-normal">
               {t("interests.detail.created")}:{" "}
               {new Date(interest.created_at).toLocaleString()}
             </p>
@@ -77,11 +98,148 @@ function InterestDetail() {
         </Button>
       </div>
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <p className="text-sm font-semibold">Keywords</p>
+        <p className="text-sm font-semibold">
+          Keywords{" "}
+          <span className="text-xs text-muted-foreground">
+            ({interest.keywords.length})
+          </span>
+        </p>
         <div className="flex flex-wrap gap-2">
           {interest.keywords.map((keyword) => (
             <Badge key={keyword}>{keyword}</Badge>
           ))}
+        </div>
+      </div>
+      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
+        <p className="text-sm font-semibold">
+          URLs{" "}
+          <span className="text-xs text-muted-foreground">
+            ({(urls && Object.keys(urls).length) ?? 0} unique URLs)
+          </span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {urls &&
+            Object.entries(urls).map(([url, count]) => (
+              <Badge key={url} variant="outline">
+                {url} <span className="text-xs font-bold">{count}</span>
+              </Badge>
+            ))}
+        </div>
+      </div>
+      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
+        <p className="text-sm font-semibold">
+          Tags{" "}
+          <span className="text-xs text-muted-foreground">
+            ({(tags && Object.keys(tags).length) ?? 0} unique tags)
+          </span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {tags &&
+            Object.entries(tags).map(([tag, count]) => (
+              <Badge key={tag} variant="outline">
+                {tag} <span className="text-xs font-bold">{count}</span>
+              </Badge>
+            ))}
+        </div>
+      </div>
+      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
+        <p className="text-sm font-semibold">
+          Posts{" "}
+          <span className="text-xs text-muted-foreground">
+            ({posts?.length})
+          </span>
+        </p>
+        <div className="flex flex-wrap flex-col gap-2">
+          {posts?.map(
+            ({ text, created_at, urls, did, cid, rkey, langs, tags, aka }) => (
+              <div
+                key={text}
+                className="flex flex-col border rounded-lg bg-green-50 flex-1 overflow-hidden"
+              >
+                <div className="text-xs text-muted-foreground flex gap-1 bg-white border-b border-gray-200 p-2 justify-between items-center">
+                  <div className="flex gap-2">
+                    <a
+                      href={`https://bsky.app/profile/${did}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <p className="text-xs text-primary font-bold hover:underline">
+                        @{aka[0]}
+                      </p>
+                    </a>
+                    {created_at}
+                  </div>
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger disabled={urls.length === 0}>
+                        <Badge
+                          className={cn(
+                            "text-xs",
+                            urls.length > 0
+                              ? "bg-green-600 text-white"
+                              : "bg-white text-black"
+                          )}
+                          variant="outline"
+                        >
+                          {urls.length} URL found
+                        </Badge>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <div className="flex flex-col gap-2">
+                          {urls.map((url) => (
+                            <a
+                              key={url}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary font-bold hover:underline"
+                            >
+                              {url}
+                            </a>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <Popover>
+                      <PopoverTrigger disabled={tags.length === 0}>
+                        <Badge
+                          className={cn(
+                            "text-xs",
+                            tags.length > 0
+                              ? "bg-green-600 text-white"
+                              : "bg-white text-black"
+                          )}
+                          variant="outline"
+                        >
+                          {tags.length} tag found
+                        </Badge>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <div className="flex flex-col gap-2">
+                          {tags.map((tag) => (
+                            <Badge key={tag}>{tag}</Badge>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-between items-stretch">
+                  <div>
+                    <a
+                      href={`https://bsky.app/profile/${did}/post/${rkey}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <p className="text-sm font-semibold hover:underline p-2">
+                        {text}
+                      </p>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>
