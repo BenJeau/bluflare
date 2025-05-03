@@ -40,6 +40,8 @@ Technologies to use:
 
 Path: ./frontend
 
+PLEASE USE pnpm, not npm!
+
 Technologies to use:
 
 - TypeScript (for programming language)
