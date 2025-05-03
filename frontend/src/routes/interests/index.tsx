@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
@@ -43,7 +43,10 @@ function RouteComponent() {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex justify-end">
         <Link to="/interests/create">
-          <Button>{t("interests.add")}</Button>
+          <Button>
+            <Plus className="h-3 w-3" />
+            {t("interests.add")}
+          </Button>
         </Link>
       </div>
 
@@ -53,19 +56,23 @@ function RouteComponent() {
             to="/interests/$id"
             params={{ id: interest.id.toString() }}
             key={interest.id}
-            className="flex items-center justify-between rounded-lg border p-3 bg-white"
+            className=" rounded-lg border p-3 bg-white group"
           >
-            <h2 className="flex-1 font-medium hover:underline">
-              {interest.subject}
-            </h2>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => handleDeleteInterest(interest)}
-              className="cursor-pointer"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center justify-between">
+              <h2 className="flex-1 font-medium group-hover:underline">
+                {interest.subject}
+                <span className="text-xs text-gray-500 ms-2">
+                  {interest.description}
+                </span>
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-x-1">
+              {interest.keywords.map((keyword) => (
+                <span key={keyword} className="text-xs text-green-500">
+                  #{keyword}
+                </span>
+              ))}
+            </div>
           </Link>
         ))}
         {interests?.length === 0 && (

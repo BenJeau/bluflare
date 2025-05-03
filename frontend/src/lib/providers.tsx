@@ -12,7 +12,7 @@ const Providers: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>
       <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       <Toaster />
     </Provider>
   </QueryClientProvider>

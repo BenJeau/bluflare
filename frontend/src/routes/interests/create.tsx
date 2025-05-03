@@ -1,14 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Pickaxe, Plus, X } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Pickaxe, Plus, X, Sparkles } from "lucide-react";
 import { useState, FormEvent, ChangeEvent } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCreateInterest } from "@/api/interests";
+import { useMutationSuggestKeywords } from "@/api/suggest";
 import { useTranslation } from "@/i18n";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/interests/create")({
   component: RouteComponent,
@@ -16,8 +18,9 @@ export const Route = createFileRoute("/interests/create")({
 
 function RouteComponent() {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const createInterest = useCreateInterest();
+  const { mutateAsync: suggestKeywords, isPending: isSuggesting } =
+    useMutationSuggestKeywords();
   const [newSubject, setNewSubject] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newKeywords, setNewKeywords] = useState<string[]>([]);
@@ -52,6 +55,22 @@ function RouteComponent() {
 
   const handleRemoveKeyword = (index: number) => {
     setNewKeywords(newKeywords.filter((_, i) => i !== index));
+  };
+
+  const handleSuggestKeywords = async () => {
+    try {
+      const suggestedKeywords = await suggestKeywords({
+        subject: newSubject,
+        description: newDescription,
+      });
+      // Add only unique keywords that aren't already in the list
+      const uniqueKeywords = suggestedKeywords.filter(
+        (keyword: string) => !newKeywords.includes(keyword)
+      );
+      setNewKeywords([...newKeywords, ...uniqueKeywords]);
+    } catch (error) {
+      toast.error("Failed to suggest keywords");
+    }
   };
 
   return (
@@ -112,6 +131,21 @@ function RouteComponent() {
             >
               <Plus className="h-4 w-4" />
             </Button>
+            <Button
+              onClick={handleSuggestKeywords}
+              variant="outline"
+              className={cn(
+                "relative overflow-hidden",
+                isSuggesting &&
+                  "bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient"
+              )}
+              disabled={isSuggesting}
+            >
+              <div className="relative flex items-center">
+                <Sparkles className="h-4 w-4 mr-1" />
+                {isSuggesting ? "Suggesting..." : "Suggest AI Keywords"}
+              </div>
+            </Button>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -144,6 +178,61 @@ function RouteComponent() {
           </Button>
         </div>
       </form>
+
+      {isSuggesting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Multiple gradient layers for more intense effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient opacity-50" />
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 animate-gradient opacity-50"
+            style={{ animationDelay: "0.5s" }}
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-blue-500 to-purple-500 animate-gradient opacity-50"
+            style={{ animationDelay: "1s" }}
+          />
+
+          {/* Enhanced backdrop blur */}
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-md" />
+
+          {/* Main content with enhanced effects */}
+          <div className="relative flex flex-col items-center gap-6 p-10 rounded-lg bg-white/80 shadow-2xl backdrop-blur-sm border border-white/20">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Sparkles className="h-8 w-8 text-purple-500 animate-pulse" />
+                <div className="absolute inset-0 bg-purple-500/20 rounded-full animate-ping" />
+              </div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
+                AI is thinking...
+              </h3>
+            </div>
+
+            {/* Enhanced progress bar */}
+            <div className="w-72 h-3 bg-gray-200/50 rounded-full overflow-hidden backdrop-blur-sm">
+              <div
+                className="w-full h-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient"
+                style={{ animationDuration: "1s" }}
+              />
+            </div>
+
+            {/* Floating particles */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-2 h-2 rounded-full bg-white/30 animate-float"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 2}s`,
+                    animationDuration: `${3 + Math.random() * 2}s`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

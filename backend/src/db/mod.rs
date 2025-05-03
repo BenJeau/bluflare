@@ -1,6 +1,9 @@
 use std::{collections::HashMap, str::FromStr};
 
-use crate::models::{CreateInterest, CreatePost, DbInterest, DbPost, Interest, Post};
+use crate::models::{
+    CreateInterest, CreatePost, DbInterest, DbPost, Interest, Post,
+    interest::UpdateInterestAnalysis,
+};
 use anyhow::Result;
 use sqlx::{
     migrate::MigrateError,
@@ -18,6 +21,25 @@ impl Database {
         let pool = connect_to_db(database_url, 75, 5).await?;
         run_migrations(&pool).await?;
         Ok(Self { pool })
+    }
+
+    pub async fn update_interest_analysis(
+        &self,
+        id: i64,
+        analysis: UpdateInterestAnalysis,
+    ) -> Result<()> {
+        sqlx::query_scalar!(
+            r#"
+            UPDATE interests SET last_analysis = ?, last_analysis_at = ? WHERE id = ?
+            "#,
+            analysis.last_analysis,
+            analysis.last_analysis_at,
+            id,
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
     }
 
     pub async fn update_interest_keywords(&self, id: i64, keywords: Vec<String>) -> Result<()> {
@@ -151,6 +173,8 @@ impl Database {
                 description: db_interest.description,
                 keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
                 created_at: db_interest.created_at,
+                last_analysis: db_interest.last_analysis,
+                last_analysis_at: db_interest.last_analysis_at,
             })
             .collect();
 
@@ -174,6 +198,8 @@ impl Database {
             description: db_interest.description,
             keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
             created_at: db_interest.created_at,
+            last_analysis: db_interest.last_analysis,
+            last_analysis_at: db_interest.last_analysis_at,
         };
 
         Ok(interest)

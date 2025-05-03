@@ -1,10 +1,17 @@
 mod db;
+mod gemini;
 mod jetstream;
 mod models;
 mod routes;
 
 use anyhow::Result;
-use axum::{Router, ServiceExt, extract::Request};
+use axum::{
+    Json, Router, ServiceExt,
+    extract::{Request, State},
+    routing::post,
+};
+use db::Database;
+use serde::Deserialize;
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -24,6 +31,7 @@ async fn main() -> Result<()> {
     // Build our application with a route
     let app = Router::new()
         .nest("/api/interests", routes::interests_router())
+        .route("/api/keywords/suggest", post(suggest_keywords))
         .with_state(db.clone());
 
     tokio::spawn(async move {
@@ -41,4 +49,17 @@ async fn main() -> Result<()> {
     .await?;
 
     Ok(())
+}
+
+#[derive(Deserialize)]
+struct SuggestKeywordsRequest {
+    subject: String,
+    description: String,
+}
+
+async fn suggest_keywords(Json(request): Json<SuggestKeywordsRequest>) -> Json<Vec<String>> {
+    let keywords = gemini::generate_keywords(&request.subject, &request.description)
+        .await
+        .unwrap();
+    Json(keywords)
 }

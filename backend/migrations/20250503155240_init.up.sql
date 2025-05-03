@@ -3,7 +3,9 @@ CREATE TABLE IF NOT EXISTS interests (
     subject TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     keywords BLOB NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    last_analysis TEXT DEFAULT NULL,
+    last_analysis_at DATETIME DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS posts (

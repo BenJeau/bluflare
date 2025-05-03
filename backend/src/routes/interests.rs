@@ -1,4 +1,6 @@
+use crate::gemini::analyze_posts;
 use crate::models::CreateInterest;
+use crate::models::interest::UpdateInterestAnalysis;
 use crate::{db::Database, models::interest::UpdateInterest};
 use axum::{
     Json, Router,
@@ -7,6 +9,7 @@ use axum::{
     response::IntoResponse,
     routing::{delete, get, patch, post},
 };
+use chrono::Utc;
 
 pub fn router() -> Router<Database> {
     Router::new()
@@ -16,10 +19,51 @@ pub fn router() -> Router<Database> {
         .route("/:id/tags", get(get_tags))
         .route("/:id/words", get(get_words))
         .route("/:id/langs", get(get_langs))
+        .route("/:id/analyze", post(analyze_interest))
         .route("/", post(create_interest))
         .route("/:id", delete(delete_interest))
         .route("/:id/posts", get(get_posts))
         .route("/:id", patch(update_interest))
+}
+
+async fn analyze_interest(
+    State(db): State<Database>,
+    Path(id): Path<i64>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let posts = db
+        .get_all_posts(id)
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Database error: {}", e),
+            )
+        })?
+        .into_iter()
+        .map(|p| p.text)
+        .collect::<Vec<String>>();
+    let summary = analyze_posts(&posts).await.map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error analyzing interest: {}", e),
+        )
+    })?;
+
+    db.update_interest_analysis(
+        id,
+        UpdateInterestAnalysis {
+            last_analysis: summary.clone(),
+            last_analysis_at: Utc::now().naive_utc(),
+        },
+    )
+    .await
+    .map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Database error: {}", e),
+        )
+    })?;
+    Ok(Json(summary))
 }
 
 async fn update_interest(

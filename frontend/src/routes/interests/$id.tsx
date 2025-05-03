@@ -8,8 +8,17 @@ import {
   Edit2,
   Plus,
   X,
+  Sparkles,
+  Newspaper,
+  WholeWord,
+  Tag,
+  LinkIcon,
+  Languages,
+  Bot,
+  Hash,
 } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
@@ -22,6 +31,7 @@ import {
   useInterestUrls,
   useInterestWords,
   useMutateInterestKeywords,
+  useAnalyzeInterest,
 } from "@/api/interests";
 import { Badge } from "@/components/ui/badge";
 import { usePosts } from "@/api/posts";
@@ -34,6 +44,7 @@ import {
 import { useState, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { queryClient } from "@/api/query-client";
+import { useMutationSuggestKeywords } from "@/api/suggest";
 
 // Add this function before the InterestDetail component
 const getTagColor = (count: number, max: number) => {
@@ -87,6 +98,9 @@ function InterestDetail() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const { mutateAsync: analyzeInterest, isPending: isAnalyzing } =
+    useAnalyzeInterest();
   const {
     data: interest,
     isLoading,
@@ -126,9 +140,18 @@ function InterestDetail() {
     navigate({ to: "/interests" });
   };
 
+  const handleAnalyzeInterest = async () => {
+    try {
+      await analyzeInterest(Number(id));
+      queryClient.invalidateQueries({ queryKey: ["interests", id] });
+    } catch (error) {
+      toast.error("Failed to analyze interest");
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex justify-between gap-2">
+    <div className="flex flex-col gap-2 p-4">
+      <div className="flex justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link to="/interests">
@@ -148,23 +171,51 @@ function InterestDetail() {
             </p>
           </h2>
         </div>
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={() => handleDeleteInterest(Number(id))}
-          className="cursor-pointer"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleAnalyzeInterest}
+            disabled={isAnalyzing}
+          >
+            <Sparkles className="h-4 w-4" />
+            {isAnalyzing ? "Analyzing..." : "Analyze Posts"}
+          </Button>
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => handleDeleteInterest(Number(id))}
+            className="cursor-pointer"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <div className="rounded-lg border p-4 bg-white">
+        <p className="text-sm font-semibold flex gap-2 items-center">
+          <Bot className="h-4 w-4" /> Analysis{" "}
+          <span className="text-xs text-muted-foreground">
+            (
+            {interest.last_analysis_at
+              ? new Date(interest.last_analysis_at).toLocaleString()
+              : "Never analyzed"}
+            )
+          </span>
+        </p>
+        <div className="prose prose-sm max-w-none dark:prose-invert mt-2">
+          <ReactMarkdown>
+            {interest.last_analysis ??
+              "No analysis results yet, start analyzing posts to get started!"}
+          </ReactMarkdown>
+        </div>
       </div>
       <KeywordsSection interest={interest} />
-      <StatsSection data={langs || {}} title="Languages" />
-      <StatsSection data={urls || {}} title="URLs" />
-      <StatsSection data={tags || {}} title="Tags" />
-      <StatsSection data={words || {}} title="Words" />
+      <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
+      <StatsSection data={urls || {}} title="URLs" Icon={LinkIcon} />
+      <StatsSection data={tags || {}} title="Tags" Icon={Hash} />
+      <StatsSection data={words || {}} title="Words" Icon={WholeWord} />
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <p className="text-sm font-semibold">
-          Posts{" "}
+        <p className="text-sm font-semibold flex gap-2 items-center">
+          <Newspaper className="h-4 w-4" /> Posts{" "}
           <span className="text-xs text-muted-foreground">
             ({posts?.length})
           </span>
@@ -283,6 +334,8 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
   const { mutateAsync: updateInterestKeywords } = useMutateInterestKeywords(
     Number(interest.id)
   );
+  const { mutateAsync: suggestKeywords, isPending: isSuggesting } =
+    useMutationSuggestKeywords();
 
   const handleStartEditing = () => {
     setEditedKeywords([...interest.keywords]);
@@ -319,11 +372,28 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
   const handleRemoveKeyword = (index: number) => {
     setEditedKeywords(editedKeywords.filter((_, i) => i !== index));
   };
+
+  const handleSuggestKeywords = async () => {
+    try {
+      const suggestedKeywords = await suggestKeywords({
+        subject: interest.subject,
+        description: interest.description,
+      });
+      // Add only unique keywords that aren't already in the list
+      const newKeywords = suggestedKeywords.filter(
+        (keyword) => !editedKeywords.includes(keyword)
+      );
+      setEditedKeywords([...editedKeywords, ...newKeywords]);
+    } catch (error) {
+      toast.error("Failed to suggest keywords");
+    }
+  };
+
   return (
     <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
       <div className="flex justify-between items-center">
-        <p className="text-sm font-semibold">
-          Keywords{" "}
+        <p className="text-sm font-semibold flex gap-2 items-center">
+          <Tag className="h-4 w-4" /> Keywords{" "}
           <span className="text-xs text-muted-foreground">
             ({interest.keywords.length})
           </span>
@@ -377,6 +447,21 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
             >
               <Plus className="h-3 w-3" />
             </Button>
+            <Button
+              onClick={handleSuggestKeywords}
+              variant="outline"
+              className={cn(
+                "h-8 relative overflow-hidden",
+                isSuggesting &&
+                  "bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient"
+              )}
+              disabled={isSuggesting}
+            >
+              <div className="relative flex items-center">
+                <Sparkles className="h-3 w-3 mr-1" />
+                {isSuggesting ? "Suggesting..." : "Suggest AI Keywords"}
+              </div>
+            </Button>
           </div>
           <div className="flex flex-wrap gap-1">
             {editedKeywords.map((keyword, index) => (
@@ -404,6 +489,55 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
           ))}
         </div>
       )}
+      {isSuggesting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient opacity-50" />
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 animate-gradient opacity-50"
+            style={{ animationDelay: "0.5s" }}
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-blue-500 to-purple-500 animate-gradient opacity-50"
+            style={{ animationDelay: "1s" }}
+          />
+
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-md" />
+
+          <div className="relative flex flex-col items-center gap-6 p-10 rounded-lg bg-white/80 shadow-2xl backdrop-blur-sm border border-white/20">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Sparkles className="h-8 w-8 text-purple-500 animate-pulse" />
+                <div className="absolute inset-0 bg-purple-500/20 rounded-full animate-ping" />
+              </div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
+                AI is thinking...
+              </h3>
+            </div>
+
+            <div className="w-72 h-3 bg-gray-200/50 rounded-full overflow-hidden backdrop-blur-sm">
+              <div
+                className="w-full h-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient"
+                style={{ animationDuration: "1s" }}
+              />
+            </div>
+
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-2 h-2 rounded-full bg-white/30 animate-float"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 2}s`,
+                    animationDuration: `${3 + Math.random() * 2}s`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -411,23 +545,24 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
 type StatsSectionProps = {
   data: Record<string, number>;
   title: string;
+  Icon: React.ElementType;
 };
 
-const StatsSection = ({ data, title }: StatsSectionProps) => {
+const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
   const [showAll, setShowAll] = useState(false);
 
   return (
     <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
       <div className="flex justify-between items-center">
-        <p className="text-sm font-semibold">
-          {title}{" "}
+        <p className="text-sm font-semibold flex gap-2 items-center">
+          <Icon className="h-4 w-4" /> {title}{" "}
           <span className="text-xs text-muted-foreground">
             ({(data && Object.keys(data).length) ?? 0} unique{" "}
             {title.toLocaleLowerCase()})
           </span>
         </p>
 
-        {data && Object.keys(data).length > 20 && (
+        {data && Object.keys(data).length > 15 && (
           <Button
             variant="secondary"
             className="h-6 px-2 py-1"
@@ -450,7 +585,7 @@ const StatsSection = ({ data, title }: StatsSectionProps) => {
           {data &&
             Object.entries(data)
               .sort((a, b) => b[1] - a[1])
-              .slice(0, showAll ? undefined : 20)
+              .slice(0, showAll ? undefined : 15)
               .map(([word, count], i, array) => {
                 const isAtleastThreeQuarters = i >= array.length * 0.75;
                 const color = getTagColor(i, array.length);

@@ -7,6 +7,8 @@ export interface Interest {
   description: string;
   keywords: string[];
   created_at: string;
+  last_analysis: string | null;
+  last_analysis_at: string | null;
 }
 
 export interface CreateInterest {
@@ -57,6 +59,7 @@ export const useInterestLangs = (id: number) => {
       }
       return response.json();
     },
+    refetchInterval: 200,
   });
 };
 
@@ -70,6 +73,7 @@ export const useInterestWords = (id: number) => {
       }
       return response.json();
     },
+    refetchInterval: 200,
   });
 };
 
@@ -97,6 +101,7 @@ export const useInterestTags = (id: number) => {
       }
       return response.json();
     },
+    refetchInterval: 200,
   });
 };
 
@@ -127,6 +132,20 @@ export const useDeleteInterest = () => {
       if (!response.ok) {
         throw new Error("Failed to delete interest");
       }
+    },
+  });
+};
+
+export const useAnalyzeInterest = () => {
+  return useMutation<string, Error, number>({
+    mutationFn: async (id) => {
+      const response = await fetch(`${API_BASE_URL}/interests/${id}/analyze`, {
+        method: "POST",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to analyze interest");
+      }
+      return await response.text();
     },
   });
 };
