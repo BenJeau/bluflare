@@ -10,6 +10,7 @@ import {
   useDeleteInterest,
   useInterestTags,
   useInterestUrls,
+  useInterestWords,
 } from "@/api/interests";
 import { Badge } from "@/components/ui/badge";
 import { usePosts } from "@/api/posts";
@@ -65,6 +66,7 @@ function InterestDetail() {
   const navigate = useNavigate();
   const [showAllTags, setShowAllTags] = useState(false);
   const [showAllUrls, setShowAllUrls] = useState(false);
+  const [showAllWords, setShowAllWords] = useState(false);
   const {
     data: interest,
     isLoading,
@@ -85,6 +87,7 @@ function InterestDetail() {
   const { data: posts } = usePosts(Number(id));
   const { data: urls } = useInterestUrls(Number(id));
   const { data: tags } = useInterestTags(Number(id));
+  const { data: words } = useInterestWords(Number(id));
 
   const deleteInterest = useDeleteInterest();
 
@@ -154,7 +157,7 @@ function InterestDetail() {
               ({(urls && Object.keys(urls).length) ?? 0} unique URLs)
             </span>
           </p>
-          {urls && Object.keys(urls).length > 10 && (
+          {urls && Object.keys(urls).length > 20 && (
             <Button
               variant="secondary"
               className="h-6 px-2 py-1"
@@ -175,9 +178,10 @@ function InterestDetail() {
         <div className="flex flex-wrap gap-1">
           {urls &&
             Object.entries(urls)
-              .slice(0, showAllUrls ? undefined : 10)
+              .slice(0, showAllUrls ? undefined : 20)
               .sort((a, b) => b[1] - a[1])
-              .map(([tag, count], _, array) => {
+              .map(([tag, count], i, array) => {
+                const isAtleastMidway = i >= array.length / 2;
                 const counts = array.map(([_, c]) => c);
                 const min = Math.min(...counts);
                 const max = Math.max(...counts);
@@ -188,7 +192,12 @@ function InterestDetail() {
                     key={tag}
                     variant="outline"
                     style={{ backgroundColor: color }}
-                    className="text-white border-none"
+                    className={cn(
+                      "border-none",
+                      isAtleastMidway && showAllUrls
+                        ? "text-black"
+                        : "text-white"
+                    )}
                   >
                     {tag} <span className="text-xs font-bold">{count}</span>
                   </Badge>
@@ -205,7 +214,7 @@ function InterestDetail() {
             </span>
           </p>
 
-          {tags && Object.keys(tags).length > 10 && (
+          {tags && Object.keys(tags).length > 20 && (
             <Button
               variant="secondary"
               className="h-6 px-2 py-1"
@@ -228,8 +237,9 @@ function InterestDetail() {
             {tags &&
               Object.entries(tags)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, showAllTags ? undefined : 10)
-                .map(([tag, count], _, array) => {
+                .slice(0, showAllTags ? undefined : 20)
+                .map(([tag, count], i, array) => {
+                  const isAtleastMidway = i >= array.length / 2;
                   const counts = array.map(([_, c]) => c);
                   const min = Math.min(...counts);
                   const max = Math.max(...counts);
@@ -240,9 +250,73 @@ function InterestDetail() {
                       key={tag}
                       variant="outline"
                       style={{ backgroundColor: color }}
-                      className="text-white border-none"
+                      className={cn(
+                        "border-none",
+                        isAtleastMidway && showAllTags
+                          ? "text-black"
+                          : "text-white"
+                      )}
                     >
                       {tag} <span className="text-xs font-bold">{count}</span>
+                    </Badge>
+                  );
+                })}
+          </div>
+        </div>
+      </div>
+      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
+        <div className="flex justify-between items-center">
+          <p className="text-sm font-semibold">
+            Words{" "}
+            <span className="text-xs text-muted-foreground">
+              ({(words && Object.keys(words).length) ?? 0} unique words)
+            </span>
+          </p>
+
+          {words && Object.keys(words).length > 20 && (
+            <Button
+              variant="secondary"
+              className="h-6 px-2 py-1"
+              onClick={() => setShowAllWords(!showAllWords)}
+            >
+              {showAllWords ? (
+                <>
+                  Show Less <ChevronUp className="h-3 w-3 ml-1" />
+                </>
+              ) : (
+                <>
+                  View More <ChevronDown className="h-3 w-3 ml-1" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1 items-center justify-between">
+          <div className="flex flex-wrap gap-1">
+            {words &&
+              Object.entries(words)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, showAllWords ? undefined : 20)
+                .map(([word, count], i, array) => {
+                  const isAtleastMidway = i >= array.length / 2;
+                  const counts = array.map(([_, c]) => c);
+                  const min = Math.min(...counts);
+                  const max = Math.max(...counts);
+                  const color = getTagColor(count, min, max);
+
+                  return (
+                    <Badge
+                      key={word}
+                      variant="outline"
+                      style={{ backgroundColor: color }}
+                      className={cn(
+                        "border-none",
+                        isAtleastMidway && showAllWords
+                          ? "text-black"
+                          : "text-white"
+                      )}
+                    >
+                      {word} <span className="text-xs font-bold">{count}</span>
                     </Badge>
                   );
                 })}

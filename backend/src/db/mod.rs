@@ -20,6 +20,34 @@ impl Database {
         Ok(Self { pool })
     }
 
+    pub async fn get_interest_words(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
+        let words: Vec<String> = sqlx::query_scalar!(
+            r#"
+            SELECT text FROM posts WHERE interest_id = ?
+            "#,
+            interest_id,
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let words = words
+            .into_iter()
+            .map(|word| {
+                word.split_whitespace()
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>()
+            })
+            .flatten()
+            .collect::<Vec<String>>();
+
+        let mut words_map = HashMap::new();
+        for word in words {
+            *words_map.entry(word).or_insert(0) += 1;
+        }
+
+        Ok(words_map)
+    }
+
     pub async fn get_interest_tags(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
         let tags: Vec<Vec<u8>> = sqlx::query_scalar!(
             r#"
