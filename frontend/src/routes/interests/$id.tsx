@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
@@ -42,9 +42,9 @@ function InterestDetail() {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" asChild>
-          <a href="/interests">
+          <Link to="/interests">
             <ArrowLeft className="h-4 w-4" />
-          </a>
+          </Link>
         </Button>
         <h2 className="text-xl font-bold">{interest.keyword}</h2>
       </div>

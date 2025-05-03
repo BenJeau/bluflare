@@ -50,6 +50,20 @@ impl Database {
         Ok(interests)
     }
 
+    pub async fn get_interest(&self, id: i64) -> Result<Interest> {
+        let interest = sqlx::query_as!(
+            Interest,
+            r#"
+            SELECT * FROM interests WHERE id = ?
+            "#,
+            id,
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(interest)
+    }
+
     pub async fn delete_interest(&self, id: i64) -> Result<bool> {
         let result = sqlx::query!(
             r#"

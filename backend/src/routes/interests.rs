@@ -11,6 +11,7 @@ use axum::{
 pub fn router() -> Router<Database> {
     Router::new()
         .route("/", get(get_interests))
+        .route("/:id", get(get_interest))
         .route("/", post(create_interest))
         .route("/:id", delete(delete_interest))
 }
@@ -25,6 +26,19 @@ async fn get_interests(
         )
     })?;
     Ok(Json(interests))
+}
+
+async fn get_interest(
+    State(db): State<Database>,
+    Path(id): Path<i64>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let interest = db.get_interest(id).await.map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Database error: {}", e),
+        )
+    })?;
+    Ok(Json(interest))
 }
 
 async fn create_interest(
