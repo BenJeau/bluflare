@@ -20,6 +20,22 @@ impl Database {
         Ok(Self { pool })
     }
 
+    pub async fn update_interest_keywords(&self, id: i64, keywords: Vec<String>) -> Result<()> {
+        let keywords = serde_json::to_value(keywords.clone()).unwrap();
+
+        sqlx::query_scalar!(
+            r#"
+            UPDATE interests SET keywords = ? WHERE id = ?
+            "#,
+            keywords,
+            id,
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
     pub async fn get_interest_langs(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
         let langs: Vec<Vec<u8>> = sqlx::query_scalar!(
             r#"

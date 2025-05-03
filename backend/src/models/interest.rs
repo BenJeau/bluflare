@@ -26,3 +26,8 @@ pub struct CreateInterest {
     pub description: String,
     pub keywords: Vec<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateInterest {
+    pub keywords: Vec<String>,
+}

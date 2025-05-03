@@ -17,6 +17,23 @@ export interface CreateInterest {
 
 const API_BASE_URL = config.rest_server_base_url;
 
+export const useMutateInterestKeywords = (id: number) => {
+  return useMutation<void, Error, string[]>({
+    mutationFn: async (keywords) => {
+      const response = await fetch(`${API_BASE_URL}/interests/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ keywords }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update interest keywords");
+      }
+    },
+  });
+};
+
 export const useInterests = () => {
   return useQuery<Interest[]>({
     queryKey: ["interests"],

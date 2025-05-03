@@ -1,11 +1,11 @@
-use crate::db::Database;
 use crate::models::CreateInterest;
+use crate::{db::Database, models::interest::UpdateInterest};
 use axum::{
     Json, Router,
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::{delete, get, post},
+    routing::{delete, get, patch, post},
 };
 
 pub fn router() -> Router<Database> {
@@ -19,6 +19,23 @@ pub fn router() -> Router<Database> {
         .route("/", post(create_interest))
         .route("/:id", delete(delete_interest))
         .route("/:id/posts", get(get_posts))
+        .route("/:id", patch(update_interest))
+}
+
+async fn update_interest(
+    State(db): State<Database>,
+    Path(id): Path<i64>,
+    Json(update_interest): Json<UpdateInterest>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    db.update_interest_keywords(id, update_interest.keywords)
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Database error: {}", e),
+            )
+        })?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 async fn get_langs(
