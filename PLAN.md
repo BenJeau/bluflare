@@ -15,6 +15,10 @@ The goal is to be aware of what Bluesky people are thinking about particular sub
 
 ## Backend
 
+Path: ./backend
+
+SQL migrations are all at the ./backend/migrations folder. Use `cargo sqlx migrate add -r <DESCRIPTION>` to create a new migration and make sure to add the up migrate in the .up.sql file and the teardown migration in the .down.sql
+
 Technologies to use:
 
 - Rust (for programming language)
@@ -33,6 +37,8 @@ Technologies to use:
       - Extract all links
 
 ## Frontend
+
+Path: ./frontend
 
 Technologies to use:
 
