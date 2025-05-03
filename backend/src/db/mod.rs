@@ -21,13 +21,16 @@ impl Database {
     }
 
     pub async fn create_interest(&self, interest: CreateInterest) -> Result<i64> {
+        let keywords = serde_json::to_value(interest.keywords.clone()).unwrap();
+
         let result = sqlx::query_scalar!(
             r#"
-            INSERT INTO interests (keyword)
-            VALUES (?)
+            INSERT INTO interests (subject, keywords)
+            VALUES (?, ?)
             RETURNING id
             "#,
-            interest.keyword,
+            interest.subject,
+            keywords,
         )
         .fetch_one(&self.pool)
         .await?;
