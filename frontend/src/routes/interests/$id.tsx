@@ -13,7 +13,6 @@ import {
 } from "@/api/interests";
 import { Badge } from "@/components/ui/badge";
 import { usePosts } from "@/api/posts";
-import clsx from "clsx";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -29,7 +28,31 @@ const getTagColor = (count: number, min: number, max: number) => {
   const ratio = count / max;
   const red = Math.floor(255 * ratio);
 
-  return `#${red.toString(16).padStart(2, "0")}0000`;
+  return `#000000${red.toString(16).padStart(2, "0")}`;
+};
+
+const highlightKeywords = (text: string, keywords: string[]) => {
+  if (!keywords.length) return text;
+
+  // Escape special regex characters and create case-insensitive pattern
+  const pattern = keywords
+    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+
+  const regex = new RegExp(`(${pattern})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    if (i % 2 === 1) {
+      // This part matched a keyword
+      return (
+        <span key={i} className="bg-yellow-200">
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
 };
 
 export const Route = createFileRoute("/interests/$id")({
@@ -233,7 +256,7 @@ function InterestDetail() {
             ({posts?.length})
           </span>
         </p>
-        <div className="flex flex-wrap flex-col gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {posts?.map(
             ({ text, created_at, urls, did, cid, rkey, langs, tags, aka }) => (
               <div
@@ -241,7 +264,7 @@ function InterestDetail() {
                 className="flex flex-col border rounded-lg bg-green-50 flex-1 overflow-hidden"
               >
                 <div className="text-xs text-muted-foreground flex gap-1 bg-white border-b border-gray-200 p-2 justify-between items-center">
-                  <div className="flex gap-2">
+                  <div className="flex flex-col">
                     <a
                       href={`https://bsky.app/profile/${did}`}
                       target="_blank"
@@ -265,7 +288,7 @@ function InterestDetail() {
                           )}
                           variant="outline"
                         >
-                          {urls.length} URL found
+                          {urls.length} URLs
                         </Badge>
                       </PopoverTrigger>
                       <PopoverContent>
@@ -295,7 +318,7 @@ function InterestDetail() {
                           )}
                           variant="outline"
                         >
-                          {tags.length} tag found
+                          {tags.length} tags
                         </Badge>
                       </PopoverTrigger>
                       <PopoverContent>
@@ -316,7 +339,7 @@ function InterestDetail() {
                       rel="noopener noreferrer"
                     >
                       <p className="text-sm font-semibold hover:underline p-2">
-                        {text}
+                        {highlightKeywords(text, interest.keywords)}
                       </p>
                     </a>
                   </div>
