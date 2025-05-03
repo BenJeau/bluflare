@@ -13,6 +13,7 @@
 import { Route as rootRoute } from "./../routes/__root";
 import { Route as IndexImport } from "./../routes/index";
 import { Route as InterestsIndexImport } from "./../routes/interests/index";
+import { Route as InterestsIdImport } from "./../routes/interests/$id";
 
 // Create/Update Routes
 
@@ -28,6 +29,12 @@ const InterestsIndexRoute = InterestsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any);
 
+const InterestsIdRoute = InterestsIdImport.update({
+  id: "/interests/$id",
+  path: "/interests/$id",
+  getParentRoute: () => rootRoute,
+} as any);
+
 // Populate the FileRoutesByPath interface
 
 declare module "@tanstack/react-router" {
@@ -37,6 +44,13 @@ declare module "@tanstack/react-router" {
       path: "/";
       fullPath: "/";
       preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/interests/$id": {
+      id: "/interests/$id";
+      path: "/interests/$id";
+      fullPath: "/interests/$id";
+      preLoaderRoute: typeof InterestsIdImport;
       parentRoute: typeof rootRoute;
     };
     "/interests/": {
@@ -53,36 +67,41 @@ declare module "@tanstack/react-router" {
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/interests/$id": typeof InterestsIdRoute;
   "/interests": typeof InterestsIndexRoute;
 }
 
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/interests/$id": typeof InterestsIdRoute;
   "/interests": typeof InterestsIndexRoute;
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute;
   "/": typeof IndexRoute;
+  "/interests/$id": typeof InterestsIdRoute;
   "/interests/": typeof InterestsIndexRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/interests";
+  fullPaths: "/" | "/interests/$id" | "/interests";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/interests";
-  id: "__root__" | "/" | "/interests/";
+  to: "/" | "/interests/$id" | "/interests";
+  id: "__root__" | "/" | "/interests/$id" | "/interests/";
   fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  InterestsIdRoute: typeof InterestsIdRoute;
   InterestsIndexRoute: typeof InterestsIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InterestsIdRoute: InterestsIdRoute,
   InterestsIndexRoute: InterestsIndexRoute,
 };
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/interests/$id",
         "/interests/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/interests/$id": {
+      "filePath": "interests/$id.tsx"
     },
     "/interests/": {
       "filePath": "interests/index.tsx"

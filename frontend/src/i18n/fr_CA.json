@@ -2,6 +2,7 @@
   "interests": "Intérêts",
   "interests.add": "Ajouter un intérêt",
   "interests.add.placeholder": "Entrez un mot-clé à suivre...",
+  "interests.detail.created": "Créé le",
   "signup.disabled.toast.title": "L'inscription est désactivé",
   "signup.disabled.toast.description": "Connectez-vous si vous avez un compte",
   "auth.error.disabled": "Votre compte est désactivé",

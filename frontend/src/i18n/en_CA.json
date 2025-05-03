@@ -2,6 +2,7 @@
   "interests": "Interests",
   "interests.add": "Add Interest",
   "interests.add.placeholder": "Enter a keyword to track...",
+  "interests.detail.created": "Created at",
   "signup.disabled.toast.title": "Signup is currently disabled",
   "signup.disabled.toast.description": "Please login if you have an account",
   "auth.error.disabled": "Your account is disabled",

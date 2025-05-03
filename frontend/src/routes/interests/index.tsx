@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, FormEvent, ChangeEvent } from "react";
+import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,7 +79,13 @@ function RouteComponent() {
             key={interest.id}
             className="flex items-center justify-between rounded-lg border p-3"
           >
-            <span className="font-medium">{interest.keyword}</span>
+            <Link
+              to="/interests/$id"
+              params={{ id: interest.id.toString() }}
+              className="flex-1 font-medium hover:underline"
+            >
+              {interest.keyword}
+            </Link>
             <Button
               variant="ghost"
               size="icon"
