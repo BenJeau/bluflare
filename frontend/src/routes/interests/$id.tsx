@@ -8,6 +8,7 @@ import { useTranslation } from "@/i18n";
 import config from "@/lib/config";
 import {
   useDeleteInterest,
+  useInterestLangs,
   useInterestTags,
   useInterestUrls,
   useInterestWords,
@@ -23,11 +24,9 @@ import {
 import { useState } from "react";
 
 // Add this function before the InterestDetail component
-const getTagColor = (count: number, min: number, max: number) => {
-  if (min === max) return "bg-white";
-
-  const ratio = count / max;
-  const red = Math.floor(255 * ratio);
+const getTagColor = (count: number, max: number) => {
+  const ratio = (max - count) / max;
+  const red = Math.min(255, Math.max(0, Math.floor(255 * ratio) + 50));
 
   return `#000000${red.toString(16).padStart(2, "0")}`;
 };
@@ -88,6 +87,7 @@ function InterestDetail() {
   const { data: urls } = useInterestUrls(Number(id));
   const { data: tags } = useInterestTags(Number(id));
   const { data: words } = useInterestWords(Number(id));
+  const { data: langs } = useInterestLangs(Number(id));
 
   const deleteInterest = useDeleteInterest();
 
@@ -149,180 +149,10 @@ function InterestDetail() {
           ))}
         </div>
       </div>
-      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <div className="flex justify-between items-center">
-          <p className="text-sm font-semibold">
-            URLs{" "}
-            <span className="text-xs text-muted-foreground">
-              ({(urls && Object.keys(urls).length) ?? 0} unique URLs)
-            </span>
-          </p>
-          {urls && Object.keys(urls).length > 20 && (
-            <Button
-              variant="secondary"
-              className="h-6 px-2 py-1"
-              onClick={() => setShowAllUrls(!showAllUrls)}
-            >
-              {showAllUrls ? (
-                <>
-                  Show Less <ChevronUp className="h-3 w-3 ml-1" />
-                </>
-              ) : (
-                <>
-                  View More <ChevronDown className="h-3 w-3 ml-1" />
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {urls &&
-            Object.entries(urls)
-              .slice(0, showAllUrls ? undefined : 20)
-              .sort((a, b) => b[1] - a[1])
-              .map(([tag, count], i, array) => {
-                const isAtleastMidway = i >= array.length / 2;
-                const counts = array.map(([_, c]) => c);
-                const min = Math.min(...counts);
-                const max = Math.max(...counts);
-                const color = getTagColor(count, min, max);
-
-                return (
-                  <Badge
-                    key={tag}
-                    variant="outline"
-                    style={{ backgroundColor: color }}
-                    className={cn(
-                      "border-none",
-                      isAtleastMidway && showAllUrls
-                        ? "text-black"
-                        : "text-white"
-                    )}
-                  >
-                    {tag} <span className="text-xs font-bold">{count}</span>
-                  </Badge>
-                );
-              })}
-        </div>
-      </div>
-      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <div className="flex justify-between items-center">
-          <p className="text-sm font-semibold">
-            Tags{" "}
-            <span className="text-xs text-muted-foreground">
-              ({(tags && Object.keys(tags).length) ?? 0} unique tags)
-            </span>
-          </p>
-
-          {tags && Object.keys(tags).length > 20 && (
-            <Button
-              variant="secondary"
-              className="h-6 px-2 py-1"
-              onClick={() => setShowAllTags(!showAllTags)}
-            >
-              {showAllTags ? (
-                <>
-                  Show Less <ChevronUp className="h-3 w-3 ml-1" />
-                </>
-              ) : (
-                <>
-                  View More <ChevronDown className="h-3 w-3 ml-1" />
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-1 items-center justify-between">
-          <div className="flex flex-wrap gap-1">
-            {tags &&
-              Object.entries(tags)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, showAllTags ? undefined : 20)
-                .map(([tag, count], i, array) => {
-                  const isAtleastMidway = i >= array.length / 2;
-                  const counts = array.map(([_, c]) => c);
-                  const min = Math.min(...counts);
-                  const max = Math.max(...counts);
-                  const color = getTagColor(count, min, max);
-
-                  return (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      style={{ backgroundColor: color }}
-                      className={cn(
-                        "border-none",
-                        isAtleastMidway && showAllTags
-                          ? "text-black"
-                          : "text-white"
-                      )}
-                    >
-                      {tag} <span className="text-xs font-bold">{count}</span>
-                    </Badge>
-                  );
-                })}
-          </div>
-        </div>
-      </div>
-      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <div className="flex justify-between items-center">
-          <p className="text-sm font-semibold">
-            Words{" "}
-            <span className="text-xs text-muted-foreground">
-              ({(words && Object.keys(words).length) ?? 0} unique words)
-            </span>
-          </p>
-
-          {words && Object.keys(words).length > 20 && (
-            <Button
-              variant="secondary"
-              className="h-6 px-2 py-1"
-              onClick={() => setShowAllWords(!showAllWords)}
-            >
-              {showAllWords ? (
-                <>
-                  Show Less <ChevronUp className="h-3 w-3 ml-1" />
-                </>
-              ) : (
-                <>
-                  View More <ChevronDown className="h-3 w-3 ml-1" />
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-1 items-center justify-between">
-          <div className="flex flex-wrap gap-1">
-            {words &&
-              Object.entries(words)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, showAllWords ? undefined : 20)
-                .map(([word, count], i, array) => {
-                  const isAtleastMidway = i >= array.length / 2;
-                  const counts = array.map(([_, c]) => c);
-                  const min = Math.min(...counts);
-                  const max = Math.max(...counts);
-                  const color = getTagColor(count, min, max);
-
-                  return (
-                    <Badge
-                      key={word}
-                      variant="outline"
-                      style={{ backgroundColor: color }}
-                      className={cn(
-                        "border-none",
-                        isAtleastMidway && showAllWords
-                          ? "text-black"
-                          : "text-white"
-                      )}
-                    >
-                      {word} <span className="text-xs font-bold">{count}</span>
-                    </Badge>
-                  );
-                })}
-          </div>
-        </div>
-      </div>
+      <StatsSection data={langs} title="Languages" />
+      <StatsSection data={urls} title="URLs" />
+      <StatsSection data={tags} title="Tags" />
+      <StatsSection data={words} title="Words" />
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
         <p className="text-sm font-semibold">
           Posts{" "}
@@ -426,3 +256,72 @@ function InterestDetail() {
     </div>
   );
 }
+
+type StatsSectionProps = {
+  data: Record<string, number>;
+  title: string;
+};
+
+const StatsSection = ({ data, title }: StatsSectionProps) => {
+  const [showAll, setShowAll] = useState(false);
+
+  return (
+    <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
+      <div className="flex justify-between items-center">
+        <p className="text-sm font-semibold">
+          {title}{" "}
+          <span className="text-xs text-muted-foreground">
+            ({(data && Object.keys(data).length) ?? 0} unique{" "}
+            {title.toLocaleLowerCase()})
+          </span>
+        </p>
+
+        {data && Object.keys(data).length > 20 && (
+          <Button
+            variant="secondary"
+            className="h-6 px-2 py-1"
+            onClick={() => setShowAll(!showAll)}
+          >
+            {showAll ? (
+              <>
+                Show Less <ChevronUp className="h-3 w-3 ml-1" />
+              </>
+            ) : (
+              <>
+                View More <ChevronDown className="h-3 w-3 ml-1" />
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1 items-center justify-between">
+        <div className="flex flex-wrap gap-1">
+          {data &&
+            Object.entries(data)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, showAll ? undefined : 20)
+              .map(([word, count], i, array) => {
+                const isAtleastThreeQuarters = i >= array.length * 0.75;
+                const color = getTagColor(i, array.length);
+
+                return (
+                  <Badge
+                    key={word}
+                    variant="outline"
+                    style={{ backgroundColor: color }}
+                    className={cn(
+                      "border-none",
+                      isAtleastThreeQuarters && showAll
+                        ? "text-black"
+                        : "text-white"
+                    )}
+                  >
+                    {word} <span className="text-xs font-bold">{count}</span>
+                  </Badge>
+                );
+              })}
+        </div>
+      </div>
+    </div>
+  );
+};

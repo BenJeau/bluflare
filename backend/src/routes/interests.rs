@@ -15,9 +15,23 @@ pub fn router() -> Router<Database> {
         .route("/:id/urls", get(get_urls))
         .route("/:id/tags", get(get_tags))
         .route("/:id/words", get(get_words))
+        .route("/:id/langs", get(get_langs))
         .route("/", post(create_interest))
         .route("/:id", delete(delete_interest))
         .route("/:id/posts", get(get_posts))
+}
+
+async fn get_langs(
+    State(db): State<Database>,
+    Path(id): Path<i64>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let langs = db.get_interest_langs(id).await.map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Database error: {}", e),
+        )
+    })?;
+    Ok(Json(langs))
 }
 
 async fn get_words(

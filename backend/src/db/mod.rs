@@ -20,6 +20,30 @@ impl Database {
         Ok(Self { pool })
     }
 
+    pub async fn get_interest_langs(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
+        let langs: Vec<Vec<u8>> = sqlx::query_scalar!(
+            r#"
+            SELECT langs FROM posts WHERE interest_id = ?
+            "#,
+            interest_id,
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let langs = langs
+            .into_iter()
+            .map(|lang| serde_json::from_slice::<Vec<String>>(&lang).unwrap())
+            .flatten()
+            .collect::<Vec<String>>();
+
+        let mut langs_map = HashMap::new();
+        for lang in langs {
+            *langs_map.entry(lang).or_insert(0) += 1;
+        }
+
+        Ok(langs_map)
+    }
+
     pub async fn get_interest_words(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
         let words: Vec<String> = sqlx::query_scalar!(
             r#"

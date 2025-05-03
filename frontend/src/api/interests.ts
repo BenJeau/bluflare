@@ -30,6 +30,19 @@ export const useInterests = () => {
   });
 };
 
+export const useInterestLangs = (id: number) => {
+  return useQuery<Record<string, number>>({
+    queryKey: ["interest-langs", id],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/interests/${id}/langs`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch interest langs");
+      }
+      return response.json();
+    },
+  });
+};
+
 export const useInterestWords = (id: number) => {
   return useQuery<Record<string, number>>({
     queryKey: ["interest-words", id],
