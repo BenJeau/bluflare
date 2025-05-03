@@ -99,6 +99,7 @@ function InterestDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(true);
   const { mutateAsync: analyzeInterest, isPending: isAnalyzing } =
     useAnalyzeInterest();
   const {
@@ -191,22 +192,44 @@ function InterestDetail() {
         </div>
       </div>
       <div className="rounded-lg border p-4 bg-white">
-        <p className="text-sm font-semibold flex gap-2 items-center">
-          <Bot className="h-4 w-4" /> Analysis{" "}
-          <span className="text-xs text-muted-foreground">
-            (
-            {interest.last_analysis_at
-              ? new Date(interest.last_analysis_at).toLocaleString()
-              : "Never analyzed"}
-            )
-          </span>
-        </p>
-        <div className="prose prose-sm max-w-none dark:prose-invert mt-2">
-          <ReactMarkdown>
-            {interest.last_analysis ??
-              "No analysis results yet, start analyzing posts to get started!"}
-          </ReactMarkdown>
+        <div className="flex justify-between items-center">
+          <p className="text-sm font-semibold flex gap-2 items-center">
+            <Bot className="h-4 w-4" /> Analysis{" "}
+            <span className="text-xs text-muted-foreground">
+              (
+              {interest.last_analysis_at
+                ? new Date(interest.last_analysis_at).toLocaleString()
+                : "Never analyzed"}
+              )
+            </span>
+          </p>
+          {interest.last_analysis && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
+              className="h-6"
+            >
+              {isAnalysisExpanded ? (
+                <>
+                  Collapse <ChevronUp className="h-3 w-3 ml-1" />
+                </>
+              ) : (
+                <>
+                  Expand <ChevronDown className="h-3 w-3 ml-1" />
+                </>
+              )}
+            </Button>
+          )}
         </div>
+        {isAnalysisExpanded && (
+          <div className="prose prose-sm max-w-none dark:prose-invert mt-2">
+            <ReactMarkdown>
+              {interest.last_analysis ??
+                "No analysis results yet, start analyzing posts to get started!"}
+            </ReactMarkdown>
+          </div>
+        )}
       </div>
       <KeywordsSection interest={interest} />
       <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
