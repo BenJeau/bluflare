@@ -1,2 +1,2 @@
 pub mod interest;
-pub use interest::{CreateInterest, Interest};
+pub use interest::{CreateInterest, DbInterest, Interest};

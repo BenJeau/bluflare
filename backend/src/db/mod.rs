@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::models::{CreateInterest, Interest};
+use crate::models::{CreateInterest, DbInterest, Interest};
 use anyhow::Result;
 use sqlx::{
     migrate::MigrateError,
@@ -39,8 +39,8 @@ impl Database {
     }
 
     pub async fn get_all_interests(&self) -> Result<Vec<Interest>> {
-        let interests = sqlx::query_as!(
-            Interest,
+        let db_interests = sqlx::query_as!(
+            DbInterest,
             r#"
             SELECT *
             FROM interests
@@ -50,12 +50,22 @@ impl Database {
         .fetch_all(&self.pool)
         .await?;
 
+        let interests = db_interests
+            .into_iter()
+            .map(|db_interest| Interest {
+                id: db_interest.id,
+                subject: db_interest.subject,
+                keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
+                created_at: db_interest.created_at,
+            })
+            .collect();
+
         Ok(interests)
     }
 
     pub async fn get_interest(&self, id: i64) -> Result<Interest> {
-        let interest = sqlx::query_as!(
-            Interest,
+        let db_interest = sqlx::query_as!(
+            DbInterest,
             r#"
             SELECT * FROM interests WHERE id = ?
             "#,
@@ -63,6 +73,13 @@ impl Database {
         )
         .fetch_one(&self.pool)
         .await?;
+
+        let interest = Interest {
+            id: db_interest.id,
+            subject: db_interest.subject,
+            keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
+            created_at: db_interest.created_at,
+        };
 
         Ok(interest)
     }

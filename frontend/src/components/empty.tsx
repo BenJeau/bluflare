@@ -32,7 +32,7 @@ const Empty: React.FC<Props> = ({
         transition={{ duration: 0.5 }}
         className={cn(
           "flex flex-1 flex-col items-center justify-center gap-2 self-center justify-self-center p-4",
-          className,
+          className
         )}
       >
         {image && (
@@ -40,10 +40,12 @@ const Empty: React.FC<Props> = ({
         )}
         <div className="flex flex-col items-center text-center">
           <h2 className="text-lg font-semibold">
-            <Trans id={title} />
+            {title}
+            {/* <Trans id={title} /> */}
           </h2>
           <p className="text-sm">
-            <Trans id={description} />
+            {description}
+            {/* <Trans id={description} /> */}
           </p>
         </div>
         {extra}

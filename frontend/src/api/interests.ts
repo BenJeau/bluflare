@@ -3,12 +3,14 @@ import config from "@/lib/config";
 
 export interface Interest {
   id: number;
-  keyword: string;
+  subject: string;
+  keywords: string[];
   created_at: string;
 }
 
 export interface CreateInterest {
-  keyword: string;
+  subject: string;
+  keywords: string[];
 }
 
 const API_BASE_URL = config.rest_server_base_url;
@@ -27,7 +29,7 @@ export const useInterests = () => {
 };
 
 export const useCreateInterest = () => {
-  return useMutation<Interest, Error, CreateInterest>({
+  return useMutation<number, Error, CreateInterest>({
     mutationFn: async (interest) => {
       const response = await fetch(`${API_BASE_URL}/interests`, {
         method: "POST",
@@ -39,7 +41,7 @@ export const useCreateInterest = () => {
       if (!response.ok) {
         throw new Error("Failed to create interest");
       }
-      return response.json();
+      return Number(await response.text());
     },
   });
 };
