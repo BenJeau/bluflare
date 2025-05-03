@@ -1,14 +1,111 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bluflare</title>
-    <link href="/src/index.css" rel="stylesheet">
+    <title>Indicator Aggregator</title>
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.5;
+        }
+      }
+      #loading-content {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      #loading-container {
+        position: absolute;
+        display: flex;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+        height: 100dvh;
+        align-items: center;
+        justify-content: center;
+      }
+      .bg-grid-pattern {
+        background-image: radial-gradient(#ffffff50 1px, #ffffff00 1px);
+        background-size: 16px 16px;
+        mask-image: radial-gradient(circle, #ffffff50, #0000);
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+    <script src="/env-config.js" type="module"></script>
+    <link href="/src/index.css" rel="stylesheet" />
   </head>
-  <body>
-    <div id="root"></div>
+  <body
+    style="margin: 0; position: relative"
+    class="bg-background text-[#052e16] shadow-inner selection:bg-primary/50 selection:text-[#052e16] dark:text-[#dcfce7] dark:selection:bg-primary/50 dark:selection:text-[#dcfce7]"
+  >
+    <div class="bg-grid-pattern"></div>
+    <div
+      id="root"
+      class="flex h-screen justify-center bg-gradient-to-tr from-primary/10 to-green-600/10 font-sans antialiased dark:to-green-600/5"
+    ></div>
+    <div
+      id="loading-container"
+      class="transition-opacity duration-300 ease-out"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="72"
+        height="72"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="hsl(47.9 95.8% 53.1%)"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-flame-kindling-icon lucide-flame-kindling transition-all duration-300 ease-out"
+        id="loading-content"
+      >
+        <path
+          d="M12 2c1 3 2.5 3.5 3.5 4.5A5 5 0 0 1 17 10a5 5 0 1 1-10 0c0-.3 0-.6.1-.9a2 2 0 1 0 3.3-2C8 4.5 11 2 12 2Z"
+        />
+        <path d="m5 22 14-4" />
+        <path d="m5 18 14 4" />
+      </svg>
+    </div>
+
+    <script>
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+
+      const savedTheme = JSON.parse(localStorage.getItem("theme") || '"dark"');
+      const isDark =
+        savedTheme === "system"
+          ? systemTheme === "dark"
+          : savedTheme === "dark";
+
+      const loadingContainer = document.getElementById("loading-container");
+
+      if (isDark) {
+        loadingContainer.style.backgroundColor = "hsl(20 14.3% 4.1%)";
+        window.document.documentElement.style.backgroundColor =
+          "hsl(20 14.3% 4.1%)";
+        window.document.documentElement.classList.add("dark");
+        window.document.documentElement.style.color = "#FEF2C4";
+      } else {
+        loadingContainer.style.backgroundColor = "white";
+        window.document.documentElement.style.backgroundColor = "white";
+        window.document.documentElement.classList.add("light");
+        window.document.documentElement.style.color = "#3C310B";
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

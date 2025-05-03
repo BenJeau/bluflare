@@ -12,12 +12,19 @@
 
 import { Route as rootRoute } from "./../routes/__root";
 import { Route as IndexImport } from "./../routes/index";
+import { Route as InterestsIndexImport } from "./../routes/interests/index";
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
   id: "/",
   path: "/",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const InterestsIndexRoute = InterestsIndexImport.update({
+  id: "/interests/",
+  path: "/interests/",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -32,6 +39,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/interests/": {
+      id: "/interests/";
+      path: "/interests";
+      fullPath: "/interests";
+      preLoaderRoute: typeof InterestsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
   }
 }
 
@@ -39,32 +53,37 @@ declare module "@tanstack/react-router" {
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/interests": typeof InterestsIndexRoute;
 }
 
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/interests": typeof InterestsIndexRoute;
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute;
   "/": typeof IndexRoute;
+  "/interests/": typeof InterestsIndexRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/";
+  fullPaths: "/" | "/interests";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/";
-  id: "__root__" | "/";
+  to: "/" | "/interests";
+  id: "__root__" | "/" | "/interests/";
   fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  InterestsIndexRoute: typeof InterestsIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InterestsIndexRoute: InterestsIndexRoute,
 };
 
 export const routeTree = rootRoute
@@ -77,11 +96,15 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/interests/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/interests/": {
+      "filePath": "interests/index.tsx"
     }
   }
 }
