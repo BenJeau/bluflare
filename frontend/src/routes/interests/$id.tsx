@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useState } from "react";
+
+// Add this function before the InterestDetail component
+const getTagColor = (count: number, min: number, max: number) => {
+  if (min === max) return "bg-white";
+
+  const ratio = count / max;
+  const red = Math.floor(255 * ratio);
+
+  return `#${red.toString(16).padStart(2, "0")}0000`;
+};
 
 export const Route = createFileRoute("/interests/$id")({
   component: InterestDetail,
@@ -29,6 +40,8 @@ function InterestDetail() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [showAllTags, setShowAllTags] = useState(false);
+  const [showAllUrls, setShowAllUrls] = useState(false);
   const {
     data: interest,
     isLoading,
@@ -104,42 +117,113 @@ function InterestDetail() {
             ({interest.keywords.length})
           </span>
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1">
           {interest.keywords.map((keyword) => (
             <Badge key={keyword}>{keyword}</Badge>
           ))}
         </div>
       </div>
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <p className="text-sm font-semibold">
-          URLs{" "}
-          <span className="text-xs text-muted-foreground">
-            ({(urls && Object.keys(urls).length) ?? 0} unique URLs)
-          </span>
-        </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex justify-between items-center">
+          <p className="text-sm font-semibold">
+            URLs{" "}
+            <span className="text-xs text-muted-foreground">
+              ({(urls && Object.keys(urls).length) ?? 0} unique URLs)
+            </span>
+          </p>
+          {urls && Object.keys(urls).length > 10 && (
+            <Button
+              variant="secondary"
+              className="h-6 px-2 py-1"
+              onClick={() => setShowAllUrls(!showAllUrls)}
+            >
+              {showAllUrls ? (
+                <>
+                  Show Less <ChevronUp className="h-3 w-3 ml-1" />
+                </>
+              ) : (
+                <>
+                  View More <ChevronDown className="h-3 w-3 ml-1" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1">
           {urls &&
-            Object.entries(urls).map(([url, count]) => (
-              <Badge key={url} variant="outline">
-                {url} <span className="text-xs font-bold">{count}</span>
-              </Badge>
-            ))}
+            Object.entries(urls)
+              .slice(0, showAllUrls ? undefined : 10)
+              .sort((a, b) => b[1] - a[1])
+              .map(([tag, count], _, array) => {
+                const counts = array.map(([_, c]) => c);
+                const min = Math.min(...counts);
+                const max = Math.max(...counts);
+                const color = getTagColor(count, min, max);
+
+                return (
+                  <Badge
+                    key={tag}
+                    variant="outline"
+                    style={{ backgroundColor: color }}
+                    className="text-white border-none"
+                  >
+                    {tag} <span className="text-xs font-bold">{count}</span>
+                  </Badge>
+                );
+              })}
         </div>
       </div>
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <p className="text-sm font-semibold">
-          Tags{" "}
-          <span className="text-xs text-muted-foreground">
-            ({(tags && Object.keys(tags).length) ?? 0} unique tags)
-          </span>
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {tags &&
-            Object.entries(tags).map(([tag, count]) => (
-              <Badge key={tag} variant="outline">
-                {tag} <span className="text-xs font-bold">{count}</span>
-              </Badge>
-            ))}
+        <div className="flex justify-between items-center">
+          <p className="text-sm font-semibold">
+            Tags{" "}
+            <span className="text-xs text-muted-foreground">
+              ({(tags && Object.keys(tags).length) ?? 0} unique tags)
+            </span>
+          </p>
+
+          {tags && Object.keys(tags).length > 10 && (
+            <Button
+              variant="secondary"
+              className="h-6 px-2 py-1"
+              onClick={() => setShowAllTags(!showAllTags)}
+            >
+              {showAllTags ? (
+                <>
+                  Show Less <ChevronUp className="h-3 w-3 ml-1" />
+                </>
+              ) : (
+                <>
+                  View More <ChevronDown className="h-3 w-3 ml-1" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1 items-center justify-between">
+          <div className="flex flex-wrap gap-1">
+            {tags &&
+              Object.entries(tags)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, showAllTags ? undefined : 10)
+                .map(([tag, count], _, array) => {
+                  const counts = array.map(([_, c]) => c);
+                  const min = Math.min(...counts);
+                  const max = Math.max(...counts);
+                  const color = getTagColor(count, min, max);
+
+                  return (
+                    <Badge
+                      key={tag}
+                      variant="outline"
+                      style={{ backgroundColor: color }}
+                      className="text-white border-none"
+                    >
+                      {tag} <span className="text-xs font-bold">{count}</span>
+                    </Badge>
+                  );
+                })}
+          </div>
         </div>
       </div>
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
