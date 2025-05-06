@@ -98,8 +98,7 @@ function InterestDetail() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
-  const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(true);
+  const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
   const { mutateAsync: analyzeInterest, isPending: isAnalyzing } =
     useAnalyzeInterest();
   const {
@@ -245,17 +244,7 @@ function InterestDetail() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {posts?.map(
-            ({
-              text,
-              created_at,
-              urls,
-              did,
-              cid,
-              rkey,
-              langs,
-              tags,
-              aka,
-            }: Post) => (
+            ({ text, created_at, urls, did, rkey, tags, aka }: Post) => (
               <div
                 key={text}
                 className="flex flex-col border rounded-lg bg-green-50 flex-1 overflow-hidden"

@@ -5,12 +5,7 @@ mod models;
 mod routes;
 
 use anyhow::Result;
-use axum::{
-    Json, Router, ServiceExt,
-    extract::{Request, State},
-    routing::post,
-};
-use db::Database;
+use axum::{Json, Router, ServiceExt, extract::Request, routing::post};
 use serde::Deserialize;
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
