@@ -1,15 +1,16 @@
 use std::{collections::HashMap, str::FromStr};
 
 use crate::models::{
-    CreateInterest, CreatePost, DbInterest, DbPost, Interest, Post,
-    interest::UpdateInterestAnalysis,
+    interest::{CreateInterest, DbInterest, Interest, UpdateInterestAnalysis},
+    post::{CreatePost, DbPost, Post},
 };
-use anyhow::Result;
 use sqlx::{
-    migrate::MigrateError,
+    QueryBuilder,
     sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions},
 };
 use tracing::info;
+
+use crate::Result;
 
 #[derive(Clone)]
 pub struct Database {
@@ -219,36 +220,29 @@ impl Database {
         Ok(result.rows_affected() > 0)
     }
 
-    pub async fn create_post(&self, post: CreatePost) -> Result<i64> {
-        let langs = serde_json::to_vec(&post.langs).unwrap();
-        let urls = serde_json::to_vec(&post.urls).unwrap();
-        let tags = serde_json::to_vec(&post.tags).unwrap();
-        let aka = serde_json::to_vec(&post.aka).unwrap();
-        let num_urls = post.urls.len() as i64;
-        let num_tags = post.tags.len() as i64;
+    pub async fn bulk_create_posts(&self, posts: Vec<CreatePost>) -> Result<()> {
+        let mut query_builder = QueryBuilder::new(
+            "INSERT INTO posts (did, cid, rkey, text, langs, urls, tags, mentions, aka, interest_id) ",
+        );
 
-        let result = sqlx::query_scalar!(
-            r#"
-            INSERT INTO posts (did, cid, rkey, text, langs, urls, interest_id, num_urls, tags, num_tags, aka)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            RETURNING id
-            "#,
-            post.did,
-            post.cid,
-            post.rkey,
-            post.text,
-            langs,
-            urls,
-            post.interest_id,
-            num_urls,
-            tags,
-            num_tags,
-            aka,
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        query_builder.push_values(posts, |mut b, new_post| {
+            b.push_bind(new_post.did)
+                .push_bind(new_post.cid)
+                .push_bind(new_post.rkey)
+                .push_bind(new_post.text)
+                .push_bind(serde_json::to_vec(&new_post.langs).unwrap())
+                .push_bind(serde_json::to_vec(&new_post.urls).unwrap())
+                .push_bind(serde_json::to_vec(&new_post.tags).unwrap())
+                .push_bind(serde_json::to_vec(&new_post.mentions).unwrap())
+                .push_bind(serde_json::to_vec(&new_post.aka).unwrap())
+                .push_bind(new_post.interest_id);
+        });
 
-        Ok(result)
+        let query = query_builder.build();
+
+        query.execute(&self.pool).await?;
+
+        Ok(())
     }
 
     pub async fn get_interest_urls(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
@@ -297,11 +291,10 @@ impl Database {
                 text: db_post.text,
                 langs: serde_json::from_slice(&db_post.langs).unwrap(),
                 urls: serde_json::from_slice(&db_post.urls).unwrap(),
-                num_urls: db_post.num_urls,
                 tags: serde_json::from_slice(&db_post.tags).unwrap(),
-                num_tags: db_post.num_tags,
-                interest_id: db_post.interest_id,
+                mentions: serde_json::from_slice(&db_post.mentions).unwrap(),
                 aka: serde_json::from_slice(&db_post.aka).unwrap(),
+                interest_id: db_post.interest_id,
             })
             .collect();
 
@@ -313,20 +306,24 @@ async fn connect_to_db(
     url: &str,
     max_connections: u32,
     min_connections: u32,
-) -> Result<SqlitePool, sqlx::Error> {
+) -> Result<SqlitePool> {
     assert!(max_connections >= min_connections);
 
     info!(url, "Connecting to database");
     let options = SqliteConnectOptions::from_str(url)?;
 
-    SqlitePoolOptions::new()
+    let pool = SqlitePoolOptions::new()
         .max_connections(max_connections)
         .min_connections(min_connections)
         .connect_with(options)
-        .await
+        .await?;
+
+    Ok(pool)
 }
 
-async fn run_migrations(pool: &SqlitePool) -> Result<(), MigrateError> {
+async fn run_migrations(pool: &SqlitePool) -> Result<()> {
     info!("Running migrations");
-    sqlx::migrate!("./migrations").run(pool).await
+    sqlx::migrate!("./migrations").run(pool).await?;
+
+    Ok(())
 }

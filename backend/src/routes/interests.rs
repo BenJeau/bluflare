@@ -1,204 +1,115 @@
-use crate::gemini::analyze_posts;
-use crate::models::CreateInterest;
-use crate::models::interest::UpdateInterestAnalysis;
-use crate::{db::Database, models::interest::UpdateInterest};
 use axum::{
     Json, Router,
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::{delete, get, patch, post},
+    routing::{get, post},
 };
 use chrono::Utc;
 
-pub fn router() -> Router<Database> {
+use crate::{
+    Error, Result,
+    db::Database,
+    gemini::GeminiClient,
+    models::interest::{CreateInterest, UpdateInterest, UpdateInterestAnalysis},
+    state::AppState,
+};
+
+pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/", get(get_interests))
-        .route("/:id", get(get_interest))
-        .route("/:id/urls", get(get_urls))
-        .route("/:id/tags", get(get_tags))
-        .route("/:id/words", get(get_words))
-        .route("/:id/langs", get(get_langs))
-        .route("/:id/analyze", post(analyze_interest))
-        .route("/", post(create_interest))
-        .route("/:id", delete(delete_interest))
-        .route("/:id/posts", get(get_posts))
-        .route("/:id", patch(update_interest))
+        .route("/", get(get_interests).post(create_interest))
+        .route(
+            "/{id}",
+            get(get_interest)
+                .delete(delete_interest)
+                .patch(update_interest),
+        )
+        .route("/{id}/urls", get(get_urls))
+        .route("/{id}/tags", get(get_tags))
+        .route("/{id}/words", get(get_words))
+        .route("/{id}/langs", get(get_langs))
+        .route("/{id}/analyze", post(analyze_interest))
+        .route("/{id}/posts", get(get_posts))
 }
 
 async fn analyze_interest(
     State(db): State<Database>,
+    State(gemini): State<GeminiClient>,
     Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
+) -> Result<impl IntoResponse> {
     let posts = db
         .get_all_posts(id)
-        .await
-        .map_err(|e| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Database error: {}", e),
-            )
-        })?
+        .await?
         .into_iter()
         .map(|p| p.text)
         .collect::<Vec<String>>();
-    let summary = analyze_posts(&posts).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Error analyzing interest: {}", e),
-        )
-    })?;
+    let Some(summary) = gemini.analyze_posts(&posts).await? else {
+        return Err(Error::NotFound);
+    };
 
-    db.update_interest_analysis(
-        id,
-        UpdateInterestAnalysis {
-            last_analysis: summary.clone(),
-            last_analysis_at: Utc::now().naive_utc(),
-        },
-    )
-    .await
-    .map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(summary))
+    let analysis = UpdateInterestAnalysis {
+        last_analysis: summary.clone(),
+        last_analysis_at: Utc::now().naive_utc(),
+    };
+
+    db.update_interest_analysis(id, analysis).await.map(Json)
 }
 
 async fn update_interest(
     State(db): State<Database>,
     Path(id): Path<i64>,
     Json(update_interest): Json<UpdateInterest>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
+) -> Result<impl IntoResponse> {
     db.update_interest_keywords(id, update_interest.keywords)
-        .await
-        .map_err(|e| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Database error: {}", e),
-            )
-        })?;
+        .await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
-async fn get_langs(
-    State(db): State<Database>,
-    Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let langs = db.get_interest_langs(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(langs))
+async fn get_langs(State(db): State<Database>, Path(id): Path<i64>) -> Result<impl IntoResponse> {
+    db.get_interest_langs(id).await.map(Json)
 }
 
-async fn get_words(
-    State(db): State<Database>,
-    Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let words = db.get_interest_words(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(words))
+async fn get_words(State(db): State<Database>, Path(id): Path<i64>) -> Result<impl IntoResponse> {
+    db.get_interest_words(id).await.map(Json)
 }
 
-async fn get_urls(
-    State(db): State<Database>,
-    Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let urls = db.get_interest_urls(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(urls))
+async fn get_urls(State(db): State<Database>, Path(id): Path<i64>) -> Result<impl IntoResponse> {
+    db.get_interest_urls(id).await.map(Json)
 }
 
-async fn get_tags(
-    State(db): State<Database>,
-    Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let tags = db.get_interest_tags(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(tags))
+async fn get_tags(State(db): State<Database>, Path(id): Path<i64>) -> Result<impl IntoResponse> {
+    db.get_interest_tags(id).await.map(Json)
 }
 
-async fn get_posts(
-    State(db): State<Database>,
-    Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let posts = db.get_all_posts(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(posts))
+async fn get_posts(State(db): State<Database>, Path(id): Path<i64>) -> Result<impl IntoResponse> {
+    db.get_all_posts(id).await.map(Json)
 }
 
-async fn get_interests(
-    State(db): State<Database>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let interests = db.get_all_interests().await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(interests))
+async fn get_interests(State(db): State<Database>) -> Result<impl IntoResponse> {
+    db.get_all_interests().await.map(Json)
 }
 
 async fn get_interest(
     State(db): State<Database>,
     Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let interest = db.get_interest(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(interest))
+) -> Result<impl IntoResponse> {
+    db.get_interest(id).await.map(Json)
 }
 
 async fn create_interest(
     State(db): State<Database>,
     Json(interest): Json<CreateInterest>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let interest = db.create_interest(interest).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-    Ok(Json(interest))
+) -> Result<impl IntoResponse> {
+    db.create_interest(interest).await.map(Json)
 }
 
 async fn delete_interest(
     State(db): State<Database>,
     Path(id): Path<i64>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let deleted = db.delete_interest(id).await.map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Database error: {}", e),
-        )
-    })?;
-
-    if deleted {
+) -> Result<impl IntoResponse> {
+    if db.delete_interest(id).await? {
         Ok(StatusCode::NO_CONTENT)
     } else {
-        Err((StatusCode::NOT_FOUND, "Interest not found".to_string()))
+        Err(Error::NotFound)
     }
 }

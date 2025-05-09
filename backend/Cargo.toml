@@ -4,17 +4,27 @@ name = "backend"
 version = "0.1.0"
 
 [dependencies]
-anyhow = "1.0"
-axum = { version = "0.7", features = ["macros"] }
+async-stream = "0.3.6"
+axum = "0.8.4"
 chrono = { version = "0.4.41", features = ["serde"] }
-hyper = { version = "1.0", features = ["full"] }
-linkify = "0.10.0"
-reqwest = { version = "0.12", features = ["json"] }
+figment = { version = "0.10.19", features = ["env", "toml"] }
+futures-util = "0.3.31"
+http = "1.1.0"
+reqwest = { version = "0.12.15", features = ["json"] }
 reqwest-websocket = "0.4.4"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "migrate", "chrono"] }
-tokio = { version = "1.36", features = ["full"] }
-tokio-stream = "0.1.17"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+sentry = { version = "0.35.0", features = ["backtrace", "contexts", "debug-images", "panic", "reqwest", "rustls"], default-features = false }
+sentry-tower = { version = "0.35.0", features = ["http"] }
+sentry-tracing = "0.35.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+sqlx = { version = "0.8.5", features = ["runtime-tokio", "sqlite", "migrate", "chrono"] }
+tokio = { version = "1.45.0", features = ["rt", "rt-multi-thread", "macros", "parking_lot"] }
+tower = "0.5.1"
+tower-http = { version = "0.6.2", features = ["compression-gzip", "cors", "fs", "normalize-path", "propagate-header", "set-header", "timeout", "trace"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+zstd = "0.13.3"
+
+[profile.release]
+lto = true
+strip = true

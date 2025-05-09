@@ -1,0 +1,26 @@
+[server.http]
+enabled = true
+host = "0.0.0.0"
+port = 3000
+
+[jetstream]
+base_url = "wss://jetstream2.us-east.bsky.network/subscribe"
+compress = true
+enabled = true
+reconnect_interval = 1
+wanted_collections = ["app.bsky.feed.post"]
+
+[jetstream.did_resolver]
+base_url = "https://plc.directory/"
+enabled = true
+timeout_seconds = 60
+user_agent = "Blueflare PLC Directory Client"
+
+[gemini]
+base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent"
+enabled = true
+timeout_seconds = 60
+user_agent = "Blueflare Gemini Client"
+
+[database]
+url = "sqlite:bluflare.db"

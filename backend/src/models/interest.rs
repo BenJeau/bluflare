@@ -13,7 +13,7 @@ pub struct DbInterest {
     pub last_analysis_at: Option<NaiveDateTime>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Interest {
     pub id: i64,
     pub subject: String,
