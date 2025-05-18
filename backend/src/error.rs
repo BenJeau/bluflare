@@ -2,6 +2,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use tracing::error;
 
 #[derive(Debug)]
 pub enum Error {
@@ -14,7 +15,7 @@ pub enum Error {
     Io(std::io::Error),
     InvalidHeaderValue(reqwest::header::InvalidHeaderValue),
     RequestWebSocket(reqwest_websocket::Error),
-    NotFound,
+    NotFound(String),
     GeminiDisabled,
 }
 
@@ -82,8 +83,10 @@ impl From<reqwest_websocket::Error> for Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
+        error!("Error: {}", self);
+
         match self {
-            Self::NotFound => (StatusCode::NOT_FOUND, "Not found").into_response(),
+            Self::NotFound(message) => (StatusCode::NOT_FOUND, message).into_response(),
             Self::GeminiDisabled => {
                 (StatusCode::SERVICE_UNAVAILABLE, "Gemini is disabled").into_response()
             }

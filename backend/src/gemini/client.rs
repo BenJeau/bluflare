@@ -14,8 +14,8 @@ pub struct GenericGeminiClient {
 
 impl GenericGeminiClient {
     pub fn new(config: &config::Gemini) -> Result<Self> {
-        let api_key = std::env::var("BLUFLARE__GEMINI___API_KEY").unwrap_or_else(|_| {
-            warn!("BLUFLARE__GEMINI___API_KEY is not set, gemini will not be used");
+        let api_key = std::env::var("BLUFLARE__GEMINI__API_KEY").unwrap_or_else(|_| {
+            warn!("BLUFLARE__GEMINI__API_KEY is not set, gemini will not be used");
             "".to_string()
         });
 

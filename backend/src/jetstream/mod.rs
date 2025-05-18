@@ -1,39 +1,44 @@
 use futures_util::{StreamExt, pin_mut};
-use processor::Processor;
 use std::time::Duration;
 use stream::JetstreamClient;
 use tokio::time::sleep;
 use tracing::{debug, error, info, warn};
 
-use crate::{config, db::Database};
+use crate::{db, state::AppState};
 
 mod did;
-mod message;
+pub mod message;
 mod processor;
 mod stream;
 
-pub fn start_processor(config: config::Jetstream, db: Database) {
-    if !config.enabled {
+pub fn start_processor(state: AppState) {
+    if !state.config.jetstream.enabled {
         info!("Jetstream is disabled, won't listen for posts");
         return;
     }
 
     tokio::spawn(async move {
-        let processor = processor::Processor::new(config.clone(), db.clone()).unwrap();
-        start_inner(config, processor, db).await;
+        start_inner(state).await;
     });
 }
 
-async fn start_inner(config: config::Jetstream, processor: Processor, db: Database) {
+async fn start_inner(state: AppState) {
+    let processor =
+        processor::Processor::new(state.config.jetstream.clone(), state.pool.clone()).unwrap();
+
     loop {
-        let mut jetstream_client = match JetstreamClient::new(config.clone()).await {
+        let mut jetstream_client = match JetstreamClient::new(state.config.jetstream.clone()).await
+        {
             Ok(client) => client,
             Err(error) => {
                 error!(
                     "Error creating jetstream processor, will retry in {}s: {error}",
-                    config.reconnect_interval
+                    state.config.jetstream.reconnect_interval
                 );
-                sleep(Duration::from_secs(config.reconnect_interval)).await;
+                sleep(Duration::from_secs(
+                    state.config.jetstream.reconnect_interval,
+                ))
+                .await;
                 continue;
             }
         };
@@ -44,8 +49,9 @@ async fn start_inner(config: config::Jetstream, processor: Processor, db: Databa
         info!("Starting jetstream processor");
 
         let mut interval = tokio::time::interval(Duration::from_secs(1));
-        let mut interests = db.get_all_interests().await.unwrap();
+        let mut interests = db::get_all_interests(&state.pool).await.unwrap();
         let mut counter = 0;
+
         loop {
             counter += 1;
 
@@ -53,7 +59,7 @@ async fn start_inner(config: config::Jetstream, processor: Processor, db: Databa
                 message = stream.next() => {
                     match message {
                         Some(Ok(message)) => {
-                            if let Err(err) = processor.process_message(message, interests.clone()) {
+                            if let Err(err) = processor.process_message(message, interests.clone(), state.clone()) {
                                 error!("Error processing message: {err}");
                             }
                         }
@@ -69,7 +75,7 @@ async fn start_inner(config: config::Jetstream, processor: Processor, db: Databa
                 }
                 _ = interval.tick() => {
                     debug!("retrieving interests");
-                    interests = db.get_all_interests().await.unwrap();
+                    interests = db::get_all_interests(&state.pool).await.unwrap();
                 }
             }
 

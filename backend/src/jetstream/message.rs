@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::collections::BTreeSet;
 use tracing::error;
 
 use crate::models::interest::Interest;
@@ -52,7 +53,7 @@ enum Feature {
     Mention { did: String },
 }
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct JetstreamMessage {
     pub langs: Vec<String>,
     pub text: String,
@@ -112,7 +113,7 @@ impl JetstreamMessage {
         })
     }
 
-    pub fn matches_any_interest(&self, interests: &[Interest]) -> Vec<i64> {
+    pub fn matches_any_interest(&self, interests: &[Interest]) -> BTreeSet<i64> {
         interests
             .iter()
             .filter(|i| self.matches_interest(i))

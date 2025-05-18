@@ -10,7 +10,8 @@ chrono = { version = "0.4.41", features = ["serde"] }
 figment = { version = "0.10.19", features = ["env", "toml"] }
 futures-util = "0.3.31"
 http = "1.1.0"
-reqwest = { version = "0.12.15", features = ["json"] }
+regex = "1.11.1"
+reqwest = { version = "0.12.15", features = ["json", "rustls-tls", "charset"], default-features = false }
 reqwest-websocket = "0.4.4"
 sentry = { version = "0.35.0", features = ["backtrace", "contexts", "debug-images", "panic", "reqwest", "rustls"], default-features = false }
 sentry-tower = { version = "0.35.0", features = ["http"] }

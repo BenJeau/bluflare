@@ -1,14 +1,24 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+
 import config from "@/lib/config";
+import { useSSE } from "@/api/sse";
+import { Post } from "@/api/posts";
 
 export interface Interest {
   id: number;
+  enabled: boolean;
+  slug: string;
   subject: string;
   description: string;
   keywords: string[];
   created_at: string;
   last_analysis: string | null;
   last_analysis_at: string | null;
+  post_count?: number;
 }
 
 export interface CreateInterest {
@@ -17,93 +27,65 @@ export interface CreateInterest {
   keywords: string[];
 }
 
+export interface UpdateInterest {
+  keywords?: string[];
+  enabled?: boolean;
+}
+
 const API_BASE_URL = config.rest_server_base_url;
 
-export const useMutateInterestKeywords = (id: number) => {
-  return useMutation<void, Error, string[]>({
-    mutationFn: async (keywords) => {
+export const useMutateInterest = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, UpdateInterest>({
+    mutationFn: async (update) => {
       const response = await fetch(`${API_BASE_URL}/interests/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ keywords }),
+        body: JSON.stringify(update),
       });
       if (!response.ok) {
         throw new Error("Failed to update interest keywords");
       }
     },
-  });
-};
-
-export const useInterests = () => {
-  return useQuery<Interest[]>({
-    queryKey: ["interests"],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/interests`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch interests");
-      }
-      return response.json();
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["interests"] });
     },
   });
 };
 
-export const useInterestLangs = (id: number) => {
-  return useQuery<Record<string, number>>({
-    queryKey: ["interest-langs", id],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}/langs`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch interest langs");
-      }
-      return response.json();
-    },
-    refetchInterval: 200,
-  });
-};
+export const interestsOptions = queryOptions<Interest[]>({
+  queryKey: ["interests"],
+  queryFn: async ({ signal }) => {
+    const response = await fetch(`${API_BASE_URL}/interests`, { signal });
+    return response.json();
+  },
+});
 
-export const useInterestWords = (id: number) => {
-  return useQuery<Record<string, number>>({
-    queryKey: ["interest-words", id],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}/words`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch interest words");
-      }
+export function interestSlugQueryOptions(slug: string) {
+  return queryOptions({
+    queryKey: ["interests", "slugs", slug],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`${API_BASE_URL}/interests/slugs/${slug}`, {
+        signal,
+      });
       return response.json();
     },
-    refetchInterval: 200,
   });
-};
+}
 
-export const useInterestUrls = (id: number) => {
-  return useQuery<Record<string, number>>({
-    queryKey: ["interest-urls", id],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}/urls`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch interest urls");
-      }
+export const interestOptions = (id: string) =>
+  queryOptions<Interest>({
+    queryKey: ["interests", id],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`${API_BASE_URL}/interests/${id}`, {
+        signal,
+      });
       return response.json();
     },
-    refetchInterval: 200,
   });
-};
-
-export const useInterestTags = (id: number) => {
-  return useQuery<Record<string, number>>({
-    queryKey: ["interest-tags", id],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}/tags`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch interest tags");
-      }
-      return response.json();
-    },
-    refetchInterval: 200,
-  });
-};
 
 export const useCreateInterest = () => {
   return useMutation<number, Error, CreateInterest>({
@@ -148,4 +130,8 @@ export const useAnalyzeInterest = () => {
       return await response.text();
     },
   });
+};
+
+export const useSSEInterestPosts = (id: string, active: boolean) => {
+  return useSSE<Post>(`${API_BASE_URL}/interests/${id}/posts/sse`, active);
 };

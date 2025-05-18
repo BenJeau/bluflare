@@ -1,7 +1,11 @@
+use futures_util::future::join_all;
 use reqwest::Client;
 use serde::Deserialize;
-use std::time::Duration;
-use tracing::info;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    time::Duration,
+};
+use tracing::{error, info};
 
 use crate::{Result, config};
 
@@ -34,7 +38,23 @@ impl DidClient {
         })
     }
 
-    pub async fn resolve_did(&self, did: String) -> Result<Vec<String>> {
+    pub async fn resolve_dids(&self, dids: BTreeSet<String>) -> BTreeMap<String, Vec<String>> {
+        let results = join_all(dids.iter().map(|did| self.resolve_did(did.clone()))).await;
+
+        results
+            .into_iter()
+            .zip(dids)
+            .filter_map(|(aka, did)| match aka {
+                Ok(aka) => Some((did, aka)),
+                Err(e) => {
+                    error!("Error resolving DID {did}, defaulting to empty list: {e:?}");
+                    Some((did, vec![]))
+                }
+            })
+            .collect()
+    }
+
+    async fn resolve_did(&self, did: String) -> Result<Vec<String>> {
         if self.base_url.is_empty() {
             return Ok(vec![]);
         }

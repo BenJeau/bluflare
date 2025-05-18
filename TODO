@@ -1,0 +1,29 @@
+general
+
+- [ ] maybe rename "interests" to "topics"
+
+backend
+
+- [ ] create user API endpoints
+- [ ] create post API endpoints
+- [ ] normalize shape of post from SSE and API
+- [ ] maybe auto-generate OpenAPI specs
+- [ ] deny unwraps within lints
+
+frontend
+
+- [ ] make homepage better, maybe show a carousel of posts being ingested in real time
+- [ ] create user pages
+- [ ] create post pages
+- [ ] cleanup tanstack query invalidation
+- [ ] maybe port over custom fetch with better tanstack query integration
+- [ ] maybe add more animations with framer motion
+- [ ] fix queryClient type in router
+- [ ] fix dark mode
+- [ ] create smaller components
+- [ ] add toggle to enable/disable interested
+
+deployment
+
+- [ ] make sure Dockerfile works
+- [ ] create ansible/teraform scripts

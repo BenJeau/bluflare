@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Trash2,
@@ -10,129 +10,89 @@ import {
   X,
   Sparkles,
   Newspaper,
-  WholeWord,
   Tag,
   LinkIcon,
   Languages,
   Bot,
   Hash,
+  Play,
+  Pause,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useState, ChangeEvent, useMemo } from "react";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
-import config from "@/lib/config";
 import {
   Interest,
   useDeleteInterest,
-  useInterestLangs,
-  useInterestTags,
-  useInterestUrls,
-  useInterestWords,
-  useMutateInterestKeywords,
+  useSSEInterestPosts,
+  useMutateInterest,
   useAnalyzeInterest,
+  interestOptions,
+  interestSlugQueryOptions,
 } from "@/api/interests";
 import { Badge } from "@/components/ui/badge";
-import { usePosts } from "@/api/posts";
-import { cn } from "@/lib/utils";
+import { cn, getTagColor, highlightKeywords } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { queryClient } from "@/api/query-client";
 import { useMutationSuggestKeywords } from "@/api/suggest";
+import { postsOptions, Post } from "@/api/posts";
+import { NotFound } from "@/components";
 
-// Add this function before the InterestDetail component
-const getTagColor = (count: number, max: number) => {
-  const ratio = (max - count) / max;
-  const red = Math.min(255, Math.max(0, Math.floor(255 * ratio) + 50));
-
-  return `#000000${red.toString(16).padStart(2, "0")}`;
+const NotFoundInterest: React.FC = () => {
+  const { slug } = Route.useParams();
+  return <NotFound title="interest.not.found" data={slug} />;
 };
 
-const highlightKeywords = (text: string, keywords: string[]) => {
-  if (!keywords.length) return text;
+export const Route = createFileRoute("/interests/$slug")({
+  loader: async ({ params: { slug }, context: { queryClient } }) => {
+    const id = await queryClient.ensureQueryData(
+      interestSlugQueryOptions(slug)
+    );
 
-  // Escape special regex characters and create case-insensitive pattern
-  const pattern = keywords
-    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("|");
-
-  const regex = new RegExp(`(${pattern})`, "gi");
-  const parts = text.split(regex);
-
-  return parts.map((part, i) => {
-    if (i % 2 === 1) {
-      // This part matched a keyword
-      return (
-        <span key={i} className="bg-yellow-200">
-          {part}
-        </span>
-      );
+    if (!id) {
+      return;
     }
-    return part;
-  });
-};
 
-export const Route = createFileRoute("/interests/$id")({
+    return Promise.all([
+      queryClient.ensureQueryData(interestOptions(id)),
+      queryClient.ensureQueryData(postsOptions(id)),
+    ]);
+  },
+  notFoundComponent: NotFoundInterest,
   component: InterestDetail,
 });
 
-interface Post {
-  text: string;
-  created_at: string;
-  urls: string[];
-  did: string;
-  cid: string;
-  rkey: string;
-  langs: string[];
-  tags: string[];
-  aka: string[];
-}
-
 function InterestDetail() {
-  const { id } = Route.useParams();
+  const { slug } = Route.useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
+  const [numberOfPostsToShow, setNumberOfPostsToShow] = useState(30);
+  const [isSSEActive, setIsSSEActive] = useState(true);
   const { mutateAsync: analyzeInterest, isPending: isAnalyzing } =
     useAnalyzeInterest();
-  const {
-    data: interest,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["interests", id],
-    queryFn: async () => {
-      const response = await fetch(
-        `${config.rest_server_base_url}/interests/${id}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch interest");
-      }
-      return response.json();
-    },
-  });
 
-  const { data: posts } = usePosts(Number(id));
-  const { data: urls } = useInterestUrls(Number(id));
-  const { data: tags } = useInterestTags(Number(id));
-  const { data: words } = useInterestWords(Number(id));
-  const { data: langs } = useInterestLangs(Number(id));
+  const { data: id } = useSuspenseQuery(interestSlugQueryOptions(slug));
+  const { data: interest } = useSuspenseQuery(interestOptions(id));
+  const { data: posts } = useSuspenseQuery(postsOptions(id));
+  const { data: ssePosts } = useSSEInterestPosts(id, isSSEActive);
 
   const deleteInterest = useDeleteInterest();
-
-  if (isLoading) {
-    return <div className="p-4">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="p-4 text-red-500">Error: {error.message}</div>;
-  }
 
   const handleDeleteInterest = async (id: number) => {
     await deleteInterest.mutateAsync(id);
@@ -148,6 +108,41 @@ function InterestDetail() {
       toast.error("Failed to analyze interest");
     }
   };
+
+  const combinedPosts: Post[] = useMemo(() => {
+    const uniquePosts = new Map();
+    [...ssePosts, ...posts].forEach((post) =>
+      uniquePosts.set(post.post.id, post)
+    );
+    return Array.from(uniquePosts.values());
+  }, [posts, ssePosts]);
+
+  const urls: Record<string, number> = useMemo(() => {
+    return combinedPosts.reduce((acc, post) => {
+      post.urls.forEach((url) => {
+        acc[url] = (acc[url] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+  }, [combinedPosts]);
+
+  const tags: Record<string, number> = useMemo(() => {
+    return combinedPosts.reduce((acc, post) => {
+      post.tags.forEach((tag) => {
+        acc[tag] = (acc[tag] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+  }, [combinedPosts]);
+
+  const langs: Record<string, number> = useMemo(() => {
+    return combinedPosts.reduce((acc, post) => {
+      post.langs.forEach((lang) => {
+        acc[lang] = (acc[lang] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+  }, [combinedPosts]);
 
   return (
     <div className="flex flex-col gap-2 p-4">
@@ -234,105 +229,147 @@ function InterestDetail() {
       <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
       <StatsSection data={urls || {}} title="URLs" Icon={LinkIcon} />
       <StatsSection data={tags || {}} title="Tags" Icon={Hash} />
-      <StatsSection data={words || {}} title="Words" Icon={WholeWord} />
       <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-        <p className="text-sm font-semibold flex gap-2 items-center">
-          <Newspaper className="h-4 w-4" /> Posts{" "}
-          <span className="text-xs text-muted-foreground">
-            ({posts?.length})
-          </span>
-        </p>
+        <div className="flex justify-between gap-2">
+          <p className="text-sm font-semibold flex gap-2 items-center">
+            <Newspaper className="h-4 w-4" /> Posts{" "}
+            <span className="text-xs text-muted-foreground">
+              ({combinedPosts.length})
+            </span>
+          </p>
+          <div className="flex gap-2 items-center">
+            <p className="text-sm font-semibold">Latest posts to show</p>
+            <Select
+              value={numberOfPostsToShow.toString()}
+              onValueChange={(value) => setNumberOfPostsToShow(Number(value))}
+            >
+              <SelectTrigger className="w-[100px]" size="sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="30">30</SelectItem>
+                <SelectItem value="90">90</SelectItem>
+                <SelectItem value="150">150</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant={isSSEActive ? "destructive" : "default"}
+              size="sm"
+              onClick={() => setIsSSEActive((prev) => !prev)}
+            >
+              {isSSEActive ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {posts?.map(
-            ({ text, created_at, urls, did, rkey, tags, aka }: Post) => (
-              <div
-                key={text}
-                className="flex flex-col border rounded-lg bg-green-50 flex-1 overflow-hidden"
+          {combinedPosts.slice(0, numberOfPostsToShow).map((post) => (
+            <PostCard post={post} keywords={interest.keywords} key={post.id} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PostCard({
+  post,
+  keywords,
+  style,
+}: {
+  post: Post;
+  keywords: string[];
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div
+      className="flex flex-col border rounded-lg bg-green-50 flex-1 overflow-hidden"
+      style={style}
+    >
+      <div className="text-xs text-muted-foreground flex gap-1 bg-white border-b border-gray-200 p-2 justify-between items-center">
+        <div className="flex flex-col">
+          {/* <a
+            href={`https://bsky.app/profile/${post.aka[0].split("//")[1]}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p className="text-xs text-primary font-bold hover:underline">
+              {post.aka[0].split("//")[1]}
+            </p>
+          </a> */}
+          {post.created_at}
+        </div>
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger disabled={post.urls.length === 0}>
+              <Badge
+                className={cn(
+                  "text-xs",
+                  post.urls.length > 0
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-black"
+                )}
+                variant="outline"
               >
-                <div className="text-xs text-muted-foreground flex gap-1 bg-white border-b border-gray-200 p-2 justify-between items-center">
-                  <div className="flex flex-col">
-                    <a
-                      href={`https://bsky.app/profile/${did}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <p className="text-xs text-primary font-bold hover:underline">
-                        @{aka[0]}
-                      </p>
-                    </a>
-                    {created_at}
-                  </div>
-                  <div className="flex gap-2">
-                    <Popover>
-                      <PopoverTrigger disabled={urls.length === 0}>
-                        <Badge
-                          className={cn(
-                            "text-xs",
-                            urls.length > 0
-                              ? "bg-green-600 text-white"
-                              : "bg-white text-black"
-                          )}
-                          variant="outline"
-                        >
-                          {urls.length} URLs
-                        </Badge>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <div className="flex flex-col gap-2">
-                          {urls.map((url) => (
-                            <a
-                              key={url}
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-primary font-bold hover:underline"
-                            >
-                              {url}
-                            </a>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <Popover>
-                      <PopoverTrigger disabled={tags.length === 0}>
-                        <Badge
-                          className={cn(
-                            "text-xs",
-                            tags.length > 0
-                              ? "bg-green-600 text-white"
-                              : "bg-white text-black"
-                          )}
-                          variant="outline"
-                        >
-                          {tags.length} tags
-                        </Badge>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <div className="flex flex-col gap-2">
-                          {tags.map((tag) => (
-                            <Badge key={tag}>{tag}</Badge>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-                <div className="flex gap-2 justify-between items-stretch">
-                  <div>
-                    <a
-                      href={`https://bsky.app/profile/${did}/post/${rkey}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <p className="text-sm font-semibold hover:underline p-2">
-                        {highlightKeywords(text, interest.keywords)}
-                      </p>
-                    </a>
-                  </div>
-                </div>
+                {post.urls.length}{" "}
+                <LinkIcon className="h-3 w-3" strokeWidth={2.5} />
+              </Badge>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex flex-col gap-2">
+                {post.urls.map((url) => (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary font-bold hover:underline"
+                  >
+                    {url}
+                  </a>
+                ))}
               </div>
-            )
-          )}
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger disabled={post.tags.length === 0}>
+              <Badge
+                className={cn(
+                  "text-xs",
+                  post.tags.length > 0
+                    ? "bg-green-600 text-white border-green-600"
+                    : "bg-gray-100 text-black border-gray-100"
+                )}
+                variant="outline"
+              >
+                {post.tags.length}{" "}
+                <Hash className="h-3 w-3" strokeWidth={2.5} />
+              </Badge>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex flex-col gap-2">
+                {post.tags.map((tag) => (
+                  <Badge key={tag}>{tag}</Badge>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+      <div className="flex gap-2 justify-between items-stretch">
+        <div>
+          {/* <a
+            href={`https://bsky.app/profile/${did}/post/${rkey}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          > */}
+          <p className="text-sm font-semibold hover:underline p-2">
+            {highlightKeywords(post.text, keywords)}
+          </p>
+          {/* </a> */}
         </div>
       </div>
     </div>
@@ -343,9 +380,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
   const [isEditingKeywords, setIsEditingKeywords] = useState(false);
   const [currentKeyword, setCurrentKeyword] = useState("");
   const [editedKeywords, setEditedKeywords] = useState<string[]>([]);
-  const { mutateAsync: updateInterestKeywords } = useMutateInterestKeywords(
-    Number(interest.id)
-  );
+  const { mutateAsync: updateInterest } = useMutateInterest(interest.id);
   const { mutateAsync: suggestKeywords, isPending: isSuggesting } =
     useMutationSuggestKeywords();
 
@@ -362,7 +397,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
 
   const handleSaveKeywords = async () => {
     try {
-      await updateInterestKeywords(editedKeywords);
+      await updateInterest({ keywords: editedKeywords });
       toast.success("Keywords updated successfully");
       setIsEditingKeywords(false);
       queryClient.invalidateQueries({ queryKey: ["interests", interest.id] });

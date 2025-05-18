@@ -1,3 +1,4 @@
+import { scan } from "react-scan";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -8,6 +9,10 @@ const root = document.getElementById("root")!;
 if (!root) {
   throw new Error("Root element not found");
 }
+
+scan({
+  enabled: import.meta.env.DEV,
+});
 
 const loadingContainer = document.getElementById("loading-container");
 const loadingContent = document.getElementById("loading-content");

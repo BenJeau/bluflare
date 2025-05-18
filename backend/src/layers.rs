@@ -13,7 +13,10 @@ use tower::{
 };
 use tower_http::{
     classify::{ServerErrorsAsFailures, SharedClassifier},
-    compression::{CompressionLayer, CompressionLevel, predicate::SizeAbove},
+    compression::{
+        CompressionLayer, CompressionLevel, Predicate,
+        predicate::{And, NotForContentType, SizeAbove},
+    },
     cors::{AllowOrigin, Any, CorsLayer},
     normalize_path::NormalizePathLayer,
     timeout::TimeoutLayer,
@@ -40,7 +43,7 @@ impl CommonTowerLayerBuilder {
         Self {
             allowed_methods: vec![Method::GET, Method::POST, Method::PATCH, Method::DELETE],
             allowed_origins: Any.into(),
-            allowed_headers: vec![],
+            allowed_headers: vec![HeaderName::from_static("content-type")],
             exposed_headers: vec![],
             compression_level: CompressionLevel::Fastest,
             compression_size: 1024,
@@ -63,7 +66,10 @@ impl CommonTowerLayerBuilder {
 
         let compression_layer = CompressionLayer::new()
             .quality(self.compression_level)
-            .compress_when(SizeAbove::new(self.compression_size));
+            .compress_when(
+                SizeAbove::new(self.compression_size)
+                    .and(NotForContentType::new("text/event-stream")),
+            );
 
         let timeout_layer = TimeoutLayer::new(Duration::from_secs(self.timeout));
 
@@ -113,7 +119,7 @@ impl CommonTowerLayerBuilder {
     }
 }
 
-type CTLCompressionLayer = CompressionLayer<SizeAbove>;
+type CTLCompressionLayer = CompressionLayer<And<SizeAbove, NotForContentType>>;
 type CTLTracingLayer<F> = TraceLayer<SharedClassifier<ServerErrorsAsFailures>, F>;
 type CTLSentryLayer = ServiceBuilder<
     Stack<

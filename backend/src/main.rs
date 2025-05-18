@@ -7,6 +7,7 @@ mod layers;
 mod models;
 mod routes;
 mod server;
+mod slug;
 mod state;
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -25,6 +26,6 @@ async fn main() -> Result<()> {
     let config = config::Config::new()?;
     let state = state::AppState::new(config.clone()).await?;
 
-    jetstream::start_processor(config.jetstream.clone(), state.db.clone());
+    jetstream::start_processor(state.clone());
     server::start_server(state).await
 }

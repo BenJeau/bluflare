@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT EXISTS(SELECT 1 FROM interests WHERE id = ?)\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "EXISTS(SELECT 1 FROM interests WHERE id = ?)",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "84438dd8064c2bb0663dd3b18f88bf010c8d490a0e20182d8eb8bfcb55e8d8e3"
+}

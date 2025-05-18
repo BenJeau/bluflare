@@ -1,307 +1,298 @@
-use std::{collections::HashMap, str::FromStr};
-
-use crate::models::{
-    interest::{CreateInterest, DbInterest, Interest, UpdateInterestAnalysis},
-    post::{CreatePost, DbPost, Post},
-};
+use chrono::Utc;
 use sqlx::{
-    QueryBuilder,
+    FromRow, QueryBuilder, SqliteExecutor,
     sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions},
 };
+use std::{collections::BTreeSet, str::FromStr};
 use tracing::info;
 
-use crate::Result;
+use crate::{
+    Result,
+    models::{
+        interest::{
+            CreateInterest, DbInterest, DbInterestWithPostCount, Interest, InterestWithPostCount,
+            UpdateInterestAnalysis,
+        },
+        post::{CreatePost, DbPost, Post},
+        user::{CreateUser, DbUser, User},
+    },
+    slug::slugify,
+};
 
-#[derive(Clone)]
-pub struct Database {
-    pool: SqlitePool,
+pub async fn new(database_url: &str) -> Result<SqlitePool> {
+    let executor = connect_to_db(database_url, 75, 5).await?;
+    run_migrations(&executor).await?;
+    Ok(executor)
 }
 
-impl Database {
-    pub async fn new(database_url: &str) -> Result<Self> {
-        let pool = connect_to_db(database_url, 75, 5).await?;
-        run_migrations(&pool).await?;
-        Ok(Self { pool })
-    }
+pub async fn get_interest_id_by_slug<'e>(
+    executor: impl SqliteExecutor<'e>,
+    slug: &str,
+) -> Result<Option<i64>> {
+    sqlx::query_scalar!(r#"SELECT id FROM interests WHERE slug = ?"#, slug)
+        .fetch_optional(executor)
+        .await
+        .map_err(Into::into)
+}
 
-    pub async fn update_interest_analysis(
-        &self,
-        id: i64,
-        analysis: UpdateInterestAnalysis,
-    ) -> Result<()> {
-        sqlx::query_scalar!(
-            r#"
+pub async fn interest_exists<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<bool> {
+    let result = sqlx::query_scalar!(
+        r#"
+            SELECT EXISTS(SELECT 1 FROM interests WHERE id = ?)
+            "#,
+        id,
+    )
+    .fetch_one(executor)
+    .await?;
+
+    Ok(result == 1)
+}
+
+pub async fn update_interest_analysis<'e>(
+    executor: impl SqliteExecutor<'e>,
+    id: i64,
+    analysis: UpdateInterestAnalysis,
+) -> Result<()> {
+    sqlx::query_scalar!(
+        r#"
             UPDATE interests SET last_analysis = ?, last_analysis_at = ? WHERE id = ?
             "#,
-            analysis.last_analysis,
-            analysis.last_analysis_at,
-            id,
-        )
-        .execute(&self.pool)
-        .await?;
+        analysis.last_analysis,
+        analysis.last_analysis_at,
+        id,
+    )
+    .execute(executor)
+    .await?;
 
-        Ok(())
-    }
+    Ok(())
+}
 
-    pub async fn update_interest_keywords(&self, id: i64, keywords: Vec<String>) -> Result<()> {
-        let keywords = serde_json::to_value(keywords.clone()).unwrap();
+pub async fn update_interest_keywords<'e>(
+    executor: impl SqliteExecutor<'e>,
+    id: i64,
+    keywords: Vec<String>,
+) -> Result<()> {
+    let keywords = serde_json::to_value(keywords.clone()).unwrap();
 
-        sqlx::query_scalar!(
-            r#"
+    sqlx::query_scalar!(
+        r#"
             UPDATE interests SET keywords = ? WHERE id = ?
             "#,
-            keywords,
-            id,
-        )
-        .execute(&self.pool)
-        .await?;
+        keywords,
+        id,
+    )
+    .execute(executor)
+    .await?;
 
-        Ok(())
-    }
+    Ok(())
+}
 
-    pub async fn get_interest_langs(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
-        let langs: Vec<Vec<u8>> = sqlx::query_scalar!(
-            r#"
-            SELECT langs FROM posts WHERE interest_id = ?
-            "#,
-            interest_id,
-        )
-        .fetch_all(&self.pool)
-        .await?;
+pub async fn create_interest<'e>(
+    executor: impl SqliteExecutor<'e>,
+    interest: CreateInterest,
+) -> Result<i64> {
+    let keywords = serde_json::to_value(interest.keywords.clone()).unwrap();
+    let slug = slugify(&interest.subject);
 
-        let langs = langs
-            .into_iter()
-            .map(|lang| serde_json::from_slice::<Vec<String>>(&lang).unwrap())
-            .flatten()
-            .collect::<Vec<String>>();
-
-        let mut langs_map = HashMap::new();
-        for lang in langs {
-            *langs_map.entry(lang).or_insert(0) += 1;
-        }
-
-        Ok(langs_map)
-    }
-
-    pub async fn get_interest_words(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
-        let words: Vec<String> = sqlx::query_scalar!(
-            r#"
-            SELECT text FROM posts WHERE interest_id = ?
-            "#,
-            interest_id,
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let words = words
-            .into_iter()
-            .map(|word| {
-                word.split_whitespace()
-                    .map(|s| s.to_string())
-                    .collect::<Vec<String>>()
-            })
-            .flatten()
-            .collect::<Vec<String>>();
-
-        let mut words_map = HashMap::new();
-        for word in words {
-            *words_map.entry(word).or_insert(0) += 1;
-        }
-
-        Ok(words_map)
-    }
-
-    pub async fn get_interest_tags(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
-        let tags: Vec<Vec<u8>> = sqlx::query_scalar!(
-            r#"
-            SELECT tags FROM posts WHERE interest_id = ?
-            "#,
-            interest_id,
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let tags = tags
-            .into_iter()
-            .map(|tag| serde_json::from_slice::<Vec<String>>(&tag).unwrap())
-            .flatten()
-            .collect::<Vec<String>>();
-
-        let mut tags_map = HashMap::new();
-        for tag in tags {
-            *tags_map.entry(tag).or_insert(0) += 1;
-        }
-
-        Ok(tags_map)
-    }
-
-    pub async fn create_interest(&self, interest: CreateInterest) -> Result<i64> {
-        let keywords = serde_json::to_value(interest.keywords.clone()).unwrap();
-
-        let result = sqlx::query_scalar!(
-            r#"
-            INSERT INTO interests (subject, description, keywords)
-            VALUES (?, ?, ?)
+    let result = sqlx::query_scalar!(
+        r#"
+            INSERT INTO interests (subject, slug, description, keywords)
+            VALUES (?, ?, ?, ?)
             RETURNING id
             "#,
-            interest.subject,
-            interest.description,
-            keywords,
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        interest.subject,
+        slug,
+        interest.description,
+        keywords,
+    )
+    .fetch_one(executor)
+    .await?;
 
-        Ok(result)
-    }
+    Ok(result)
+}
 
-    pub async fn get_all_interests(&self) -> Result<Vec<Interest>> {
-        let db_interests = sqlx::query_as!(
-            DbInterest,
-            r#"
+pub async fn get_all_interests<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Interest>> {
+    let db_interests = sqlx::query_as!(
+        DbInterest,
+        r#"
             SELECT *
             FROM interests
             ORDER BY created_at DESC
             "#,
-        )
-        .fetch_all(&self.pool)
-        .await?;
+    )
+    .fetch_all(executor)
+    .await?;
 
-        let interests = db_interests
-            .into_iter()
-            .map(|db_interest| Interest {
-                id: db_interest.id,
-                subject: db_interest.subject,
-                description: db_interest.description,
-                keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
-                created_at: db_interest.created_at,
-                last_analysis: db_interest.last_analysis,
-                last_analysis_at: db_interest.last_analysis_at,
-            })
-            .collect();
+    let interests = db_interests.into_iter().map(Interest::from).collect();
 
-        Ok(interests)
-    }
+    Ok(interests)
+}
 
-    pub async fn get_interest(&self, id: i64) -> Result<Interest> {
-        let db_interest = sqlx::query_as!(
-            DbInterest,
-            r#"
+pub async fn get_all_interests_with_post_count<'e>(
+    executor: impl SqliteExecutor<'e>,
+) -> Result<Vec<InterestWithPostCount>> {
+    let db_interests = sqlx::query_as!(
+        DbInterestWithPostCount,
+        r#"
+            SELECT interests.*, COUNT(post_interests.post_id) as post_count
+            FROM interests
+            LEFT JOIN post_interests ON interests.id = post_interests.interest_id
+            GROUP BY interests.id
+            ORDER BY created_at DESC
+            "#,
+    )
+    .fetch_all(executor)
+    .await?;
+
+    let interests = db_interests
+        .into_iter()
+        .map(InterestWithPostCount::from)
+        .collect();
+
+    Ok(interests)
+}
+
+pub async fn get_interest<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<Interest> {
+    let interest = sqlx::query_as!(
+        DbInterest,
+        r#"
             SELECT * FROM interests WHERE id = ?
             "#,
-            id,
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        id,
+    )
+    .fetch_one(executor)
+    .await?;
 
-        let interest = Interest {
-            id: db_interest.id,
-            subject: db_interest.subject,
-            description: db_interest.description,
-            keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
-            created_at: db_interest.created_at,
-            last_analysis: db_interest.last_analysis,
-            last_analysis_at: db_interest.last_analysis_at,
-        };
+    Ok(interest.into())
+}
 
-        Ok(interest)
-    }
-
-    pub async fn delete_interest(&self, id: i64) -> Result<bool> {
-        let result = sqlx::query!(
-            r#"
+pub async fn delete_interest<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<bool> {
+    let result = sqlx::query!(
+        r#"
             DELETE FROM interests
             WHERE id = ?
             "#,
-            id,
-        )
-        .execute(&self.pool)
-        .await?;
+        id,
+    )
+    .execute(executor)
+    .await?;
 
-        Ok(result.rows_affected() > 0)
-    }
-
-    pub async fn bulk_create_posts(&self, posts: Vec<CreatePost>) -> Result<()> {
-        let mut query_builder = QueryBuilder::new(
-            "INSERT INTO posts (did, cid, rkey, text, langs, urls, tags, mentions, aka, interest_id) ",
-        );
-
-        query_builder.push_values(posts, |mut b, new_post| {
-            b.push_bind(new_post.did)
-                .push_bind(new_post.cid)
-                .push_bind(new_post.rkey)
-                .push_bind(new_post.text)
-                .push_bind(serde_json::to_vec(&new_post.langs).unwrap())
-                .push_bind(serde_json::to_vec(&new_post.urls).unwrap())
-                .push_bind(serde_json::to_vec(&new_post.tags).unwrap())
-                .push_bind(serde_json::to_vec(&new_post.mentions).unwrap())
-                .push_bind(serde_json::to_vec(&new_post.aka).unwrap())
-                .push_bind(new_post.interest_id);
-        });
-
-        let query = query_builder.build();
-
-        query.execute(&self.pool).await?;
-
-        Ok(())
-    }
-
-    pub async fn get_interest_urls(&self, interest_id: i64) -> Result<HashMap<String, usize>> {
-        let urls: Vec<Vec<u8>> = sqlx::query_scalar!(
-            r#"
-            SELECT urls FROM posts WHERE interest_id = ?
-            "#,
-            interest_id,
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let urls = urls
-            .into_iter()
-            .map(|url| serde_json::from_slice::<Vec<String>>(&url).unwrap())
-            .flatten()
-            .collect::<Vec<String>>();
-
-        let mut urls_map = HashMap::new();
-        for url in urls {
-            *urls_map.entry(url).or_insert(0) += 1;
-        }
-
-        Ok(urls_map)
-    }
-
-    pub async fn get_all_posts(&self, interest_id: i64) -> Result<Vec<Post>> {
-        let db_posts = sqlx::query_as!(
-            DbPost,
-            r#"
-            SELECT * FROM posts WHERE interest_id = ? ORDER BY created_at DESC
-            "#,
-            interest_id,
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let posts = db_posts
-            .into_iter()
-            .map(|db_post| Post {
-                id: db_post.id,
-                did: db_post.did,
-                cid: db_post.cid,
-                rkey: db_post.rkey,
-                created_at: db_post.created_at,
-                text: db_post.text,
-                langs: serde_json::from_slice(&db_post.langs).unwrap(),
-                urls: serde_json::from_slice(&db_post.urls).unwrap(),
-                tags: serde_json::from_slice(&db_post.tags).unwrap(),
-                mentions: serde_json::from_slice(&db_post.mentions).unwrap(),
-                aka: serde_json::from_slice(&db_post.aka).unwrap(),
-                interest_id: db_post.interest_id,
-            })
-            .collect();
-
-        Ok(posts)
-    }
+    Ok(result.rows_affected() > 0)
 }
 
+pub async fn get_interest_posts<'e>(
+    executor: impl SqliteExecutor<'e>,
+    interest_id: i64,
+) -> Result<Vec<Post>> {
+    let db_posts = sqlx::query_as!(
+            DbPost,
+            r#"
+            SELECT posts.* FROM posts
+            JOIN post_interests ON posts.id = post_interests.post_id AND post_interests.interest_id = ?
+            ORDER BY created_at DESC
+            "#,
+            interest_id,
+        )
+        .fetch_all(executor)
+        .await?;
+
+    let posts = db_posts.into_iter().map(Post::from).collect();
+
+    Ok(posts)
+}
+
+pub async fn create_post<'e>(executor: impl SqliteExecutor<'e>, post: CreatePost) -> Result<Post> {
+    let langs = serde_json::to_vec(&post.langs).unwrap();
+    let urls = serde_json::to_vec(&post.urls).unwrap();
+    let tags = serde_json::to_vec(&post.tags).unwrap();
+
+    let post = sqlx::query_as!(
+        DbPost,
+        r#"
+            INSERT INTO posts (cid, rkey, created_at, text, langs, urls, tags, author_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            RETURNING *
+            "#,
+        post.cid,
+        post.rkey,
+        post.created_at,
+        post.text,
+        langs,
+        urls,
+        tags,
+        post.author_id,
+    )
+    .fetch_one(executor)
+    .await?;
+
+    Ok(post.into())
+}
+
+pub async fn link_post_to_interests<'e>(
+    executor: impl SqliteExecutor<'e>,
+    post_id: i64,
+    interest_ids: &BTreeSet<i64>,
+) -> Result<()> {
+    let mut query_builder = QueryBuilder::new("INSERT INTO post_interests (post_id, interest_id) ");
+
+    query_builder.push_values(interest_ids, |mut b, interest_id| {
+        b.push_bind(post_id).push_bind(interest_id);
+    });
+
+    let query = query_builder.build();
+    query.execute(executor).await?;
+
+    Ok(())
+}
+
+pub async fn link_mentions_to_post<'e>(
+    executor: impl SqliteExecutor<'e>,
+    post_id: i64,
+    mentions: Vec<i64>,
+) -> Result<()> {
+    let mut query_builder = QueryBuilder::new("INSERT INTO post_mentions (post_id, user_id) ");
+
+    query_builder.push_values(mentions, |mut b, mention| {
+        b.push_bind(post_id).push_bind(mention);
+    });
+
+    let query = query_builder.build();
+    query.execute(executor).await?;
+
+    Ok(())
+}
+
+pub async fn create_or_get_users<'e>(
+    executor: impl SqliteExecutor<'e>,
+    users: Vec<CreateUser>,
+) -> Result<Vec<User>> {
+    let mut query_builder = QueryBuilder::new("INSERT INTO users (did, aka, aka_retrieved_at) ");
+
+    query_builder.push_values(users, |mut b, new_user| {
+        b.push_bind(new_user.did)
+            .push_bind(serde_json::to_vec(&new_user.aka).unwrap())
+            .push_bind(Utc::now().naive_utc()); // TODO - actually get the time at the time of the query
+    });
+
+    let query = query_builder
+        .push(
+            r#"
+ON CONFLICT(did) DO UPDATE SET 
+    aka = excluded.aka,
+    aka_retrieved_at = excluded.aka_retrieved_at
+RETURNING *
+"#,
+        )
+        .build();
+    let rows = query.fetch_all(executor).await?;
+    let posts = rows
+        .into_iter()
+        .map(|row| DbUser::from_row(&row).unwrap())
+        .map(User::from)
+        .collect();
+
+    Ok(posts)
+}
 async fn connect_to_db(
     url: &str,
     max_connections: u32,

@@ -1,0 +1,68 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT posts.* FROM posts\n            JOIN post_interests ON posts.id = post_interests.post_id AND post_interests.interest_id = ?\n            ORDER BY created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "cid",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "rkey",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "text",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "langs",
+        "ordinal": 5,
+        "type_info": "Blob"
+      },
+      {
+        "name": "urls",
+        "ordinal": 6,
+        "type_info": "Blob"
+      },
+      {
+        "name": "tags",
+        "ordinal": 7,
+        "type_info": "Blob"
+      },
+      {
+        "name": "author_id",
+        "ordinal": 8,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fb05653a1c77c10c6e7d65f5612068f7b70c757d525b93e263e349427d1d6435"
+}

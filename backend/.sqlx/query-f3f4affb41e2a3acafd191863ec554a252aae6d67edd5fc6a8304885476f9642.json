@@ -1,0 +1,74 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT interests.*, COUNT(post_interests.post_id) as post_count\n            FROM interests\n            LEFT JOIN post_interests ON interests.id = post_interests.interest_id\n            GROUP BY interests.id\n            ORDER BY created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 1,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "enabled",
+        "ordinal": 2,
+        "type_info": "Bool"
+      },
+      {
+        "name": "slug",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "subject",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "keywords",
+        "ordinal": 6,
+        "type_info": "Blob"
+      },
+      {
+        "name": "last_analysis",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_analysis_at",
+        "ordinal": 8,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "post_count",
+        "ordinal": 9,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "f3f4affb41e2a3acafd191863ec554a252aae6d67edd5fc6a8304885476f9642"
+}

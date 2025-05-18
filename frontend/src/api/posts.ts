@@ -1,18 +1,28 @@
-import config from "@/lib/config";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 
-export function usePosts(interestId: number) {
-  return useQuery({
-    queryKey: ["posts", interestId],
-    queryFn: async () => {
+import config from "@/lib/config";
+
+export interface Post {
+  id: number;
+  text: string;
+  created_at: string;
+  urls: string[];
+  cid: string;
+  rkey: string;
+  langs: string[];
+  tags: string[];
+  author_id: string;
+  aka: Record<string, string[]>;
+}
+
+export const postsOptions = (interestId: string) =>
+  queryOptions<Post[]>({
+    queryKey: ["interets", interestId, "posts"],
+    queryFn: async ({ signal }) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/${interestId}/posts`
+        `${config.rest_server_base_url}/interests/${interestId}/posts`,
+        { signal }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch posts");
-      }
       return response.json();
     },
-    refetchInterval: 200,
   });
-}

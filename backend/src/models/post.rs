@@ -4,7 +4,6 @@ use sqlx::FromRow;
 #[derive(Debug, FromRow)]
 pub struct DbPost {
     pub id: i64,
-    pub did: String,
     pub cid: String,
     pub rkey: String,
     pub created_at: String,
@@ -12,15 +11,12 @@ pub struct DbPost {
     pub langs: Vec<u8>,
     pub urls: Vec<u8>,
     pub tags: Vec<u8>,
-    pub mentions: Vec<u8>,
-    pub aka: Vec<u8>,
-    pub interest_id: i64,
+    pub author_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Post {
     pub id: i64,
-    pub did: String,
     pub cid: String,
     pub rkey: String,
     pub created_at: String,
@@ -28,14 +24,11 @@ pub struct Post {
     pub langs: Vec<String>,
     pub urls: Vec<String>,
     pub tags: Vec<String>,
-    pub mentions: Vec<String>,
-    pub aka: Vec<String>,
-    pub interest_id: i64,
+    pub author_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePost {
-    pub did: String,
     pub cid: String,
     pub rkey: String,
     pub created_at: String,
@@ -43,7 +36,21 @@ pub struct CreatePost {
     pub langs: Vec<String>,
     pub urls: Vec<String>,
     pub tags: Vec<String>,
-    pub mentions: Vec<String>,
-    pub aka: Vec<String>,
-    pub interest_id: i64,
+    pub author_id: i64,
+}
+
+impl From<DbPost> for Post {
+    fn from(db_post: DbPost) -> Self {
+        Post {
+            id: db_post.id,
+            cid: db_post.cid,
+            rkey: db_post.rkey,
+            created_at: db_post.created_at,
+            text: db_post.text,
+            langs: serde_json::from_slice(&db_post.langs).unwrap(),
+            urls: serde_json::from_slice(&db_post.urls).unwrap(),
+            tags: serde_json::from_slice(&db_post.tags).unwrap(),
+            author_id: db_post.author_id,
+        }
+    }
 }

@@ -1,0 +1,68 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO posts (cid, rkey, created_at, text, langs, urls, tags, author_id)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n            RETURNING *\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "cid",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "rkey",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "text",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "langs",
+        "ordinal": 5,
+        "type_info": "Blob"
+      },
+      {
+        "name": "urls",
+        "ordinal": 6,
+        "type_info": "Blob"
+      },
+      {
+        "name": "tags",
+        "ordinal": 7,
+        "type_info": "Blob"
+      },
+      {
+        "name": "author_id",
+        "ordinal": 8,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b188086c1ba7b9016a10367cb22f39993d4a583c1f0b8d50e6580eb0cf949ca1"
+}
