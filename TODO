@@ -1,29 +1,42 @@
+-- legend --
+
+1. needs to be done before releasing
+2. should be done before releasing
+3. is not important for releasing
+
 general
 
-- [ ] maybe rename "interests" to "topics"
+1. [ ] figure out how auth should work and what should be public by default
+- everything is public except update/create/delete actions?
+2. [ ] maybe rename "interests" to "topics", rename "subject" to "title"
+3. [ ] write tests?
 
 backend
 
-- [ ] create user API endpoints
-- [ ] create post API endpoints
-- [ ] normalize shape of post from SSE and API
-- [ ] maybe auto-generate OpenAPI specs
-- [ ] deny unwraps within lints
+1. [ ] normalize shape of post from SSE and API
+2. [ ] create user API endpoints
+2. [ ] create post API endpoints
+2. [ ] maybe auto-generate OpenAPI specs
+2. [ ] make sure telemetry works as expected
+3. [ ] deny unwraps within lints
+3. [ ] add sentry hooks
+3. [ ] make backend smaller in size
 
 frontend
 
-- [ ] make homepage better, maybe show a carousel of posts being ingested in real time
-- [ ] create user pages
-- [ ] create post pages
-- [ ] cleanup tanstack query invalidation
-- [ ] maybe port over custom fetch with better tanstack query integration
-- [ ] maybe add more animations with framer motion
-- [ ] fix queryClient type in router
-- [ ] fix dark mode
-- [ ] create smaller components
-- [ ] add toggle to enable/disable interested
+1. [ ] make homepage better, maybe show a carousel of posts being ingested in real time
+2. [ ] create user pages
+2. [ ] create post pages
+2. [ ] cleanup tanstack query invalidation
+2. [ ] fix queryClient type in router
+2. [ ] fix dark mode
+2. [ ] create smaller components
+2. [ ] add toggle to enable/disable interested
+3. [ ] maybe port over custom fetch with better tanstack query integration
+3. [ ] maybe add more animations with framer motion
 
 deployment
 
-- [ ] make sure Dockerfile works
-- [ ] create ansible/teraform scripts
+1. [ ] make sure Dockerfile works
+1. [ ] create ansible/teraform scripts
+1. [ ] create GH actions for deployment
