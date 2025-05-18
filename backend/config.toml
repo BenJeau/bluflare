@@ -5,7 +5,7 @@ port = 3000
 
 [jetstream]
 base_url = "wss://jetstream2.us-east.bsky.network/subscribe"
-compress = true
+compress = false
 enabled = true
 reconnect_interval = 1
 wanted_collections = ["app.bsky.feed.post"]
