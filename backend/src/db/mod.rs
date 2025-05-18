@@ -25,6 +25,19 @@ pub async fn new(database_url: &str) -> Result<SqlitePool> {
     Ok(executor)
 }
 
+pub async fn get_latest_posts<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Post>> {
+    let db_posts = sqlx::query_as!(
+        DbPost,
+        r#"SELECT * FROM posts ORDER BY created_at DESC LIMIT 20"#,
+    )
+    .fetch_all(executor)
+    .await?;
+
+    let posts = db_posts.into_iter().map(Post::from).collect();
+
+    Ok(posts)
+}
+
 pub async fn get_interest_id_by_slug<'e>(
     executor: impl SqliteExecutor<'e>,
     slug: &str,
