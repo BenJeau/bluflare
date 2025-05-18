@@ -35,9 +35,9 @@
         justify-content: center;
       }
       .bg-grid-pattern {
-        background-image: radial-gradient(#ffffff50 1px, #ffffff00 1px);
+        background-image: radial-gradient(#ffffff90 1px, #ffffff00 1px);
         background-size: 16px 16px;
-        mask-image: radial-gradient(circle, #ffffff50, #0000);
+        mask-image: radial-gradient(circle, #ffffff70, #0000);
         position: absolute;
         inset: 0;
       }
@@ -64,7 +64,7 @@
         height="72"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="hsl(47.9 95.8% 53.1%)"
+        stroke="oklch(0.723 0.219 149.579)"
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -84,12 +84,6 @@
         .matches
         ? "dark"
         : "light";
-
-      const savedTheme = JSON.parse(localStorage.getItem("theme") || '"dark"');
-      const isDark =
-        savedTheme === "system"
-          ? systemTheme === "dark"
-          : savedTheme === "dark";
 
       const loadingContainer = document.getElementById("loading-container");
 

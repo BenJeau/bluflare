@@ -500,7 +500,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
               className={cn(
                 "h-8 relative overflow-hidden",
                 isSuggesting &&
-                  "bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient"
+                  "bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient"
               )}
               disabled={isSuggesting}
             >
@@ -538,13 +538,13 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
       )}
       {isSuggesting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient opacity-50" />
           <div
-            className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 animate-gradient opacity-50"
+            className="absolute inset-0 bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 animate-gradient opacity-50"
             style={{ animationDelay: "0.5s" }}
           />
           <div
-            className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-blue-500 to-purple-500 animate-gradient opacity-50"
+            className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-sky-500 to-purple-500 animate-gradient opacity-50"
             style={{ animationDelay: "1s" }}
           />
 
@@ -556,14 +556,14 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
                 <Sparkles className="h-8 w-8 text-purple-500 animate-pulse" />
                 <div className="absolute inset-0 bg-purple-500/20 rounded-full animate-ping" />
               </div>
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 bg-clip-text text-transparent animate-gradient">
                 AI is thinking...
               </h3>
             </div>
 
             <div className="w-72 h-3 bg-gray-200/50 rounded-full overflow-hidden backdrop-blur-sm">
               <div
-                className="w-full h-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-gradient"
+                className="w-full h-full bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient"
                 style={{ animationDuration: "1s" }}
               />
             </div>

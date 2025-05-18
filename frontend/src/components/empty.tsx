@@ -23,7 +23,7 @@ const Empty: React.FC<Props> = ({
   return (
     <div
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-2 self-center justify-self-center p-4",
+        "flex flex-1 flex-col items-center justify-center self-center justify-self-center p-4",
         className
       )}
     >

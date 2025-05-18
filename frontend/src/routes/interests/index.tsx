@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import * as v from "valibot";
 
-import EmptyImg from "@/assets/camping-82.svg";
+import EmptyImg from "@/assets/adventure-1-70.svg";
 import { Button } from "@/components/ui/button";
 import { interestsOptions } from "@/api/interests";
 import { useTranslation } from "@/i18n";
@@ -11,26 +11,49 @@ import { Empty } from "@/components";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
+const searchParamsSchema = v.object({
+  search: v.pipe(
+    v.optional(v.string()),
+    v.transform((input) => input || undefined)
+  ),
+});
+
 export const Route = createFileRoute("/interests/")({
   loader: async ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(interestsOptions);
   },
+  validateSearch: searchParamsSchema,
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const { t } = useTranslation();
   const { data } = useSuspenseQuery(interestsOptions);
-  const [search, setSearch] = useState("");
+  const { search } = Route.useSearch();
+  const navigate = Route.useNavigate();
+
+  const searchLowercase = search?.toLocaleLowerCase() ?? "";
+  const filteredData = search
+    ? data.filter(
+        (interest) =>
+          interest.subject.toLowerCase().includes(searchLowercase) ||
+          interest.description.toLowerCase().includes(searchLowercase)
+      )
+    : data;
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 p-4 flex-1">
       <div className="flex gap-2">
         <Input
           placeholder="Search interests..."
           className="h-8"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={search ?? ""}
+          onChange={(e) =>
+            navigate({
+              search: { search: e.target.value },
+              replace: true,
+            })
+          }
         />
         <Link to="/interests/create">
           <Button size="sm">
@@ -40,44 +63,47 @@ function RouteComponent() {
         </Link>
       </div>
 
-      <div className="grid gap-2">
-        {data
-          .filter((interest) =>
-            interest.subject.toLowerCase().includes(search.toLowerCase())
-          )
-          .map((interest) => (
-            <Link
-              to="/interests/$slug"
-              params={{ slug: interest.slug }}
-              key={interest.id}
-              className="flex items-start justify-between rounded-lg border p-3 bg-white group"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <h2 className="flex-1 font-medium group-hover:underline">
-                    {interest.subject}
-                    <span className="text-xs text-gray-500 ms-2">
-                      {interest.description}
-                    </span>
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-x-1">
-                  {interest.keywords.map((keyword) => (
-                    <span key={keyword} className="text-xs text-green-500">
-                      #{keyword}
-                    </span>
-                  ))}
-                </div>
+      <div className="flex flex-col gap-2 flex-1">
+        {filteredData.map((interest) => (
+          <Link
+            to="/interests/$slug"
+            params={{ slug: interest.slug }}
+            key={interest.id}
+            className="flex justify-between rounded-lg border p-3 bg-card group"
+          >
+            <div className="flex flex-col justify-center ms-2">
+              <div className="flex items-baseline gap-2">
+                <h2 className="font-medium group-hover:underline">
+                  {interest.subject}
+                </h2>
+                <span className="text-xs text-gray-500">
+                  {interest.description}
+                </span>
               </div>
+              <div className="flex flex-wrap gap-x-1">
+                {interest.keywords.map((keyword) => (
+                  <span key={keyword} className="text-xs text-green-500">
+                    #{keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-x-2 gap-y-1 items-end">
+              <Badge variant={interest.enabled ? "default" : "destructive"}>
+                {interest.enabled ? "Processing posts" : "Processing paused"}
+              </Badge>
               <Badge variant="secondary">
                 {interest.post_count?.toLocaleString()} posts
               </Badge>
-            </Link>
-          )) || (
+            </div>
+          </Link>
+        ))}
+        {filteredData.length == 0 && (
           <Empty
             title="No interests"
             description="Add an interest to get started"
             image={EmptyImg}
+            imageWidth={400}
           />
         )}
         {data.length === 0 && (
@@ -85,6 +111,7 @@ function RouteComponent() {
             title="No interests"
             description="Add an interest to get started"
             image={EmptyImg}
+            imageWidth={400}
           />
         )}
       </div>

@@ -18,7 +18,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RawContent, Trans } from "@/components";
 import { useTranslation } from "@/i18n";
-import { useUpdateTheme } from "@/atoms/theme";
 
 interface Props {
   info?: ErrorInfo;
@@ -28,7 +27,6 @@ interface Props {
 
 const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
   const { t } = useTranslation();
-  useUpdateTheme();
 
   const errorMessage =
     error instanceof Error ? error.message : t("unknown.error");

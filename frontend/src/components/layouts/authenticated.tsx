@@ -8,12 +8,10 @@ import {
   Users,
 } from "lucide-react";
 import { useRouterState, Link, Outlet } from "@tanstack/react-router";
-import { useAtom } from "jotai";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ThemeCycle, ThemeIcon, themeAtom } from "@/atoms/theme";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -28,7 +26,6 @@ type Page = "home" | "interests";
 
 export const Layout: React.FC = () => {
   const { location } = useRouterState();
-  const [theme, setTheme] = useAtom(themeAtom);
   const { t, toggle, otherLang } = useTranslation();
 
   const page: Page | undefined = useMemo(() => {
@@ -40,8 +37,6 @@ export const Layout: React.FC = () => {
   useEffect(() => {
     document.title = page ? `${t(page)} - Bluflare` : "Bluflare";
   }, [page, t]);
-
-  const ThemedIcon = ThemeIcon[ThemeCycle[theme]];
 
   return (
     <div className="relative flex h-full w-screen gap-2 px-2 sm:py-2 md:gap-4 md:p-4">
@@ -136,16 +131,7 @@ export const Layout: React.FC = () => {
                       <p className="text-xs">View profile</p>
                     </Link>
                   </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2"
-                    onClick={() => {
-                      setTheme((prev) => ThemeCycle[prev]);
-                    }}
-                  >
-                    <ThemedIcon size={16} />
-                    <p className="text-xs">{t(`theme.${ThemeCycle[theme]}`)}</p>
-                  </Button>
+
                   <Button
                     variant="ghost"
                     className="w-full justify-start gap-2"
