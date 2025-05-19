@@ -6,3 +6,4 @@ export { default as RawContent } from "./raw-content";
 export { default as Trans } from "./trans";
 export { default as Empty } from "./empty";
 export { default as Nav } from "./nav";
+export { default as PostCard } from "./post-card";

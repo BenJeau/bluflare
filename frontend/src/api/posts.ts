@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import config from "@/lib/config";
+import { useSSE } from "@/api/sse";
 
 export interface Post {
   id: number;
@@ -25,4 +26,22 @@ export const postsOptions = (interestId: string) =>
       );
       return response.json();
     },
+  });
+
+export const latestPostsOptions = queryOptions<Post[]>({
+  queryKey: ["posts", "latest"],
+  queryFn: async ({ signal }) => {
+    const response = await fetch(
+      `${config.rest_server_base_url}/posts/latest`,
+      { signal }
+    );
+    return response.json();
+  },
+});
+
+export const useSSELatestPosts = (active: boolean) =>
+  useSSE<Post>({
+    url: `${config.rest_server_base_url}/posts/latest/sse`,
+    maxDataEntries: 20,
+    active,
   });

@@ -32,20 +32,21 @@ export interface UpdateInterest {
   enabled?: boolean;
 }
 
-const API_BASE_URL = config.rest_server_base_url;
-
 export const useMutateInterest = (id: number) => {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, UpdateInterest>({
     mutationFn: async (update) => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(update),
-      });
+      const response = await fetch(
+        `${config.rest_server_base_url}/interests/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(update),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to update interest keywords");
       }
@@ -59,7 +60,9 @@ export const useMutateInterest = (id: number) => {
 export const interestsOptions = queryOptions<Interest[]>({
   queryKey: ["interests"],
   queryFn: async ({ signal }) => {
-    const response = await fetch(`${API_BASE_URL}/interests`, { signal });
+    const response = await fetch(`${config.rest_server_base_url}/interests`, {
+      signal,
+    });
     return response.json();
   },
 });
@@ -68,9 +71,12 @@ export function interestSlugQueryOptions(slug: string) {
   return queryOptions({
     queryKey: ["interests", "slugs", slug],
     queryFn: async ({ signal }) => {
-      const response = await fetch(`${API_BASE_URL}/interests/slugs/${slug}`, {
-        signal,
-      });
+      const response = await fetch(
+        `${config.rest_server_base_url}/interests/slugs/${slug}`,
+        {
+          signal,
+        }
+      );
       return response.json();
     },
   });
@@ -80,9 +86,12 @@ export const interestOptions = (id: string) =>
   queryOptions<Interest>({
     queryKey: ["interests", id],
     queryFn: async ({ signal }) => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}`, {
-        signal,
-      });
+      const response = await fetch(
+        `${config.rest_server_base_url}/interests/${id}`,
+        {
+          signal,
+        }
+      );
       return response.json();
     },
   });
@@ -90,7 +99,7 @@ export const interestOptions = (id: string) =>
 export const useCreateInterest = () => {
   return useMutation<number, Error, CreateInterest>({
     mutationFn: async (interest) => {
-      const response = await fetch(`${API_BASE_URL}/interests`, {
+      const response = await fetch(`${config.rest_server_base_url}/interests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,9 +117,12 @@ export const useCreateInterest = () => {
 export const useDeleteInterest = () => {
   return useMutation<void, Error, number>({
     mutationFn: async (id) => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${config.rest_server_base_url}/interests/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete interest");
       }
@@ -121,9 +133,12 @@ export const useDeleteInterest = () => {
 export const useAnalyzeInterest = () => {
   return useMutation<string, Error, number>({
     mutationFn: async (id) => {
-      const response = await fetch(`${API_BASE_URL}/interests/${id}/analyze`, {
-        method: "POST",
-      });
+      const response = await fetch(
+        `${config.rest_server_base_url}/interests/${id}/analyze`,
+        {
+          method: "POST",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to analyze interest");
       }
@@ -133,5 +148,8 @@ export const useAnalyzeInterest = () => {
 };
 
 export const useSSEInterestPosts = (id: string, active: boolean) => {
-  return useSSE<Post>(`${API_BASE_URL}/interests/${id}/posts/sse`, active);
+  return useSSE<Post>(
+    `${config.rest_server_base_url}/interests/${id}/posts/sse`,
+    active
+  );
 };

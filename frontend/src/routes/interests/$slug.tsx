@@ -41,12 +41,7 @@ import {
   interestSlugQueryOptions,
 } from "@/api/interests";
 import { Badge } from "@/components/ui/badge";
-import { cn, getTagColor, highlightKeywords } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { cn, getTagColor } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { queryClient } from "@/api/query-client";
 import { useMutationSuggestKeywords } from "@/api/suggest";
@@ -269,107 +264,6 @@ function InterestDetail() {
           {combinedPosts.slice(0, numberOfPostsToShow).map((post) => (
             <PostCard post={post} keywords={interest.keywords} key={post.id} />
           ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PostCard({
-  post,
-  keywords,
-  style,
-}: {
-  post: Post;
-  keywords: string[];
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      className="flex flex-col border rounded-lg bg-green-50 flex-1 overflow-hidden"
-      style={style}
-    >
-      <div className="text-xs text-muted-foreground flex gap-1 bg-white border-b border-gray-200 p-2 justify-between items-center">
-        <div className="flex flex-col">
-          {/* <a
-            href={`https://bsky.app/profile/${post.aka[0].split("//")[1]}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <p className="text-xs text-primary font-bold hover:underline">
-              {post.aka[0].split("//")[1]}
-            </p>
-          </a> */}
-          {post.created_at}
-        </div>
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger disabled={post.urls.length === 0}>
-              <Badge
-                className={cn(
-                  "text-xs",
-                  post.urls.length > 0
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-black"
-                )}
-                variant="outline"
-              >
-                {post.urls.length}{" "}
-                <LinkIcon className="h-3 w-3" strokeWidth={2.5} />
-              </Badge>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="flex flex-col gap-2">
-                {post.urls.map((url) => (
-                  <a
-                    key={url}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary font-bold hover:underline"
-                  >
-                    {url}
-                  </a>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger disabled={post.tags.length === 0}>
-              <Badge
-                className={cn(
-                  "text-xs",
-                  post.tags.length > 0
-                    ? "bg-green-600 text-white border-green-600"
-                    : "bg-gray-100 text-black border-gray-100"
-                )}
-                variant="outline"
-              >
-                {post.tags.length}{" "}
-                <Hash className="h-3 w-3" strokeWidth={2.5} />
-              </Badge>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="flex flex-col gap-2">
-                {post.tags.map((tag) => (
-                  <Badge key={tag}>{tag}</Badge>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-      <div className="flex gap-2 justify-between items-stretch">
-        <div>
-          {/* <a
-            href={`https://bsky.app/profile/${did}/post/${rkey}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          > */}
-          <p className="text-sm font-semibold hover:underline p-2">
-            {highlightKeywords(post.text, keywords)}
-          </p>
-          {/* </a> */}
         </div>
       </div>
     </div>

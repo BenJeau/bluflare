@@ -1,0 +1,101 @@
+import { Hash, LinkIcon, LucideIcon } from "lucide-react";
+
+import { Post } from "@/api/posts";
+import { cn, highlightKeywords } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { motion } from "framer-motion";
+import dayjs from "dayjs";
+
+export type Props = {
+  post: Post;
+  offset?: number;
+  keywords: string[];
+  className?: string;
+};
+
+const PostCard: React.FC<Props> = ({
+  post,
+  offset = 0,
+  keywords,
+  className,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    transition={{ duration: 0.2, delay: 0.05 * offset }}
+    className={cn(
+      "flex flex-col rounded-lg border overflow-hidden shadow-xs bg-green-50 dark:bg-card/30",
+      className
+    )}
+  >
+    <div className="text-xs text-muted-foreground flex gap-1 bg-card border-b p-2 justify-between items-center">
+      <div className="flex flex-col">
+        {/* <a
+              href={`https://bsky.app/profile/${post.aka[0].split("//")[1]}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <p className="text-xs text-primary font-bold hover:underline">
+                {post.aka[0].split("//")[1]}
+              </p>
+            </a> */}
+        {dayjs(post.created_at).format("LLL")}
+      </div>
+      <div className="flex gap-2">
+        <Tag data={post.urls} Icon={LinkIcon} />
+        <Tag data={post.tags} Icon={Hash} />
+      </div>
+    </div>
+    <div className="flex gap-2 justify-between items-stretch">
+      <div>
+        {/* <a
+              href={`https://bsky.app/profile/${did}/post/${rkey}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            > */}
+        <p className="text-sm font-semibold hover:underline p-2">
+          {highlightKeywords(post.text, keywords)}
+        </p>
+        {/* </a> */}
+      </div>
+    </div>
+  </motion.div>
+);
+
+type TagProps = {
+  data: string[];
+  Icon: LucideIcon;
+};
+
+const Tag: React.FC<TagProps> = ({ data, Icon }) => (
+  <Popover>
+    <PopoverTrigger disabled={data.length === 0}>
+      <Badge
+        className={cn(
+          "text-xs",
+          data.length > 0
+            ? "bg-green-600 text-white border-green-600"
+            : "dark:bg-border text-muted-foreground"
+        )}
+        variant="outline"
+      >
+        {data.length} <Icon className="h-3 w-3" strokeWidth={2.5} />
+      </Badge>
+    </PopoverTrigger>
+    <PopoverContent>
+      <div className="flex flex-col gap-2">
+        {data.map((tag) => (
+          <Badge key={tag}>{tag}</Badge>
+        ))}
+      </div>
+    </PopoverContent>
+  </Popover>
+);
+
+export default PostCard;

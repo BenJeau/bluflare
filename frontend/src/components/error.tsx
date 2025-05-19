@@ -36,7 +36,7 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
 
   const componentStack = info?.componentStack?.trim();
   return (
-    <div className="container relative mx-auto flex min-h-screen items-center justify-center gap-8 p-4 dark:text-white">
+    <div className="container relative mx-auto flex  flex-1 items-center justify-center gap-8 p-4 dark:text-white">
       {showImage && (
         <div className="hidden h-[20rem] w-[20rem] flex-col gap-6 lg:flex xl:h-[30rem] xl:w-[30rem]">
           <img
@@ -90,11 +90,7 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                <AccordionTrigger
-                  showChevron={false}
-                  className="mx-2 my-2 gap-2 p-0"
-                >
-                  <ChevronsDown size={16} />
+                <AccordionTrigger className="mx-2 my-2 gap-2 p-0">
                   <Trans id="error.toggle" />
                 </AccordionTrigger>
               </div>
@@ -102,7 +98,7 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
             <AccordionContent className="mt-4 pb-2">
               <Tabs
                 defaultValue="error"
-                className="dark:border-800 dark:bg-950 flex flex-col gap-2 rounded-xl border bg-background p-4 shadow-md"
+                className="dark:bg-950 flex flex-col gap-2 rounded-xl border bg-background p-4 shadow-sm"
               >
                 <div className="flex justify-between">
                   <h3 className="text-800 flex gap-2 text-2xl font-medium dark:text-white">
