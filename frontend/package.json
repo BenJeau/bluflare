@@ -8,7 +8,12 @@
     "check": "tsc -b",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "i18n:sort": "tsx src/i18n/tools/sortKeys.ts",
+    "i18n:cleanup": "tsx src/i18n/tools/cleanup.ts",
+    "i18n:unused": "tsx src/i18n/tools/unusedKeys.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.10",

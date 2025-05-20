@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from "react";
 import {
   LogOut,
   Languages,
-  ContactRound,
   FlameKindling,
   Binoculars,
   Users,
@@ -27,7 +26,14 @@ import { Nav, Trans } from "@/components";
 import config from "@/lib/config";
 import { useTranslation } from "@/i18n";
 
-type Page = "home" | "interests" | "users" | "posts" | "stats";
+type Page =
+  | "home"
+  | "interests"
+  | "users"
+  | "posts"
+  | "stats"
+  | "docs"
+  | "github";
 
 export const Layout: React.FC = () => {
   const { location } = useRouterState();
@@ -38,6 +44,8 @@ export const Layout: React.FC = () => {
     if (location.pathname.startsWith("/posts")) return "posts";
     if (location.pathname.startsWith("/users")) return "users";
     if (location.pathname.startsWith("/stats")) return "stats";
+    if (location.pathname.startsWith("/docs")) return "docs";
+    if (location.pathname.startsWith("/github")) return "github";
     if (location.pathname === "/") return "home";
     return undefined;
   }, [location.pathname]);
@@ -77,19 +85,19 @@ export const Layout: React.FC = () => {
               <Nav
                 links={[
                   {
-                    title: t("interests"),
+                    title: "interests",
                     to: "/interests",
                     variant: page === "interests" ? "default" : "ghost",
                     icon: Binoculars,
                   },
                   {
-                    title: t("users"),
+                    title: "users",
                     to: "/users",
                     variant: page === "users" ? "default" : "ghost",
                     icon: Users,
                   },
                   {
-                    title: t("posts"),
+                    title: "posts",
                     to: "/posts",
                     variant: page === "posts" ? "default" : "ghost",
                     icon: MessageCircleMore,
@@ -102,7 +110,7 @@ export const Layout: React.FC = () => {
               <Nav
                 links={[
                   {
-                    title: t("stats"),
+                    title: "stats",
                     to: "/stats",
                     variant: page === "stats" ? "default" : "ghost",
                     icon: BarChart4,
@@ -114,7 +122,7 @@ export const Layout: React.FC = () => {
               <Nav
                 links={[
                   {
-                    title: t("docs"),
+                    title: "docs",
                     to: "/docs",
                     variant: page === "docs" ? "default" : "ghost",
                     icon: BookOpenText,
@@ -127,7 +135,7 @@ export const Layout: React.FC = () => {
               <Nav
                 links={[
                   {
-                    title: t("github"),
+                    title: "github",
                     href: "https://github.com/BenJeau/bluflare",
                     variant: page === "github" ? "default" : "ghost",
                     icon: Github,
@@ -166,17 +174,6 @@ export const Layout: React.FC = () => {
                         {t("change.to") + " " + otherLang.lang.lang}
                       </p>
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-2"
-                      asChild
-                    >
-                      <Link to="/me">
-                        <ContactRound size={16} />
-                        <p className="text-xs">View profile</p>
-                      </Link>
-                    </Button>
-
                     <Button
                       variant="ghost"
                       className="w-full justify-start gap-2"
@@ -223,10 +220,7 @@ export const Layout: React.FC = () => {
               <h1 className="whitespace-nowrap text-xl font-bold">
                 {page && t(page)}
               </h1>
-              <p
-                className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs opacity-70"
-                title={page && t(`layout.${page}.description`)}
-              >
+              <p className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs opacity-70">
                 {page && t(`layout.${page}.description`)}
               </p>
             </motion.div>

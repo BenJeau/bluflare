@@ -4,13 +4,15 @@ import { QueryClient } from "@tanstack/react-query";
 
 import Layout from "@/components/layouts";
 
+const RootComponent: React.FC = () => (
+  <>
+    <Layout />
+    <TanStackRouterDevtools />
+  </>
+);
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
-    component: () => (
-      <>
-        <Layout />
-        <TanStackRouterDevtools />
-      </>
-    ),
+    component: RootComponent,
   }
 );

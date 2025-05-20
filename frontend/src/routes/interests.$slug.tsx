@@ -43,12 +43,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn, getTagColor } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { queryClient } from "@/api/query-client";
 import { useMutationSuggestKeywords } from "@/api/suggest";
 import { postsOptions, Post } from "@/api/posts";
 import { NotFound, PostCard } from "@/components";
 
-function InterestDetail() {
+const InterestDetail: React.FC = () => {
   const { slug } = Route.useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -247,7 +246,7 @@ function InterestDetail() {
       </div>
     </div>
   );
-}
+};
 
 const KeywordsSection = ({ interest }: { interest: Interest }) => {
   const [isEditingKeywords, setIsEditingKeywords] = useState(false);
@@ -407,55 +406,6 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
           {interest.keywords.map((keyword: string) => (
             <Badge key={keyword}>{keyword}</Badge>
           ))}
-        </div>
-      )}
-      {isSuggesting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient opacity-50" />
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 animate-gradient opacity-50"
-            style={{ animationDelay: "0.5s" }}
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-sky-500 to-purple-500 animate-gradient opacity-50"
-            style={{ animationDelay: "1s" }}
-          />
-
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-md" />
-
-          <div className="relative flex flex-col items-center gap-6 p-10 rounded-lg bg-white/80 shadow-2xl backdrop-blur-sm border border-white/20">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Sparkles className="h-8 w-8 text-purple-500 animate-pulse" />
-                <div className="absolute inset-0 bg-purple-500/20 rounded-full animate-ping" />
-              </div>
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 bg-clip-text text-transparent animate-gradient">
-                AI is thinking...
-              </h3>
-            </div>
-
-            <div className="w-72 h-3 bg-gray-200/50 rounded-full overflow-hidden backdrop-blur-sm">
-              <div
-                className="w-full h-full bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient"
-                style={{ animationDuration: "1s" }}
-              />
-            </div>
-
-            <div className="absolute inset-0 overflow-hidden">
-              {[...Array(20)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-2 h-2 rounded-full bg-white/30 animate-float"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 2}s`,
-                    animationDuration: `${3 + Math.random() * 2}s`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </div>

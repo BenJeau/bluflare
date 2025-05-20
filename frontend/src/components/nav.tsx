@@ -3,9 +3,11 @@ import { Link, LinkProps } from "@tanstack/react-router";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { TransId } from "@/i18n";
+import { Trans } from "@/components";
 
 interface BaseNavLinkProps {
-  title: string;
+  title: TransId;
   label?: React.ReactNode;
   icon: LucideIcon;
   variant?: "default" | "ghost";
@@ -68,7 +70,9 @@ const Nav: React.FC<NavProps> = ({ links }) => {
           >
             <link.icon className="absolute left-3 h-4 w-4 min-w-4" />
             <div className="absolute left-9 right-4 flex flex-1 opacity-0 transition-opacity duration-300 ease-in sm:group-hover/nav:opacity-100 sm:group-hover/nav:ease-out">
-              <span className="flex-1 whitespace-nowrap">{link.title}</span>
+              <span className="flex-1 whitespace-nowrap">
+                <Trans id={link.title} />
+              </span>
               {link.label !== undefined && (
                 <span
                   className={cn(

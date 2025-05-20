@@ -12,10 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
 const InterestsComponent: React.FC = () => {
-  const { t } = useTranslation();
-  const { data } = useSuspenseQuery(interestsOptions);
   const { search } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const { t } = useTranslation();
+  const { data } = useSuspenseQuery(interestsOptions);
 
   const searchLowercase = search?.toLocaleLowerCase() ?? "";
   const filteredData = search
@@ -30,7 +30,7 @@ const InterestsComponent: React.FC = () => {
     <div className="flex flex-col gap-4 p-4 flex-1">
       <div className="flex gap-2">
         <Input
-          placeholder={t("interests.search.placeholder")}
+          placeholder={t("interests.search.placeholder") as string}
           className="h-8"
           value={search ?? ""}
           onChange={(e) =>

@@ -7,3 +7,5 @@ export { default as Trans } from "./trans";
 export { default as Empty } from "./empty";
 export { default as Nav } from "./nav";
 export { default as PostCard } from "./post-card";
+export { default as HomeSubSection } from "./home-sub-section";
+export { default as RecentlyIngestedPosts } from "./recently-ingested-posts";

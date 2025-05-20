@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { ArrowLeft, Pickaxe, Plus, X, Sparkles } from "lucide-react";
 import { useState, FormEvent, ChangeEvent } from "react";
-import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { useMutationSuggestKeywords } from "@/api/suggest";
 import { useTranslation } from "@/i18n";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 function RouteComponent() {
   const { t } = useTranslation();
