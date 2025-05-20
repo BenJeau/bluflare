@@ -14,5 +14,5 @@ const RootComponent: React.FC = () => (
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     component: RootComponent,
-  }
+  },
 );

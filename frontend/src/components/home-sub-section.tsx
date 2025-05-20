@@ -23,7 +23,7 @@ const HomeSubSection = <T,>({
   viewAllLink,
 }: Props<T>) => (
   <>
-    <div className="flex justify-between items-center">
+    <div className="flex items-center justify-between">
       <div>
         <div className="-mb-1 flex items-center gap-1">
           <Icon />
@@ -38,7 +38,7 @@ const HomeSubSection = <T,>({
       <Button asChild variant="link" size="sm">
         <Link to={viewAllLink}>
           <Trans id="view.all" />
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </Button>
     </div>

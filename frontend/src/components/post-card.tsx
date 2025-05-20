@@ -30,11 +30,11 @@ const PostCard: React.FC<Props> = ({
     exit={{ opacity: 0, y: -10 }}
     transition={{ duration: 0.2, delay: 0.05 * offset }}
     className={cn(
-      "flex flex-col rounded-lg border overflow-hidden shadow-xs bg-green-50 dark:bg-card/30",
-      className
+      "dark:bg-card/30 flex flex-col overflow-hidden rounded-lg border bg-green-50 shadow-xs",
+      className,
     )}
   >
-    <div className="text-xs text-muted-foreground flex gap-1 bg-card border-b p-2 justify-between items-center">
+    <div className="text-muted-foreground bg-card flex items-center justify-between gap-1 border-b p-2 text-xs">
       <div className="flex flex-col">
         {/* <a
               href={`https://bsky.app/profile/${post.aka[0].split("//")[1]}`}
@@ -52,14 +52,14 @@ const PostCard: React.FC<Props> = ({
         <Tag data={post.tags} Icon={Hash} />
       </div>
     </div>
-    <div className="flex gap-2 justify-between items-stretch">
+    <div className="flex items-stretch justify-between gap-2">
       <div>
         {/* <a
               href={`https://bsky.app/profile/${did}/post/${rkey}`}
               target="_blank"
               rel="noopener noreferrer"
             > */}
-        <p className="text-sm font-semibold hover:underline p-2">
+        <p className="p-2 text-sm font-semibold hover:underline">
           {highlightKeywords(post.text, keywords)}
         </p>
         {/* </a> */}
@@ -80,8 +80,8 @@ const Tag: React.FC<TagProps> = ({ data, Icon }) => (
         className={cn(
           "text-xs",
           data.length > 0
-            ? "bg-green-600 text-white border-green-600"
-            : "dark:bg-border text-muted-foreground"
+            ? "border-green-600 bg-green-600 text-white"
+            : "dark:bg-border text-muted-foreground",
         )}
         variant="outline"
       >

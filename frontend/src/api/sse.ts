@@ -56,7 +56,7 @@ export function useSSE<T extends { id: unknown }>({
       setRetryTimeout(
         setTimeout(() => {
           connect();
-        }, reconnectInterval)
+        }, reconnectInterval),
       );
     });
   };

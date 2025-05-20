@@ -36,13 +36,13 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
 
   const componentStack = info?.componentStack?.trim();
   return (
-    <div className="container relative mx-auto flex  flex-1 items-center justify-center gap-8 p-4 dark:text-white">
+    <div className="relative container mx-auto flex flex-1 items-center justify-center gap-8 p-4 dark:text-white">
       {showImage && (
         <div className="hidden h-[20rem] w-[20rem] flex-col gap-6 lg:flex xl:h-[30rem] xl:w-[30rem]">
           <img
             src={Image}
             alt={t("this.is.fine.image.alt")}
-            className="h-fit w-fit rounded-3xl object-cover text-white shadow-lg shadow-primary/20 dark:shadow-primary/5"
+            className="shadow-primary/20 dark:shadow-primary/5 h-fit w-fit rounded-3xl object-cover text-white shadow-lg"
           />
 
           <div className="hidden flex-wrap items-center justify-between gap-4 xl:flex">
@@ -52,11 +52,11 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
       )}
 
       <div className="relative flex flex-1 flex-col gap-2">
-        <div className="text-500 z-10 font-serif text-5xl font-bold leading-[1] sm:text-7xl lg:text-8xl xl:text-9xl">
+        <div className="text-500 z-10 font-serif text-5xl leading-[1] font-bold sm:text-7xl lg:text-8xl xl:text-9xl">
           <Trans id="error.unexpected.title" />
         </div>
 
-        <div className="dark:text-800 absolute -right-5 -top-10 ms-4 select-none font-serif text-7xl font-bold leading-5 text-primary/30 sm:text-7xl md:text-9xl xl:top-10 xl:text-[10rem]">
+        <div className="dark:text-800 text-primary/30 absolute -top-10 -right-5 ms-4 font-serif text-7xl leading-5 font-bold select-none sm:text-7xl md:text-9xl xl:top-10 xl:text-[10rem]">
           x⸑x
         </div>
         <div className="mb-2 text-sm">
@@ -98,7 +98,7 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
             <AccordionContent className="mt-4 pb-2">
               <Tabs
                 defaultValue="error"
-                className="dark:bg-950 flex flex-col gap-2 rounded-xl border bg-background p-4 shadow-sm"
+                className="dark:bg-950 bg-background flex flex-col gap-2 rounded-xl border p-4 shadow-sm"
               >
                 <div className="flex justify-between">
                   <h3 className="text-800 flex gap-2 text-2xl font-medium dark:text-white">

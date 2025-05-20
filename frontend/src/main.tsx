@@ -36,5 +36,5 @@ if (loadingContainer) {
 createRoot(root).render(
   <StrictMode>
     <Providers />
-  </StrictMode>
+  </StrictMode>,
 );

@@ -86,35 +86,44 @@ const InterestDetail: React.FC = () => {
   }, [posts, ssePosts]);
 
   const urls: Record<string, number> = useMemo(() => {
-    return combinedPosts.reduce((acc, post) => {
-      post.urls.forEach((url) => {
-        acc[url] = (acc[url] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
+    return combinedPosts.reduce(
+      (acc, post) => {
+        post.urls.forEach((url) => {
+          acc[url] = (acc[url] || 0) + 1;
+        });
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }, [combinedPosts]);
 
   const tags: Record<string, number> = useMemo(() => {
-    return combinedPosts.reduce((acc, post) => {
-      post.tags.forEach((tag) => {
-        acc[tag] = (acc[tag] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
+    return combinedPosts.reduce(
+      (acc, post) => {
+        post.tags.forEach((tag) => {
+          acc[tag] = (acc[tag] || 0) + 1;
+        });
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }, [combinedPosts]);
 
   const langs: Record<string, number> = useMemo(() => {
-    return combinedPosts.reduce((acc, post) => {
-      post.langs.forEach((lang) => {
-        acc[lang] = (acc[lang] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
+    return combinedPosts.reduce(
+      (acc, post) => {
+        post.langs.forEach((lang) => {
+          acc[lang] = (acc[lang] || 0) + 1;
+        });
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }, [combinedPosts]);
 
   return (
     <div className="flex flex-col gap-2 p-4">
-      <div className="flex justify-between gap-2 mb-2">
+      <div className="mb-2 flex justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link to="/interests">
@@ -122,13 +131,13 @@ const InterestDetail: React.FC = () => {
             </Link>
           </Button>
           <h2 className="text-xl font-bold">
-            <span className="flex gap-2 items-baseline">
+            <span className="flex items-baseline gap-2">
               {interest.subject}
               <p className="text-sm font-normal italic">
                 {interest.description}
               </p>
             </span>
-            <p className="text-sm text-muted-foreground font-normal">
+            <p className="text-muted-foreground text-sm font-normal">
               {t("interests.detail.created")}:{" "}
               {new Date(interest.created_at).toLocaleString()}
             </p>
@@ -153,11 +162,11 @@ const InterestDetail: React.FC = () => {
           </Button>
         </div>
       </div>
-      <div className="rounded-lg border p-4 bg-white">
-        <div className="flex justify-between items-center">
-          <p className="text-sm font-semibold flex gap-2 items-center">
+      <div className="rounded-lg border bg-white p-4">
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-2 text-sm font-semibold">
             <Bot className="h-4 w-4" /> Analysis{" "}
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               (
               {interest.last_analysis_at
                 ? new Date(interest.last_analysis_at).toLocaleString()
@@ -174,18 +183,18 @@ const InterestDetail: React.FC = () => {
             >
               {isAnalysisExpanded ? (
                 <>
-                  Collapse <ChevronUp className="h-3 w-3 ml-1" />
+                  Collapse <ChevronUp className="ml-1 h-3 w-3" />
                 </>
               ) : (
                 <>
-                  Expand <ChevronDown className="h-3 w-3 ml-1" />
+                  Expand <ChevronDown className="ml-1 h-3 w-3" />
                 </>
               )}
             </Button>
           )}
         </div>
         {isAnalysisExpanded && (
-          <div className="prose prose-sm max-w-none dark:prose-invert mt-2">
+          <div className="prose prose-sm dark:prose-invert mt-2 max-w-none">
             <ReactMarkdown>
               {interest.last_analysis ??
                 "No analysis results yet, start analyzing posts to get started!"}
@@ -197,15 +206,15 @@ const InterestDetail: React.FC = () => {
       <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
       <StatsSection data={urls || {}} title="URLs" Icon={LinkIcon} />
       <StatsSection data={tags || {}} title="Tags" Icon={Hash} />
-      <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
+      <div className="flex flex-col gap-2 rounded-lg border bg-white p-4">
         <div className="flex justify-between gap-2">
-          <p className="text-sm font-semibold flex gap-2 items-center">
+          <p className="flex items-center gap-2 text-sm font-semibold">
             <Newspaper className="h-4 w-4" /> Posts{" "}
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               ({combinedPosts.length})
             </span>
           </p>
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <p className="text-sm font-semibold">Latest posts to show</p>
             <Select
               value={numberOfPostsToShow.toString()}
@@ -233,7 +242,7 @@ const InterestDetail: React.FC = () => {
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
           {combinedPosts.slice(0, numberOfPostsToShow).map((post, index) => (
             <PostCard
               key={post.id}
@@ -300,7 +309,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
       });
       // Add only unique keywords that aren't already in the list
       const newKeywords = suggestedKeywords.filter(
-        (keyword) => !editedKeywords.includes(keyword)
+        (keyword) => !editedKeywords.includes(keyword),
       );
       setEditedKeywords([...editedKeywords, ...newKeywords]);
     } catch (error) {
@@ -309,11 +318,11 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
   };
 
   return (
-    <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-semibold flex gap-2 items-center">
+    <div className="flex flex-col gap-2 rounded-lg border bg-white p-4">
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-2 text-sm font-semibold">
           <Tag className="h-4 w-4" /> Keywords{" "}
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             ({interest.keywords.length})
           </span>
         </p>
@@ -370,14 +379,14 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
               onClick={handleSuggestKeywords}
               variant="outline"
               className={cn(
-                "h-8 relative overflow-hidden",
+                "relative h-8 overflow-hidden",
                 isSuggesting &&
-                  "bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient"
+                  "animate-gradient bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500",
               )}
               disabled={isSuggesting}
             >
               <div className="relative flex items-center">
-                <Sparkles className="h-3 w-3 mr-1" />
+                <Sparkles className="mr-1 h-3 w-3" />
                 {isSuggesting ? "Suggesting..." : "Suggest AI Keywords"}
               </div>
             </Button>
@@ -386,7 +395,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
             {editedKeywords.map((keyword, index) => (
               <div
                 key={index}
-                className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-sm"
+                className="bg-secondary flex items-center gap-1 rounded-full px-3 py-1 text-sm"
               >
                 <span>{keyword}</span>
                 <Button
@@ -422,11 +431,11 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
   const [showAll, setShowAll] = useState(false);
 
   return (
-    <div className="rounded-lg border p-4 flex gap-2 flex-col bg-white">
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-semibold flex gap-2 items-center">
+    <div className="flex flex-col gap-2 rounded-lg border bg-white p-4">
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-2 text-sm font-semibold">
           <Icon className="h-4 w-4" /> {title}{" "}
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             ({(data && Object.keys(data).length) ?? 0} unique{" "}
             {title.toLocaleLowerCase()})
           </span>
@@ -440,17 +449,17 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
           >
             {showAll ? (
               <>
-                Show Less <ChevronUp className="h-3 w-3 ml-1" />
+                Show Less <ChevronUp className="ml-1 h-3 w-3" />
               </>
             ) : (
               <>
-                View More <ChevronDown className="h-3 w-3 ml-1" />
+                View More <ChevronDown className="ml-1 h-3 w-3" />
               </>
             )}
           </Button>
         )}
       </div>
-      <div className="flex flex-wrap gap-1 items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-1">
         <div className="flex flex-wrap gap-1">
           {data &&
             Object.entries(data)
@@ -469,7 +478,7 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
                       "border-none",
                       isAtleastThreeQuarters && showAll
                         ? "text-black"
-                        : "text-white"
+                        : "text-white",
                     )}
                   >
                     {word} <span className="text-xs font-bold">{count}</span>
@@ -490,7 +499,7 @@ const NotFoundInterest: React.FC = () => {
 export const Route = createFileRoute("/interests/$slug")({
   loader: async ({ params: { slug }, context: { queryClient } }) => {
     const id = await queryClient.ensureQueryData(
-      interestSlugQueryOptions(slug)
+      interestSlugQueryOptions(slug),
     );
 
     if (!id) {

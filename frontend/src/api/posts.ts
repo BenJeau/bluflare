@@ -22,7 +22,7 @@ export const postsOptions = (interestId: string) =>
     queryFn: async ({ signal }) => {
       const response = await fetch(
         `${config.rest_server_base_url}/interests/${interestId}/posts`,
-        { signal }
+        { signal },
       );
       return response.json();
     },
@@ -33,7 +33,7 @@ export const latestPostsOptions = queryOptions<Post[]>({
   queryFn: async ({ signal }) => {
     const response = await fetch(
       `${config.rest_server_base_url}/posts/latest`,
-      { signal }
+      { signal },
     );
     return response.json();
   },

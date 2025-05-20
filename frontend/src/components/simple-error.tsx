@@ -23,11 +23,11 @@ const SimpleError: React.FC<Props> = ({
   <div className="flex h-full w-full flex-1 items-center justify-center self-center p-4">
     <div className="relative flex min-w-[700px] flex-col flex-wrap gap-4">
       {emoji && (
-        <div className="absolute right-0 top-0 ms-4 select-none font-serif text-7xl font-bold leading-5 text-primary/30 sm:text-8xl md:text-9xl">
+        <div className="text-primary/30 absolute top-0 right-0 ms-4 font-serif text-7xl leading-5 font-bold select-none sm:text-8xl md:text-9xl">
           {emoji}
         </div>
       )}
-      <div className="ms-4 font-serif text-[10rem] font-bold leading-[10rem] text-primary dark:text-primary">
+      <div className="text-primary dark:text-primary ms-4 font-serif text-[10rem] leading-[10rem] font-bold">
         {title}
       </div>
       <div className="w-full max-w-2xl">

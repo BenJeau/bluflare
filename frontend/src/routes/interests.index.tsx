@@ -22,12 +22,12 @@ const InterestsComponent: React.FC = () => {
     ? data.filter(
         (interest) =>
           interest.subject.toLowerCase().includes(searchLowercase) ||
-          interest.description.toLowerCase().includes(searchLowercase)
+          interest.description.toLowerCase().includes(searchLowercase),
       )
     : data;
 
   return (
-    <div className="flex flex-col gap-4 p-4 flex-1">
+    <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex gap-2">
         <Input
           placeholder={t("interests.search.placeholder") as string}
@@ -48,15 +48,15 @@ const InterestsComponent: React.FC = () => {
         </Link>
       </div>
 
-      <div className="flex flex-col gap-2 flex-1">
+      <div className="flex flex-1 flex-col gap-2">
         {filteredData.map((interest) => (
           <Link
             to="/interests/$slug"
             params={{ slug: interest.slug }}
             key={interest.id}
-            className="flex justify-between rounded-lg border p-3 bg-card group"
+            className="bg-card group flex justify-between rounded-lg border p-3"
           >
-            <div className="flex flex-col justify-center ms-2">
+            <div className="ms-2 flex flex-col justify-center">
               <div className="flex items-baseline gap-2">
                 <h2 className="font-medium group-hover:underline">
                   {interest.subject}
@@ -73,7 +73,7 @@ const InterestsComponent: React.FC = () => {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col gap-x-2 gap-y-1 items-end">
+            <div className="flex flex-col items-end gap-x-2 gap-y-1">
               <Badge variant={interest.enabled ? "default" : "destructive"}>
                 <Trans
                   id={
@@ -116,7 +116,7 @@ export const Route = createFileRoute("/interests/")({
   validateSearch: v.object({
     search: v.pipe(
       v.optional(v.string()),
-      v.transform((input) => input || undefined)
+      v.transform((input) => input || undefined),
     ),
   }),
 });

@@ -45,7 +45,7 @@ export const useMutateInterest = (id: number) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(update),
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Failed to update interest keywords");
@@ -75,7 +75,7 @@ export function interestSlugQueryOptions(slug: string) {
         `${config.rest_server_base_url}/interests/slugs/${slug}`,
         {
           signal,
-        }
+        },
       );
       return response.json();
     },
@@ -90,7 +90,7 @@ export const interestOptions = (id: string) =>
         `${config.rest_server_base_url}/interests/${id}`,
         {
           signal,
-        }
+        },
       );
       return response.json();
     },
@@ -121,7 +121,7 @@ export const useDeleteInterest = () => {
         `${config.rest_server_base_url}/interests/${id}`,
         {
           method: "DELETE",
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Failed to delete interest");
@@ -137,7 +137,7 @@ export const useAnalyzeInterest = () => {
         `${config.rest_server_base_url}/interests/${id}/analyze`,
         {
           method: "POST",
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Failed to analyze interest");

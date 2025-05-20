@@ -14,7 +14,7 @@ export const router = createRouter({
   defaultPreloadStaleTime: 0,
   defaultNotFoundComponent: () => <NotFound />,
   defaultPendingComponent: () => (
-    <div className="flex flex-1 animate-pulse flex-col items-center justify-center text-primary">
+    <div className="text-primary flex flex-1 animate-pulse flex-col items-center justify-center">
       <FlameKindling size={72} strokeWidth={1.5} />
     </div>
   ),

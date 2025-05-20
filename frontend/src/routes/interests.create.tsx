@@ -60,7 +60,7 @@ function RouteComponent() {
       });
       // Add only unique keywords that aren't already in the list
       const uniqueKeywords = suggestedKeywords.filter(
-        (keyword: string) => !newKeywords.includes(keyword)
+        (keyword: string) => !newKeywords.includes(keyword),
       );
       setNewKeywords([...newKeywords, ...uniqueKeywords]);
     } catch (error) {
@@ -86,7 +86,7 @@ function RouteComponent() {
       </div>
 
       <form onSubmit={handleCreateInterest} className="flex flex-col gap-4">
-        <div className="flex gap-2 flex-col">
+        <div className="flex flex-col gap-2">
           <p className="text-sm font-medium">Subject</p>
           <Input
             type="text"
@@ -98,7 +98,7 @@ function RouteComponent() {
           />
         </div>
 
-        <div className="flex gap-2 flex-col">
+        <div className="flex flex-col gap-2">
           <p className="text-sm font-medium">Description</p>
           <Textarea
             placeholder="Description of the interest, e.g. 'AI is the future of the world and the future of the world is AI 🤯'"
@@ -132,12 +132,12 @@ function RouteComponent() {
               className={cn(
                 "relative overflow-hidden",
                 isSuggesting &&
-                  "bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500 animate-gradient"
+                  "animate-gradient bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500",
               )}
               disabled={isSuggesting}
             >
               <div className="relative flex items-center">
-                <Sparkles className="h-4 w-4 mr-1" />
+                <Sparkles className="mr-1 h-4 w-4" />
                 {isSuggesting ? "Suggesting..." : "Suggest AI Keywords"}
               </div>
             </Button>
@@ -147,7 +147,7 @@ function RouteComponent() {
             {newKeywords.map((keyword, index) => (
               <div
                 key={index}
-                className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-sm"
+                className="bg-secondary flex items-center gap-1 rounded-full px-3 py-1 text-sm"
               >
                 <span>{keyword}</span>
                 <Button

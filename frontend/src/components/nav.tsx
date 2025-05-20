@@ -61,22 +61,22 @@ const Nav: React.FC<NavProps> = ({ links }) => {
               }),
               "relative mx-1 h-9 w-9 flex-1 p-0 text-xs sm:group-hover/nav:rounded-md sm:group-hover/nav:px-3 md:mx-2",
               link.variant === "default" &&
-                "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-muted-foreground",
+                "dark:bg-muted dark:hover:bg-muted dark:hover:text-muted-foreground dark:text-white",
               "disabled" in link &&
                 link.disabled &&
                 "cursor-default opacity-50 hover:bg-transparent hover:text-current",
-              link.className
+              link.className,
             )}
           >
             <link.icon className="absolute left-3 h-4 w-4 min-w-4" />
-            <div className="absolute left-9 right-4 flex flex-1 opacity-0 transition-opacity duration-300 ease-in sm:group-hover/nav:opacity-100 sm:group-hover/nav:ease-out">
+            <div className="absolute right-4 left-9 flex flex-1 opacity-0 transition-opacity duration-300 ease-in sm:group-hover/nav:opacity-100 sm:group-hover/nav:ease-out">
               <span className="flex-1 whitespace-nowrap">
                 <Trans id={link.title} />
               </span>
               {link.label !== undefined && (
                 <span
                   className={cn(
-                    link.variant === "default" && "dark:text-white"
+                    link.variant === "default" && "dark:text-white",
                   )}
                 >
                   {link.label}

@@ -62,17 +62,17 @@ export const Layout: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.5 }}
-          className="peer/nav fixed bottom-0 left-0 right-0 z-30 flex transition-[left,bottom,top] duration-500 sm:bottom-2 sm:left-2 sm:right-full sm:top-2 md:bottom-4 md:left-4 md:top-4"
+          className="peer/nav fixed right-0 bottom-0 left-0 z-30 flex transition-[left,bottom,top] duration-500 sm:top-2 sm:right-full sm:bottom-2 sm:left-2 md:top-4 md:bottom-4 md:left-4"
         >
-          <div className="group/nav flex flex-1 justify-between overflow-hidden border bg-background/50 shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[270px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[270px] md:w-14 md:min-w-14">
+          <div className="group/nav bg-background/50 flex flex-1 justify-between overflow-hidden border shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[270px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[270px] md:w-14 md:min-w-14">
             <div className="flex sm:flex-col">
               <Link
                 to="/"
                 className={cn(
-                  "flex items-center justify-center whitespace-nowrap bg-primary/20 px-3 font-medium ring-inset transition-[padding] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:z-30 sm:h-[52px] sm:rounded-t-2xl sm:group-hover/nav:pe-4",
+                  "bg-primary/20 focus-visible:ring-ring flex items-center justify-center px-3 font-medium whitespace-nowrap transition-[padding] ring-inset focus-visible:ring-1 focus-visible:outline-none sm:z-30 sm:h-[52px] sm:rounded-t-2xl sm:group-hover/nav:pe-4",
                   page === "home"
                     ? "bg-primary font-extrabold text-white dark:text-black"
-                    : "hover:bg-primary/10 hover:text-neutral-700 dark:hover:bg-primary/60 dark:hover:text-white"
+                    : "hover:bg-primary/10 dark:hover:bg-primary/60 hover:text-neutral-700 dark:hover:text-white",
                 )}
                 disabled={page === "home"}
               >
@@ -144,13 +144,13 @@ export const Layout: React.FC = () => {
               />
               <Separator className="hidden sm:block" />
               <Popover>
-                <PopoverTrigger className="flex w-full cursor-pointer items-center justify-center gap-2 bg-muted/50 px-2 ring-inset transition-all duration-300 hover:bg-muted/10 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:hover:bg-muted/90 dark:hover:text-white sm:rounded-b-2xl sm:py-3 sm:group-hover/nav:justify-start sm:group-hover/nav:px-4">
+                <PopoverTrigger className="bg-muted/50 hover:bg-muted/10 focus-visible:ring-ring dark:hover:bg-muted/90 flex w-full cursor-pointer items-center justify-center gap-2 px-2 transition-all duration-300 ring-inset hover:text-neutral-700 focus-visible:ring-1 focus-visible:outline-none sm:rounded-b-2xl sm:py-3 sm:group-hover/nav:justify-start sm:group-hover/nav:px-4 dark:hover:text-white">
                   <Avatar className="border">
                     <AvatarImage alt="@shadcn" />
                     <AvatarFallback>BJ</AvatarFallback>
                   </Avatar>
                   <div className="hidden flex-col sm:group-hover/nav:flex">
-                    <span className="whitespace-nowrap text-start font-semibold">
+                    <span className="text-start font-semibold whitespace-nowrap">
                       Benoît Jeaurond
                     </span>
                     <span className="text-xs opacity-70">
@@ -161,7 +161,7 @@ export const Layout: React.FC = () => {
                 <PopoverContent
                   align="start"
                   side="top"
-                  className="mb-1 ms-2 w-48 overflow-hidden p-0"
+                  className="ms-2 mb-1 w-48 overflow-hidden p-0"
                 >
                   <div className="flex flex-col gap-1 p-2">
                     <Button
@@ -198,7 +198,7 @@ export const Layout: React.FC = () => {
         </motion.div>
       </AnimatePresence>
       <div
-        className="absolute bottom-0 left-0 right-0 top-0 -z-10 hidden opacity-0 backdrop-blur peer-hover/nav:z-20 peer-hover/nav:opacity-100 sm:block"
+        className="absolute top-0 right-0 bottom-0 left-0 -z-10 hidden opacity-0 backdrop-blur peer-hover/nav:z-20 peer-hover/nav:opacity-100 sm:block"
         id="nav-backdrop"
       />
       <AnimatePresence>
@@ -217,15 +217,15 @@ export const Layout: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="flex items-baseline gap-2 overflow-hidden"
             >
-              <h1 className="whitespace-nowrap text-xl font-bold">
+              <h1 className="text-xl font-bold whitespace-nowrap">
                 {page && t(page)}
               </h1>
-              <p className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs opacity-70">
+              <p className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
                 {page && t(`layout.${page}.description`)}
               </p>
             </motion.div>
           </div>
-          <main className="flex flex-1 flex-col gap-2 overflow-y-scroll rounded-2xl border bg-background/30 shadow-md backdrop-blur-sm h-full">
+          <main className="bg-background/30 flex h-full flex-1 flex-col gap-2 overflow-y-scroll rounded-2xl border shadow-md backdrop-blur-sm">
             <Outlet />
           </main>
         </motion.div>
