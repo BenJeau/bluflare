@@ -1,4 +1,8 @@
 {
+  "interests.search.placeholder": "Rechercher des intérêts...",
+  "processing.posts": "Traitement des articles",
+  "processing.paused": "Traitement suspendu",
+  "posts": "Articles",
   "interests": "Intérêts",
   "interests.add": "Ajouter un intérêt",
   "interests.add.placeholder": "Entrez un mot-clé à suivre...",

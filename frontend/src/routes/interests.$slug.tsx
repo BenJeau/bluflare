@@ -46,31 +46,7 @@ import { Input } from "@/components/ui/input";
 import { queryClient } from "@/api/query-client";
 import { useMutationSuggestKeywords } from "@/api/suggest";
 import { postsOptions, Post } from "@/api/posts";
-import { NotFound } from "@/components";
-
-const NotFoundInterest: React.FC = () => {
-  const { slug } = Route.useParams();
-  return <NotFound title="interest.not.found" data={slug} />;
-};
-
-export const Route = createFileRoute("/interests/$slug")({
-  loader: async ({ params: { slug }, context: { queryClient } }) => {
-    const id = await queryClient.ensureQueryData(
-      interestSlugQueryOptions(slug)
-    );
-
-    if (!id) {
-      return;
-    }
-
-    return Promise.all([
-      queryClient.ensureQueryData(interestOptions(id)),
-      queryClient.ensureQueryData(postsOptions(id)),
-    ]);
-  },
-  notFoundComponent: NotFoundInterest,
-  component: InterestDetail,
-});
+import { NotFound, PostCard } from "@/components";
 
 function InterestDetail() {
   const { slug } = Route.useParams();
@@ -106,9 +82,7 @@ function InterestDetail() {
 
   const combinedPosts: Post[] = useMemo(() => {
     const uniquePosts = new Map();
-    [...ssePosts, ...posts].forEach((post) =>
-      uniquePosts.set(post.post.id, post)
-    );
+    [...ssePosts, ...posts].forEach((post) => uniquePosts.set(post.id, post));
     return Array.from(uniquePosts.values());
   }, [posts, ssePosts]);
 
@@ -261,8 +235,13 @@ function InterestDetail() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {combinedPosts.slice(0, numberOfPostsToShow).map((post) => (
-            <PostCard post={post} keywords={interest.keywords} key={post.id} />
+          {combinedPosts.slice(0, numberOfPostsToShow).map((post, index) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              keywords={interest.keywords}
+              offset={index}
+            />
           ))}
         </div>
       </div>
@@ -552,3 +531,27 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
     </div>
   );
 };
+
+const NotFoundInterest: React.FC = () => {
+  const { slug } = Route.useParams();
+  return <NotFound title="interest.not.found" data={slug} />;
+};
+
+export const Route = createFileRoute("/interests/$slug")({
+  loader: async ({ params: { slug }, context: { queryClient } }) => {
+    const id = await queryClient.ensureQueryData(
+      interestSlugQueryOptions(slug)
+    );
+
+    if (!id) {
+      return;
+    }
+
+    return Promise.all([
+      queryClient.ensureQueryData(interestOptions(id)),
+      queryClient.ensureQueryData(postsOptions(id)),
+    ]);
+  },
+  notFoundComponent: NotFoundInterest,
+  component: InterestDetail,
+});

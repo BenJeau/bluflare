@@ -148,8 +148,9 @@ export const useAnalyzeInterest = () => {
 };
 
 export const useSSEInterestPosts = (id: string, active: boolean) => {
-  return useSSE<Post>(
-    `${config.rest_server_base_url}/interests/${id}/posts/sse`,
-    active
-  );
+  return useSSE<Post>({
+    url: `${config.rest_server_base_url}/interests/${id}/posts/sse`,
+    active,
+    maxDataEntries: 150,
+  });
 };

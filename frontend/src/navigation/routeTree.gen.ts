@@ -12,10 +12,11 @@
 
 import { Route as rootRoute } from "./../routes/__root";
 import { Route as IndexImport } from "./../routes/index";
-import { Route as UsersIndexImport } from "./../routes/users/index";
-import { Route as InterestsIndexImport } from "./../routes/interests/index";
-import { Route as InterestsCreateImport } from "./../routes/interests/create";
-import { Route as InterestsSlugImport } from "./../routes/interests/$slug";
+import { Route as UsersIndexImport } from "./../routes/users.index";
+import { Route as PostsIndexImport } from "./../routes/posts.index";
+import { Route as InterestsIndexImport } from "./../routes/interests.index";
+import { Route as InterestsCreateImport } from "./../routes/interests.create";
+import { Route as InterestsSlugImport } from "./../routes/interests.$slug";
 
 // Create/Update Routes
 
@@ -28,6 +29,12 @@ const IndexRoute = IndexImport.update({
 const UsersIndexRoute = UsersIndexImport.update({
   id: "/users/",
   path: "/users/",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const PostsIndexRoute = PostsIndexImport.update({
+  id: "/posts/",
+  path: "/posts/",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -81,6 +88,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof InterestsIndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/posts/": {
+      id: "/posts/";
+      path: "/posts";
+      fullPath: "/posts";
+      preLoaderRoute: typeof PostsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     "/users/": {
       id: "/users/";
       path: "/users";
@@ -98,6 +112,7 @@ export interface FileRoutesByFullPath {
   "/interests/$slug": typeof InterestsSlugRoute;
   "/interests/create": typeof InterestsCreateRoute;
   "/interests": typeof InterestsIndexRoute;
+  "/posts": typeof PostsIndexRoute;
   "/users": typeof UsersIndexRoute;
 }
 
@@ -106,6 +121,7 @@ export interface FileRoutesByTo {
   "/interests/$slug": typeof InterestsSlugRoute;
   "/interests/create": typeof InterestsCreateRoute;
   "/interests": typeof InterestsIndexRoute;
+  "/posts": typeof PostsIndexRoute;
   "/users": typeof UsersIndexRoute;
 }
 
@@ -115,6 +131,7 @@ export interface FileRoutesById {
   "/interests/$slug": typeof InterestsSlugRoute;
   "/interests/create": typeof InterestsCreateRoute;
   "/interests/": typeof InterestsIndexRoute;
+  "/posts/": typeof PostsIndexRoute;
   "/users/": typeof UsersIndexRoute;
 }
 
@@ -125,15 +142,23 @@ export interface FileRouteTypes {
     | "/interests/$slug"
     | "/interests/create"
     | "/interests"
+    | "/posts"
     | "/users";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/interests/$slug" | "/interests/create" | "/interests" | "/users";
+  to:
+    | "/"
+    | "/interests/$slug"
+    | "/interests/create"
+    | "/interests"
+    | "/posts"
+    | "/users";
   id:
     | "__root__"
     | "/"
     | "/interests/$slug"
     | "/interests/create"
     | "/interests/"
+    | "/posts/"
     | "/users/";
   fileRoutesById: FileRoutesById;
 }
@@ -143,6 +168,7 @@ export interface RootRouteChildren {
   InterestsSlugRoute: typeof InterestsSlugRoute;
   InterestsCreateRoute: typeof InterestsCreateRoute;
   InterestsIndexRoute: typeof InterestsIndexRoute;
+  PostsIndexRoute: typeof PostsIndexRoute;
   UsersIndexRoute: typeof UsersIndexRoute;
 }
 
@@ -151,6 +177,7 @@ const rootRouteChildren: RootRouteChildren = {
   InterestsSlugRoute: InterestsSlugRoute,
   InterestsCreateRoute: InterestsCreateRoute,
   InterestsIndexRoute: InterestsIndexRoute,
+  PostsIndexRoute: PostsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
 };
 
@@ -168,6 +195,7 @@ export const routeTree = rootRoute
         "/interests/$slug",
         "/interests/create",
         "/interests/",
+        "/posts/",
         "/users/"
       ]
     },
@@ -175,16 +203,19 @@ export const routeTree = rootRoute
       "filePath": "index.tsx"
     },
     "/interests/$slug": {
-      "filePath": "interests/$slug.tsx"
+      "filePath": "interests.$slug.tsx"
     },
     "/interests/create": {
-      "filePath": "interests/create.tsx"
+      "filePath": "interests.create.tsx"
     },
     "/interests/": {
-      "filePath": "interests/index.tsx"
+      "filePath": "interests.index.tsx"
+    },
+    "/posts/": {
+      "filePath": "posts.index.tsx"
     },
     "/users/": {
-      "filePath": "users/index.tsx"
+      "filePath": "users.index.tsx"
     }
   }
 }

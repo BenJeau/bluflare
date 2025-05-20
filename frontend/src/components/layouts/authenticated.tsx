@@ -6,6 +6,10 @@ import {
   FlameKindling,
   Binoculars,
   Users,
+  BarChart4,
+  Github,
+  MessageCircleMore,
+  BookOpenText,
 } from "lucide-react";
 import { useRouterState, Link, Outlet } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
@@ -23,7 +27,7 @@ import { Nav, Trans } from "@/components";
 import config from "@/lib/config";
 import { useTranslation } from "@/i18n";
 
-type Page = "home" | "interests";
+type Page = "home" | "interests" | "users" | "posts" | "stats";
 
 export const Layout: React.FC = () => {
   const { location } = useRouterState();
@@ -31,6 +35,9 @@ export const Layout: React.FC = () => {
 
   const page: Page | undefined = useMemo(() => {
     if (location.pathname.startsWith("/interests")) return "interests";
+    if (location.pathname.startsWith("/posts")) return "posts";
+    if (location.pathname.startsWith("/users")) return "users";
+    if (location.pathname.startsWith("/stats")) return "stats";
     if (location.pathname === "/") return "home";
     return undefined;
   }, [location.pathname]);
@@ -49,7 +56,7 @@ export const Layout: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="peer/nav fixed bottom-0 left-0 right-0 z-30 flex transition-[left,bottom,top] duration-500 sm:bottom-2 sm:left-2 sm:right-full sm:top-2 md:bottom-4 md:left-4 md:top-4"
         >
-          <div className="group/nav flex flex-1 justify-between overflow-hidden border bg-background/50 shadow-md backdrop-blur-md transition-all duration-300 ease-in hover:w-[270px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[270px] md:w-14 md:min-w-14">
+          <div className="group/nav flex flex-1 justify-between overflow-hidden border bg-background/50 shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[270px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[270px] md:w-14 md:min-w-14">
             <div className="flex sm:flex-col">
               <Link
                 to="/"
@@ -81,23 +88,53 @@ export const Layout: React.FC = () => {
                     variant: page === "users" ? "default" : "ghost",
                     icon: Users,
                   },
+                  {
+                    title: t("posts"),
+                    to: "/posts",
+                    variant: page === "posts" ? "default" : "ghost",
+                    icon: MessageCircleMore,
+                  },
                 ]}
               />
-              {/* <div className="mx-2 hidden sm:block">
+              <div className="mx-2 hidden sm:block">
                 <Separator />
               </div>
               <Nav
                 links={[
                   {
-                    title: t("interests"),
-                    to: "/interests",
-                    variant: page === "interests" ? "default" : "ghost",
-                    icon: Database,
+                    title: t("stats"),
+                    to: "/stats",
+                    variant: page === "stats" ? "default" : "ghost",
+                    icon: BarChart4,
                   },
                 ]}
-              /> */}
+              />
             </div>
             <div className="flex sm:flex-col">
+              <Nav
+                links={[
+                  {
+                    title: t("docs"),
+                    to: "/docs",
+                    variant: page === "docs" ? "default" : "ghost",
+                    icon: BookOpenText,
+                  },
+                ]}
+              />
+              <div className="mx-2 hidden sm:block">
+                <Separator />
+              </div>
+              <Nav
+                links={[
+                  {
+                    title: t("github"),
+                    href: "https://github.com/BenJeau/bluflare",
+                    variant: page === "github" ? "default" : "ghost",
+                    icon: Github,
+                  },
+                ]}
+              />
+              <Separator className="hidden sm:block" />
               <Popover>
                 <PopoverTrigger className="flex w-full cursor-pointer items-center justify-center gap-2 bg-muted/50 px-2 ring-inset transition-all duration-300 hover:bg-muted/10 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:hover:bg-muted/90 dark:hover:text-white sm:rounded-b-2xl sm:py-3 sm:group-hover/nav:justify-start sm:group-hover/nav:px-4">
                   <Avatar className="border">
@@ -194,7 +231,7 @@ export const Layout: React.FC = () => {
               </p>
             </motion.div>
           </div>
-          <main className="flex flex-1 flex-col gap-2 overflow-y-scroll rounded-2xl border bg-background/50 shadow-md backdrop-blur-sm h-full">
+          <main className="flex flex-1 flex-col gap-2 overflow-y-scroll rounded-2xl border bg-background/30 shadow-md backdrop-blur-sm h-full">
             <Outlet />
           </main>
         </motion.div>

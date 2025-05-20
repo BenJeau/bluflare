@@ -1,7 +1,12 @@
 {
+  "interests.search.placeholder": "Search interests...",
+  "processing.posts": "Processing posts",
+  "processing.paused": "Processing paused",
   "layout.interests.description": "Track the latest trends and insights",
   "users": "Users",
   "layout.users.description": "Investigate users and their activity",
+  "layout.home.description": "Discover the latest trends and insights",
+  "posts": "Posts",
   "interests": "Interests",
   "interests.add": "Add Interest",
   "interests.add.placeholder": "Enter a keyword to track...",

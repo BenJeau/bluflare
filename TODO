@@ -14,7 +14,8 @@ general
 backend
 
 1. [ ] normalize shape of post from SSE and API
-2. [ ] create user API endpoints
+1. [ ] protect modify endpoints
+2. [in progress] create user API endpoints
 2. [ ] create post API endpoints
 2. [ ] maybe auto-generate OpenAPI specs
 2. [ ] make sure telemetry works as expected
@@ -24,19 +25,22 @@ backend
 
 frontend
 
-1. [ ] make homepage better, maybe show a carousel of posts being ingested in real time
+1. [in progress] make homepage better, maybe show a carousel of posts being ingested in real time
 2. [ ] create user pages
 2. [ ] create post pages
 2. [ ] cleanup tanstack query invalidation
-2. [ ] fix queryClient type in router
-2. [ ] fix dark mode
+2. [x] fix queryClient type in router
+2. [in progress] fix dark mode
 2. [ ] create smaller components
 2. [ ] add toggle to enable/disable interested
+2. [ ] fix height change of sidenav on expand for user section
+2. [in progress] fix type errors
+2. [in progress] cleanup i18n keys
 3. [ ] maybe port over custom fetch with better tanstack query integration
-3. [ ] maybe add more animations with framer motion
+3. [x] maybe add more animations with framer motion
 
 deployment
 
-1. [ ] make sure Dockerfile works
+1. [x] make sure Dockerfile works
 1. [ ] create ansible/teraform scripts
 1. [ ] create GH actions for deployment

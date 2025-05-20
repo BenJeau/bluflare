@@ -7,26 +7,11 @@ import EmptyImg from "@/assets/adventure-1-70.svg";
 import { Button } from "@/components/ui/button";
 import { interestsOptions } from "@/api/interests";
 import { useTranslation } from "@/i18n";
-import { Empty } from "@/components";
+import { Empty, Trans } from "@/components";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
-const searchParamsSchema = v.object({
-  search: v.pipe(
-    v.optional(v.string()),
-    v.transform((input) => input || undefined)
-  ),
-});
-
-export const Route = createFileRoute("/interests/")({
-  loader: async ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(interestsOptions);
-  },
-  validateSearch: searchParamsSchema,
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+const InterestsComponent: React.FC = () => {
   const { t } = useTranslation();
   const { data } = useSuspenseQuery(interestsOptions);
   const { search } = Route.useSearch();
@@ -45,7 +30,7 @@ function RouteComponent() {
     <div className="flex flex-col gap-4 p-4 flex-1">
       <div className="flex gap-2">
         <Input
-          placeholder="Search interests..."
+          placeholder={t("interests.search.placeholder")}
           className="h-8"
           value={search ?? ""}
           onChange={(e) =>
@@ -58,7 +43,7 @@ function RouteComponent() {
         <Link to="/interests/create">
           <Button size="sm">
             <Plus className="h-2 w-2" />
-            {t("interests.add")}
+            <Trans id="interests.add" />
           </Button>
         </Link>
       </div>
@@ -90,10 +75,15 @@ function RouteComponent() {
             </div>
             <div className="flex flex-col gap-x-2 gap-y-1 items-end">
               <Badge variant={interest.enabled ? "default" : "destructive"}>
-                {interest.enabled ? "Processing posts" : "Processing paused"}
+                <Trans
+                  id={
+                    interest.enabled ? "processing.posts" : "processing.paused"
+                  }
+                />
               </Badge>
               <Badge variant="secondary">
-                {interest.post_count?.toLocaleString()} posts
+                {interest.post_count?.toLocaleString()}{" "}
+                {t("posts").toLowerCase()}
               </Badge>
             </div>
           </Link>
@@ -117,4 +107,16 @@ function RouteComponent() {
       </div>
     </div>
   );
-}
+};
+
+export const Route = createFileRoute("/interests/")({
+  component: InterestsComponent,
+  loader: async ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(interestsOptions),
+  validateSearch: v.object({
+    search: v.pipe(
+      v.optional(v.string()),
+      v.transform((input) => input || undefined)
+    ),
+  }),
+});

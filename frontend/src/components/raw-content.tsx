@@ -7,8 +7,8 @@ const RawContent: React.FC<{
 }> = ({ content, className }) => (
   <div
     className={cn(
-      "dark:border-800 dark:bg-950 relative flex h-full w-full flex-1 overflow-hidden rounded-lg border bg-muted shadow-inner ring-white",
-      className,
+      "dark:bg-950 relative flex h-full w-full flex-1 overflow-hidden rounded-lg border bg-muted shadow-inner ring-white",
+      className
     )}
   >
     <div className="flex h-full max-h-[400px] min-h-12 flex-1 text-xs dark:bg-black/50">
