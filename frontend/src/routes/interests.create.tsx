@@ -10,6 +10,7 @@ import { useMutationSuggestKeywords } from "@/api/suggest";
 import { useTranslation } from "@/i18n";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { Trans } from "@/components";
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -27,14 +28,16 @@ function RouteComponent() {
     if (!newSubject.trim() || newKeywords.length === 0) return;
 
     try {
-      const id = await createInterest.mutateAsync({
+      const interest = await createInterest.mutateAsync({
         subject: newSubject.trim(),
         description: newDescription.trim(),
         keywords: newKeywords,
       });
-      navigate({ to: "/interests/$slug", params: { slug: id.toString() } });
+      navigate({ to: "/interests/$slug", params: { slug: interest.slug } });
+      toast.success(t("create.interest.success"));
     } catch (error) {
       console.error("Failed to create interest:", error);
+      toast.error(t("create.interest.error"));
     }
   };
 
@@ -63,8 +66,10 @@ function RouteComponent() {
         (keyword: string) => !newKeywords.includes(keyword),
       );
       setNewKeywords([...newKeywords, ...uniqueKeywords]);
+      toast.success(t("keywords.suggest.success"));
     } catch (error) {
-      toast.error("Failed to suggest keywords");
+      console.error("Failed to suggest keywords:", error);
+      toast.error(t("keywords.suggest.error"));
     }
   };
 
@@ -77,48 +82,49 @@ function RouteComponent() {
           </Link>
         </Button>
         <div className="flex flex-col">
-          <p className="text-3xl font-bold">Create an interest</p>
+          <p className="text-3xl font-bold">
+            <Trans id="create.interest.title" />
+          </p>
           <p className="text-sm italic">
-            Start tracking messages related to it and get notified when new ones
-            are posted. Start digging into the latest trends and insights.
+            <Trans id="create.interest.description" />
           </p>
         </div>
       </div>
 
       <form onSubmit={handleCreateInterest} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Subject</p>
+          <p className="text-sm font-medium">
+            <Trans id="subject" />
+          </p>
           <Input
             type="text"
-            placeholder="Main topic for the interest, e.g. 'AI'"
+            placeholder={t("subject.placeholder")}
             value={newSubject}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setNewSubject(e.target.value)
-            }
+            onChange={(e) => setNewSubject(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Description</p>
+          <p className="text-sm font-medium">
+            <Trans id="description" />
+          </p>
           <Textarea
-            placeholder="Description of the interest, e.g. 'AI is the future of the world and the future of the world is AI 🤯'"
+            placeholder={t("description.placeholder")}
             value={newDescription}
-            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-              setNewDescription(e.target.value)
-            }
+            onChange={(e) => setNewDescription(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Keywords</p>
+          <p className="text-sm font-medium">
+            <Trans id="keywords" />
+          </p>
           <div className="flex gap-2">
             <Input
               type="text"
-              placeholder="Specific keywords used for filtering messages, e.g. 'AI', 'Machine Learning'"
+              placeholder={t("keywords.placeholder")}
               value={currentKeyword}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setCurrentKeyword(e.target.value)
-              }
+              onChange={(e) => setCurrentKeyword(e.target.value)}
             />
             <Button
               onClick={handleAddKeyword}
@@ -138,7 +144,9 @@ function RouteComponent() {
             >
               <div className="relative flex items-center">
                 <Sparkles className="mr-1 h-4 w-4" />
-                {isSuggesting ? "Suggesting..." : "Suggest AI Keywords"}
+                <Trans
+                  id={isSuggesting ? "keywords.suggesting" : "keywords.suggest"}
+                />
               </div>
             </Button>
           </div>

@@ -97,7 +97,7 @@ export const interestOptions = (id: string) =>
   });
 
 export const useCreateInterest = () => {
-  return useMutation<number, Error, CreateInterest>({
+  return useMutation<Interest, Error, CreateInterest>({
     mutationFn: async (interest) => {
       const response = await fetch(`${config.rest_server_base_url}/interests`, {
         method: "POST",
@@ -109,7 +109,7 @@ export const useCreateInterest = () => {
       if (!response.ok) {
         throw new Error("Failed to create interest");
       }
-      return Number(await response.text());
+      return await response.json();
     },
   });
 };

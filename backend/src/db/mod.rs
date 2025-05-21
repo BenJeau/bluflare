@@ -103,15 +103,16 @@ pub async fn update_interest_keywords<'e>(
 pub async fn create_interest<'e>(
     executor: impl SqliteExecutor<'e>,
     interest: CreateInterest,
-) -> Result<i64> {
+) -> Result<Interest> {
     let keywords = serde_json::to_value(interest.keywords.clone()).unwrap();
     let slug = slugify(&interest.subject);
 
-    let result = sqlx::query_scalar!(
+    let result = sqlx::query_as!(
+        DbInterest,
         r#"
             INSERT INTO interests (subject, slug, description, keywords)
             VALUES (?, ?, ?, ?)
-            RETURNING id
+            RETURNING *
             "#,
         interest.subject,
         slug,
@@ -121,7 +122,7 @@ pub async fn create_interest<'e>(
     .fetch_one(executor)
     .await?;
 
-    Ok(result)
+    Ok(result.into())
 }
 
 pub async fn get_all_interests<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Interest>> {
