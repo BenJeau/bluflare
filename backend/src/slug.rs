@@ -1,15 +1,16 @@
-use regex::Regex;
-use std::sync::LazyLock;
-
-static SLUGIFY_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"[^a-z]+").expect("Invalid regex"));
-
 pub fn slugify(s: &str) -> String {
-    SLUGIFY_REGEX
-        .split(&s.to_lowercase())
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join("-")
+    s.to_lowercase()
+        .chars()
+        .fold(String::new(), |mut acc, c| {
+            if c.is_ascii_alphabetic() {
+                acc.push(c);
+            } else if !acc.ends_with('-') {
+                acc.push('-');
+            }
+            acc
+        })
+        .trim_matches('-')
+        .to_string()
 }
 
 #[cfg(test)]

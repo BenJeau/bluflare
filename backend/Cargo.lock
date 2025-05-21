@@ -192,7 +192,6 @@ dependencies = [
  "figment",
  "futures-util",
  "http",
- "regex",
  "reqwest",
  "reqwest-websocket",
  "sentry",
