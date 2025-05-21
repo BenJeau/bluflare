@@ -74,6 +74,7 @@ const InterestDetail: React.FC = () => {
     try {
       await analyzeInterest(Number(id));
     } catch (error) {
+      console.error(error);
       toast.error("Failed to analyze interest");
     }
   };
@@ -281,6 +282,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
       toast.success("Keywords updated successfully");
       setIsEditingKeywords(false);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to update keywords");
     }
   };
@@ -311,6 +313,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
       );
       setEditedKeywords([...editedKeywords, ...newKeywords]);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to suggest keywords");
     }
   };

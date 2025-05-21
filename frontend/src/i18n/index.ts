@@ -48,7 +48,7 @@ export const useTranslation = () => {
     setLang((prev) => languages[prev].other);
   }, [setLang]);
 
-  const t = useCallback(tHelper, [lang]);
+  const t = useCallback(tHelper, [lang, tHelper]);
 
   return { lang: languages[lang], t, toggle, otherLang };
 };
