@@ -14,6 +14,7 @@
   "error.unexpected.description": "Aventurier, n'est-ce pas ? Eh bien, c'est gênant. Nous avons rencontré une erreur inattendue et elle a déjà été signalée. Vous pouvez essayer de rafraîchir la page ou contacter l'administrateur.",
   "error.unexpected.title": "Erreur inattendue",
   "github": "GitHub",
+  "hashtags": "Hashtags",
   "home": "Accueil",
   "home.welcome": "Bienvenue sur {name}",
   "home.welcome.description": "La {openSourcePlatform} pour obtenir des renseignements sur {socialNetwork}, voir ce que les gens disent et plonger dans des sujets spécifiques",
@@ -39,10 +40,12 @@
   "layout.stats.description": "Données générales sur les demandes récentes",
   "layout.users.description": "Investiguer les utilisateurs et leurs activités",
   "logout": "Déconnexion",
-  "no.interests": "Aucun intérêt",
+  "no.description": "Aucune description",
+  "no.interests": "Aucun intérêt créé",
   "no.interests.description": "Créer un intérêt pour commencer",
   "no.interests.search": "Aucun intérêt trouvé",
   "no.interests.search.description": "Élargir votre recherche ou créer un nouvel intérêt",
+  "no.users": "Aucun utilisateur ingéré",
   "opensource.platform": "plateforme open-source",
   "pause.live.updates": "Mettre en pause",
   "posts": "Articles",
@@ -59,8 +62,10 @@
   "under.construction.description": "Rien à voir ici encore, revenez plus tard!",
   "under.construction.title": "En construction",
   "unknown.error": "Erreur inconnue",
+  "urls": "Liens",
   "users": "Utilisateurs",
   "version.mismatch.description": "Les versions du frontend et du backend diffèrent. Veuillez {refresh} la page.",
   "version.mismatch.title": "Incompatibilité de version",
-  "view.all": "Voir tous"
+  "view.all.interests": "Voir tous les {count} intérêts",
+  "view.all.users": "Voir tous les {count} utilisateurs"
 }

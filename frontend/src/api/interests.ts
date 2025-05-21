@@ -65,6 +65,7 @@ export const interestsOptions = queryOptions<Interest[]>({
     });
     return response.json();
   },
+  refetchInterval: 1000,
 });
 
 export function interestSlugQueryOptions(slug: string) {

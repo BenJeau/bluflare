@@ -7,8 +7,10 @@ import { latestPostsOptions } from "@/api/posts";
 import { HomeSubSection, RecentlyIngestedPosts, Trans } from "@/components";
 import { Button } from "@/components/ui/button";
 import { interestsOptions } from "@/api/interests";
+import { useTranslation } from "@/i18n";
 
 const IndexComponent: React.FC = () => {
+  const { t } = useTranslation();
   const [sseEnabled, setSseEnabled] = useState(true);
 
   const { data: interests } = useSuspenseQuery(interestsOptions);
@@ -16,7 +18,7 @@ const IndexComponent: React.FC = () => {
   return (
     <div className="flex flex-1 overflow-y-hidden">
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-1 flex-col justify-center gap-6 p-24">
+        <div className="flex flex-1 flex-col justify-center gap-6 p-12">
           <h1 className="text-5xl font-bold md:text-6xl">
             <Trans
               id="home.welcome"
@@ -27,7 +29,7 @@ const IndexComponent: React.FC = () => {
               }
             />
           </h1>
-          <p className="mb-8">
+          <p>
             <Trans
               id="home.welcome.description"
               openSourcePlatform={
@@ -58,18 +60,11 @@ const IndexComponent: React.FC = () => {
             title="latest.users"
             description="latest.users.description"
             Icon={Speech}
-            data={interests}
+            data={[]}
             viewAllLink="/users"
-            render={(interest) => (
-              <Link
-                key={interest.id}
-                to="/interests/$slug"
-                params={{ slug: interest.slug }}
-                className="text-primary bg-background/50 rounded-lg border p-2 text-sm shadow-xs hover:underline"
-              >
-                {interest.slug}
-              </Link>
-            )}
+            emptyMessage="no.users"
+            viewAllText="view.all.users"
+            render={() => null}
           />
           <div className="border-t" />
           <HomeSubSection
@@ -78,20 +73,39 @@ const IndexComponent: React.FC = () => {
             Icon={BookOpenText}
             data={interests}
             viewAllLink="/interests"
+            emptyMessage="no.interests"
+            viewAllText="view.all.interests"
             render={(interest) => (
               <Link
                 key={interest.id}
                 to="/interests/$slug"
                 params={{ slug: interest.slug }}
-                className="text-primary bg-background/50 rounded-lg border p-2 text-sm shadow-xs hover:underline"
+                className="bg-background/50 flex flex-col rounded-lg border p-2 text-sm shadow-xs hover:underline"
               >
-                {interest.slug}
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap">
+                    {interest.subject}
+                  </h3>
+                  <p className="text-xs whitespace-nowrap text-sky-300 opacity-70">
+                    {interest.post_count?.toLocaleString()}{" "}
+                    {t("posts").toLowerCase()}
+                  </p>
+                </div>
+                {interest.description ? (
+                  <span className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
+                    {interest.description}
+                  </span>
+                ) : (
+                  <span className="text-xs italic opacity-35">
+                    <Trans id="no.description" />
+                  </span>
+                )}
               </Link>
             )}
           />
         </div>
       </div>
-      <div className="bg-background/50 relative max-w-2xl border-l p-4">
+      <div className="bg-background/50 relative flex-1 border-l p-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="-mb-1 flex items-center gap-1">
@@ -105,6 +119,7 @@ const IndexComponent: React.FC = () => {
             </p>
           </div>
           <Button
+            className="cursor-pointer"
             variant="outline"
             size="sm"
             onClick={() => setSseEnabled((prev) => !prev)}

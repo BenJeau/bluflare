@@ -1,15 +1,17 @@
 import { Hash, LinkIcon, LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import dayjs from "dayjs";
 
 import { Post } from "@/api/posts";
 import { cn, highlightKeywords } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { motion } from "framer-motion";
-import dayjs from "dayjs";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { TransId } from "@/i18n";
+import { Trans } from "@/components";
 
 export type Props = {
   post: Post;
@@ -48,8 +50,8 @@ const PostCard: React.FC<Props> = ({
         {dayjs(post.created_at).format("LLL")}
       </div>
       <div className="flex gap-2">
-        <Tag data={post.urls} Icon={LinkIcon} />
-        <Tag data={post.tags} Icon={Hash} />
+        <Tag data={post.urls} Icon={LinkIcon} title="urls" />
+        <Tag data={post.tags} Icon={Hash} title="hashtags" />
       </div>
     </div>
     <div className="flex items-stretch justify-between gap-2">
@@ -71,31 +73,43 @@ const PostCard: React.FC<Props> = ({
 type TagProps = {
   data: string[];
   Icon: LucideIcon;
+  title: TransId;
 };
 
-const Tag: React.FC<TagProps> = ({ data, Icon }) => (
-  <Popover>
-    <PopoverTrigger disabled={data.length === 0}>
+const Tag: React.FC<TagProps> = ({ data, Icon, title }) => (
+  <HoverCard openDelay={0} open={data.length === 0 ? false : undefined}>
+    <HoverCardTrigger>
       <Badge
         className={cn(
           "text-xs",
           data.length > 0
-            ? "border-green-600 bg-green-600 text-white"
+            ? "border-sky-600 bg-sky-600 text-white"
             : "dark:bg-border text-muted-foreground",
         )}
         variant="outline"
       >
         {data.length} <Icon className="h-3 w-3" strokeWidth={2.5} />
       </Badge>
-    </PopoverTrigger>
-    <PopoverContent>
-      <div className="flex flex-col gap-2">
+    </HoverCardTrigger>
+    <HoverCardContent
+      align="end"
+      sideOffset={8}
+      className="flex max-w-lg flex-col gap-2 text-sm"
+    >
+      <Trans id={title} />
+      <div className="flex flex-1 flex-wrap gap-2">
         {data.map((tag) => (
-          <Badge key={tag}>{tag}</Badge>
+          <Badge
+            key={tag}
+            variant="outline"
+            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+          >
+            {tag}
+          </Badge>
         ))}
       </div>
-    </PopoverContent>
-  </Popover>
+    </HoverCardContent>
+  </HoverCard>
 );
 
 export default PostCard;
