@@ -56,6 +56,8 @@
   "subject": "Subject",
   "subject.placeholder": "Main topic for the interest, e.g. 'AI'",
   "this.is.fine.image.alt": "Animated picture of a dog sitting in a fire",
+  "under.construction.description": "Nothing to see here yet, come back later!",
+  "under.construction.title": "Under construction",
   "unknown.error": "Unknown error",
   "users": "Users",
   "version.mismatch.description": "Frontend and backend versions differ. Please {refresh} the page.",

@@ -56,6 +56,8 @@
   "subject": "Sujet",
   "subject.placeholder": "Sujet principal pour l'intérêt, e.g. 'AI'",
   "this.is.fine.image.alt": "Photo animée d'un chien couchant dans un feu",
+  "under.construction.description": "Rien à voir ici encore, revenez plus tard!",
+  "under.construction.title": "En construction",
   "unknown.error": "Erreur inconnue",
   "users": "Utilisateurs",
   "version.mismatch.description": "Les versions du frontend et du backend diffèrent. Veuillez {refresh} la page.",

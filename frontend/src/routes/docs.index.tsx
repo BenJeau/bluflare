@@ -1,8 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const DocsComponent: React.FC = () => {
-  return <div>Hello "/docs/"!</div>;
-};
+import { Empty } from "@/components";
+import EmptyImg from "@/assets/construction-worker-9.svg";
+
+const DocsComponent: React.FC = () => (
+  <Empty
+    title="under.construction.title"
+    description="under.construction.description"
+    image={EmptyImg}
+    imageWidth={400}
+    className="gap-4"
+  />
+);
 
 export const Route = createFileRoute("/docs/")({
   component: DocsComponent,
