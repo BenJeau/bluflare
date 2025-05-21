@@ -62,9 +62,9 @@ export const Layout: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.5 }}
-          className="peer/nav fixed right-0 bottom-0 left-0 z-30 flex transition-[left,bottom,top] duration-500 sm:top-2 sm:right-full sm:bottom-2 sm:left-2 md:top-4 md:bottom-4 md:left-4"
+          className="peer/nav fixed right-0 bottom-0 left-0 z-30 flex transition-[left,bottom,top] duration-500 sm:relative sm:right-full"
         >
-          <div className="group/nav bg-background/50 flex flex-1 justify-between overflow-hidden border shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[270px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[270px] md:w-14 md:min-w-14">
+          <div className="group/nav bg-background/50 flex flex-1 justify-between overflow-hidden border shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[250px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[250px] md:w-14 md:min-w-14">
             <div className="flex sm:flex-col">
               <Link
                 to="/"
@@ -197,17 +197,13 @@ export const Layout: React.FC = () => {
           </div>
         </motion.div>
       </AnimatePresence>
-      <div
-        className="absolute top-0 right-0 bottom-0 left-0 -z-10 hidden opacity-0 backdrop-blur peer-hover/nav:z-20 peer-hover/nav:opacity-100 sm:block"
-        id="nav-backdrop"
-      />
       <AnimatePresence>
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.5 }}
-          className="group/main flex h-full w-full flex-col pb-16 sm:ms-14 sm:pb-0 md:ps-4"
+          className="group/main flex h-full w-full flex-col pb-16 sm:pb-0"
         >
           <div className="flex w-full items-center justify-between gap-2 py-3 transition-all sm:min-h-[53px] sm:py-0">
             <motion.div
