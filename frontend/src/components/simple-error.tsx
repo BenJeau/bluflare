@@ -37,11 +37,11 @@ const SimpleError: React.FC<Props> = ({
         <div className="text-sm">{description}</div>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Link to="..">
-          <Button className="px-3" variant="outline">
+        <Button className="px-3" variant="outline" asChild>
+          <Link to="..">
             <ChevronLeft size={16} />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <Button asChild>
           <Link to="/" className="flex-1 gap-2 shadow-md">
             <Home size={16} />
