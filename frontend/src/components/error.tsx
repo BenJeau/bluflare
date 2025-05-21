@@ -1,10 +1,4 @@
-import {
-  AlertTriangle,
-  ChevronsDown,
-  Home,
-  LogOut,
-  RefreshCw,
-} from "lucide-react";
+import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
 import { ErrorInfo } from "react";
 
 import Image from "@/assets/this-is-fine.gif";

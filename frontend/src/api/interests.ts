@@ -136,6 +136,8 @@ export const useDeleteInterest = () => {
 };
 
 export const useAnalyzeInterest = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<string, Error, number>({
     mutationFn: async (id) => {
       const response = await fetch(
@@ -147,7 +149,9 @@ export const useAnalyzeInterest = () => {
       if (!response.ok) {
         throw new Error("Failed to analyze interest");
       }
-      return await response.text();
+      const text = await response.text();
+      queryClient.invalidateQueries({ queryKey: ["interests", id] });
+      return text;
     },
   });
 };

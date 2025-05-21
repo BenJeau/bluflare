@@ -73,7 +73,6 @@ const InterestDetail: React.FC = () => {
   const handleAnalyzeInterest = async () => {
     try {
       await analyzeInterest(Number(id));
-      queryClient.invalidateQueries({ queryKey: ["interests", id] });
     } catch (error) {
       toast.error("Failed to analyze interest");
     }
@@ -281,7 +280,6 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
       await updateInterest({ keywords: editedKeywords });
       toast.success("Keywords updated successfully");
       setIsEditingKeywords(false);
-      queryClient.invalidateQueries({ queryKey: ["interests", interest.id] });
     } catch (error) {
       toast.error("Failed to update keywords");
     }

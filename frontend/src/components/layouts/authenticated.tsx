@@ -179,7 +179,7 @@ export const Layout: React.FC = () => {
                       className="w-full justify-start gap-2"
                       asChild
                     >
-                      <Link to="/auth/logout" preload={false}>
+                      <Link to="/" preload={false}>
                         <LogOut size={16} />
                         <p className="text-xs">
                           <Trans id="logout" />

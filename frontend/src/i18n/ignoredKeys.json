@@ -1,5 +1,9 @@
 [
   "layout.home.description",
   "layout.interests.description",
-  "layout.users.description"
+  "layout.users.description",
+  "layout.stats.description",
+  "layout.posts.description",
+  "layout.docs.description",
+  "layout.github.description"
 ]
