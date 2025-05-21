@@ -5,11 +5,13 @@ use crate::{layers::CommonTowerLayerBuilder, state::AppState};
 mod interests;
 mod posts;
 mod suggest;
+mod users;
 
 pub fn router(state: AppState) -> Router {
     let router = Router::new()
         .nest("/interests", interests::router())
         .nest("/posts", posts::router())
+        .nest("/users", users::router())
         .route("/keywords/suggest", post(suggest::suggest_keywords))
         .with_state(state);
 

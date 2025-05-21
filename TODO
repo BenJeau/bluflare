@@ -16,7 +16,7 @@ backend
 1. [ ] normalize shape of post from SSE and API
 1. [ ] protect modify endpoints
 2. [in progress] create user API endpoints
-2. [ ] create post API endpoints
+2. [in progress] create post API endpoints
 2. [ ] maybe auto-generate OpenAPI specs
 2. [ ] make sure telemetry works as expected
 3. [ ] deny unwraps within lints
@@ -25,17 +25,18 @@ backend
 
 frontend
 
-1. [in progress] make homepage better, maybe show a carousel of posts being ingested in real time
-3. [x] create dummy user pages
-3. [x] create dummy post pages
+1. [x] make homepage better, maybe show a carousel of posts being ingested in real time
+1. [ ] extract all strings to i18n files
+2. [ ] add toggle to enable/disable interested
 2. [in progress] cleanup tanstack query invalidation
-2. [x] fix queryClient type in router
 2. [in progress] fix dark mode
 2. [in progress] create smaller components
-2. [ ] add toggle to enable/disable interested
+2. [x] create dummy user pages
+2. [x] create dummy post pages
+2. [x] fix queryClient type in router
 2. [x] fix height change of sidenav on expand for user section
-2. [in progress] fix type errors
-2. [in progress] cleanup i18n keys
+2. [c] fix type errors
+2. [c] cleanup i18n keys
 3. [ ] maybe port over custom fetch with better tanstack query integration
 3. [ ] create user pages
 3. [ ] create post pages

@@ -25,6 +25,27 @@ pub async fn new(database_url: &str) -> Result<SqlitePool> {
     Ok(executor)
 }
 
+pub async fn get_latest_users<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<User>> {
+    let db_users = sqlx::query_as!(
+        DbUser,
+        r#"SELECT * FROM users ORDER BY created_at DESC LIMIT 20"#,
+    )
+    .fetch_all(executor)
+    .await?;
+
+    let users = db_users.into_iter().map(User::from).collect();
+
+    Ok(users)
+}
+
+pub async fn get_users_count<'e>(executor: impl SqliteExecutor<'e>) -> Result<i64> {
+    let count = sqlx::query_scalar!(r#"SELECT COUNT(*) FROM users"#)
+        .fetch_one(executor)
+        .await?;
+
+    Ok(count)
+}
+
 pub async fn get_latest_posts<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Post>> {
     let db_posts = sqlx::query_as!(
         DbPost,

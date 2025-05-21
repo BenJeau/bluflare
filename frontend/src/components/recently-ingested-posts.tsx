@@ -20,7 +20,7 @@ const RecentlyIngestedPosts: React.FC<Props> = ({ sseEnabled }) => {
           key={post.id}
           post={post}
           keywords={[]}
-          className="mb-4"
+          className="mb-2"
           offset={index}
         />
       ))}

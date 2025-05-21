@@ -2,11 +2,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpenText, Pause, Play, Radio, Speech } from "lucide-react";
 import { useState } from "react";
+import dayjs from "dayjs";
 
 import { latestPostsOptions } from "@/api/posts";
 import { HomeSubSection, RecentlyIngestedPosts, Trans } from "@/components";
 import { Button } from "@/components/ui/button";
 import { interestsOptions } from "@/api/interests";
+import { latestUsersOptions } from "@/api/users";
 import { useTranslation } from "@/i18n";
 
 const IndexComponent: React.FC = () => {
@@ -14,9 +16,9 @@ const IndexComponent: React.FC = () => {
   const [sseEnabled, setSseEnabled] = useState(true);
 
   const { data: interests } = useSuspenseQuery(interestsOptions);
-
+  const { data: users } = useSuspenseQuery(latestUsersOptions);
   return (
-    <div className="flex flex-1 overflow-y-hidden">
+    <div className="flex flex-1 flex-col overflow-y-hidden md:flex-row">
       <div className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col justify-center gap-6 p-12">
           <h1 className="text-5xl font-bold md:text-6xl">
@@ -60,11 +62,32 @@ const IndexComponent: React.FC = () => {
             title="latest.users"
             description="latest.users.description"
             Icon={Speech}
-            data={[]}
+            data={users.users}
+            total={users.total}
             viewAllLink="/users"
             emptyMessage="no.users"
             viewAllText="view.all.users"
-            render={() => null}
+            render={(user) => {
+              const handle = user.aka ? user.aka[0].split("://")[1] : user.did;
+
+              return (
+                <Link
+                  key={user.id}
+                  to="/users"
+                  className="bg-background/50 flex flex-col rounded-lg border p-2 text-sm shadow-xs hover:underline"
+                >
+                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap">
+                    {handle}
+                  </h3>
+                  <span className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
+                    First seen{" "}
+                    <span className="font-medium italic">
+                      {dayjs(user.createdAt).format("LL LTS")}
+                    </span>
+                  </span>
+                </Link>
+              );
+            }}
           />
           <div className="border-t" />
           <HomeSubSection
@@ -105,7 +128,7 @@ const IndexComponent: React.FC = () => {
           />
         </div>
       </div>
-      <div className="bg-background/50 relative flex-1 border-l p-4">
+      <div className="bg-background/50 flex-1 border-t border-l p-4 md:relative md:border-t-0">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="-mb-1 flex items-center gap-1">
@@ -146,6 +169,7 @@ export const Route = createFileRoute("/")({
     Promise.all([
       queryClient.ensureQueryData(latestPostsOptions),
       queryClient.ensureQueryData(interestsOptions),
+      queryClient.ensureQueryData(latestUsersOptions),
     ]),
   component: IndexComponent,
 });
