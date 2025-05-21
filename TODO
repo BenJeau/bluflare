@@ -42,6 +42,8 @@ frontend
 3. [ ] create post pages
 3. [ ] create stats page
 3. [ ] create docs page and display openapi spec with scalar
+3. [ ] use debouncing when saving form data in search params
+3. [ ] home page data should all be SSEs
 3. [x] maybe add more animations with framer motion
 
 deployment
