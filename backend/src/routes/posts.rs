@@ -1,23 +1,19 @@
 use async_stream::try_stream;
 use axum::{
     Json, Router,
-    extract::{Path, State},
-    http::StatusCode,
+    extract::State,
     response::{
         IntoResponse, Sse,
         sse::{Event, KeepAlive},
     },
-    routing::{get, post},
+    routing::get,
 };
-use chrono::Utc;
 use futures_util::Stream;
 use sqlx::SqlitePool;
 use std::convert::Infallible;
 
 use crate::{
-    Error, Result, db,
-    gemini::GeminiClient,
-    models::interest::{CreateInterest, UpdateInterest, UpdateInterestAnalysis},
+    Result, db,
     state::{AppState, SsePost},
 };
 
@@ -49,7 +45,7 @@ async fn get_posts_sse(
             };
 
             yield Event::default()
-                .id(message.post.cid.to_string())
+                .id(&message.post.cid)
                 .event("post")
                 .json_data(SsePost::from(message))
                 .unwrap();

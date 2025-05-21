@@ -1,16 +1,13 @@
 use async_stream::try_stream;
 use futures_util::{Stream, TryStreamExt, sink::SinkExt};
 use reqwest::Client;
-use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
-use std::sync::LazyLock;
+use reqwest_websocket::{Bytes, Message, RequestBuilderExt, WebSocket};
 use tracing::{debug, info, warn};
 use zstd::dict::DecoderDictionary;
 
 use crate::{Result, config::Jetstream, jetstream::message::JetstreamMessage};
 
 const DICTIONARY: &[u8] = include_bytes!("../zstd_dictionary");
-const DECODER_DICTIONARY: LazyLock<DecoderDictionary<'static>> =
-    LazyLock::new(|| DecoderDictionary::copy(DICTIONARY));
 
 pub struct JetstreamClient {
     websocket: WebSocket,
@@ -18,7 +15,7 @@ pub struct JetstreamClient {
 
 impl JetstreamClient {
     pub async fn new(config: Jetstream) -> Result<Self> {
-        let client = Client::new().get(&config.url()).upgrade().send().await?;
+        let client = Client::new().get(config.url()).upgrade().send().await?;
 
         let websocket = client.into_websocket().await?;
         info!("Connected to Jetstream at {}", config.url());
@@ -40,14 +37,16 @@ impl JetstreamClient {
         match message {
             Message::Text(text) => JetstreamMessage::new(text),
             Message::Binary(items) => {
-                let reader =
-                    match zstd::Decoder::with_prepared_dictionary(&*items, &DECODER_DICTIONARY) {
-                        Ok(d) => d,
-                        Err(e) => {
-                            warn!("Failed to create decompressor with dictionary: {e}");
-                            return None;
-                        }
-                    };
+                let reader = match zstd::Decoder::with_prepared_dictionary(
+                    &*items,
+                    &DecoderDictionary::copy(DICTIONARY),
+                ) {
+                    Ok(d) => d,
+                    Err(e) => {
+                        warn!("Failed to create decompressor with dictionary: {e}");
+                        return None;
+                    }
+                };
 
                 match std::io::read_to_string(reader) {
                     Ok(text) => JetstreamMessage::new(text),
@@ -58,7 +57,7 @@ impl JetstreamClient {
                 }
             }
             Message::Ping(_) => {
-                if let Err(e) = self.websocket.send(Message::Pong(vec![])).await {
+                if let Err(e) = self.websocket.send(Message::Pong(Bytes::new())).await {
                     warn!("Received ping message, but failed to send pong message: {e}");
                 } else {
                     debug!("Received ping message, sent pong message");

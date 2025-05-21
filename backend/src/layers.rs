@@ -92,10 +92,13 @@ impl CommonTowerLayerBuilder {
         };
 
         let sentry_layer = if self.enable_sentry_layer {
+            let http_layer = sentry_tower::SentryHttpLayer::new();
             Some(
                 ServiceBuilder::new()
                     .layer(sentry_tower::NewSentryLayer::<Request>::new_from_top())
-                    .layer(sentry_tower::SentryHttpLayer::with_transaction()),
+                    .layer(sentry_tower::SentryHttpLayer::enable_transaction(
+                        http_layer,
+                    )),
             )
         } else {
             None

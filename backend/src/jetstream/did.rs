@@ -44,11 +44,11 @@ impl DidClient {
         results
             .into_iter()
             .zip(dids)
-            .filter_map(|(aka, did)| match aka {
-                Ok(aka) => Some((did, aka)),
+            .map(|(aka, did)| match aka {
+                Ok(aka) => (did, aka),
                 Err(e) => {
                     error!("Error resolving DID {did}, defaulting to empty list: {e:?}");
-                    Some((did, vec![]))
+                    (did, vec![])
                 }
             })
             .collect()
@@ -61,7 +61,7 @@ impl DidClient {
 
         let response = self
             .client
-            .get(&format!("{}{did}", self.base_url))
+            .get(format!("{}{did}", self.base_url))
             .send()
             .await?;
 

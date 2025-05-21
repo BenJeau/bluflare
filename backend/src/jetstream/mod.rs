@@ -4,7 +4,7 @@ use stream::JetstreamClient;
 use tokio::time::sleep;
 use tracing::{debug, error, info, warn};
 
-use crate::{db, state::AppState};
+use crate::{Result, db, state::AppState};
 
 mod did;
 pub mod message;
@@ -18,13 +18,14 @@ pub fn start_processor(state: AppState) {
     }
 
     tokio::spawn(async move {
-        start_inner(state).await;
+        if let Err(err) = start_inner(state).await {
+            error!("Error starting jetstream processor: {err}");
+        }
     });
 }
 
-async fn start_inner(state: AppState) {
-    let processor =
-        processor::Processor::new(state.config.jetstream.clone(), state.pool.clone()).unwrap();
+async fn start_inner(state: AppState) -> Result<()> {
+    let processor = processor::Processor::new(state.config.jetstream.clone(), state.pool.clone())?;
 
     loop {
         let mut jetstream_client = match JetstreamClient::new(state.config.jetstream.clone()).await
@@ -49,7 +50,7 @@ async fn start_inner(state: AppState) {
         info!("Starting jetstream processor");
 
         let mut interval = tokio::time::interval(Duration::from_secs(1));
-        let mut interests = db::get_all_interests(&state.pool).await.unwrap();
+        let mut interests = db::get_all_interests(&state.pool).await?;
         let mut counter = 0;
 
         loop {
@@ -75,7 +76,13 @@ async fn start_inner(state: AppState) {
                 }
                 _ = interval.tick() => {
                     debug!("retrieving interests");
-                    interests = db::get_all_interests(&state.pool).await.unwrap();
+                    match db::get_all_interests(&state.pool).await {
+                        Ok(data) => interests = data,
+                        Err(err) => {
+                            error!("Error retrieving interests: {err}");
+                            continue;
+                        }
+                    };
                 }
             }
 

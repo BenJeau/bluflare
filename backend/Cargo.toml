@@ -9,23 +9,34 @@ axum = "0.8.4"
 chrono = { version = "0.4.41", features = ["serde"] }
 figment = { version = "0.10.19", features = ["env", "toml"] }
 futures-util = "0.3.31"
-http = "1.1.0"
+http = "1.3.1"
 regex = "1.11.1"
 reqwest = { version = "0.12.15", features = ["json", "rustls-tls", "charset"], default-features = false }
-reqwest-websocket = "0.4.4"
-sentry = { version = "0.35.0", features = ["backtrace", "contexts", "debug-images", "panic", "reqwest", "rustls"], default-features = false }
-sentry-tower = { version = "0.35.0", features = ["http"] }
-sentry-tracing = "0.35.0"
+reqwest-websocket = "0.5.0"
+sentry = { version = "0.38.1", features = ["backtrace", "contexts", "debug-images", "panic", "reqwest", "rustls"], default-features = false }
+sentry-tower = { version = "0.38.1", features = ["http"] }
+sentry-tracing = "0.38.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
-sqlx = { version = "0.8.5", features = ["runtime-tokio", "sqlite", "migrate", "chrono"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite", "migrate", "chrono"] }
 tokio = { version = "1.45.0", features = ["rt", "rt-multi-thread", "macros", "parking_lot"] }
-tower = "0.5.1"
-tower-http = { version = "0.6.2", features = ["compression-gzip", "cors", "fs", "normalize-path", "propagate-header", "set-header", "timeout", "trace"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.4", features = ["compression-gzip", "cors", "fs", "normalize-path", "propagate-header", "set-header", "timeout", "trace"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 zstd = "0.13.3"
 
 [profile.release]
+codegen-units = 1
+debug = "full"
+incremental = true
 lto = true
-strip = true
+opt-level = "s"
+panic = "abort"
+split-debuginfo = "packed"
+strip = "symbols"
+
+# [lints.clippy]
+# expect_used = "deny"
+# panic = "deny"
+# unwrap_used = "deny"

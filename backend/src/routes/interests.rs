@@ -75,7 +75,7 @@ async fn sse_posts(
             }
 
             yield Event::default()
-                .id(message.post.cid.to_string())
+                .id(&message.post.cid)
                 .event("post")
                 .json_data(SsePost::from(message))
                 .unwrap();

@@ -9,7 +9,7 @@ pub struct GeminiClient {
 
 impl GeminiClient {
     pub fn new(config: &config::Gemini) -> Result<Self> {
-        let client = client::GenericGeminiClient::new(&config)?;
+        let client = client::GenericGeminiClient::new(config)?;
         Ok(Self { client })
     }
 
