@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Pickaxe, Plus, X, Sparkles } from "lucide-react";
-import { useState, FormEvent, ChangeEvent } from "react";
+import { FormEvent } from "react";
 import { toast } from "sonner";
+import * as v from "valibot";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,23 +16,34 @@ import { Trans } from "@/components";
 function RouteComponent() {
   const { t } = useTranslation();
   const createInterest = useCreateInterest();
-  const { mutateAsync: suggestKeywords, isPending: isSuggesting } =
-    useMutationSuggestKeywords();
-  const [newSubject, setNewSubject] = useState("");
-  const [newDescription, setNewDescription] = useState("");
-  const [newKeywords, setNewKeywords] = useState<string[]>([]);
-  const [currentKeyword, setCurrentKeyword] = useState("");
-  const navigate = useNavigate();
+  const suggestKeywords = useMutationSuggestKeywords();
+
+  const navigate = Route.useNavigate();
+  const { subject, description, keywords, currentKeyword } = Route.useSearch();
+
+  const updateSearch = (newSearchValues: Partial<Search>) => {
+    navigate({
+      search: {
+        subject,
+        description,
+        keywords,
+        currentKeyword,
+        ...newSearchValues,
+      },
+      replace: true,
+    });
+  };
 
   const handleCreateInterest = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newSubject.trim() || newKeywords.length === 0) return;
+    if (!subject || !keywords) return;
+    if (!subject.trim() || keywords.length === 0) return;
 
     try {
       const interest = await createInterest.mutateAsync({
-        subject: newSubject.trim(),
-        description: newDescription.trim(),
-        keywords: newKeywords,
+        subject: subject.trim(),
+        description: description?.trim() ?? "",
+        keywords,
       });
       navigate({ to: "/interests/$slug", params: { slug: interest.slug } });
       toast.success(t("create.interest.success"));
@@ -42,30 +54,37 @@ function RouteComponent() {
   };
 
   const handleAddKeyword = () => {
-    if (!currentKeyword.trim()) return;
-    if (newKeywords.includes(currentKeyword.trim())) {
-      setCurrentKeyword("");
+    if (!currentKeyword?.trim()) return;
+    if (keywords?.includes(currentKeyword.trim())) {
+      updateSearch({ currentKeyword: undefined });
       return;
     }
-    setNewKeywords([...newKeywords, currentKeyword.trim()]);
-    setCurrentKeyword("");
+    updateSearch({
+      keywords: [...(keywords ?? []), currentKeyword.trim()],
+      currentKeyword: undefined,
+    });
   };
 
   const handleRemoveKeyword = (index: number) => {
-    setNewKeywords(newKeywords.filter((_, i) => i !== index));
+    updateSearch({
+      keywords: keywords?.filter((_, i) => i !== index) ?? [],
+    });
   };
 
   const handleSuggestKeywords = async () => {
+    if (!subject || !description) return;
+
     try {
-      const suggestedKeywords = await suggestKeywords({
-        subject: newSubject,
-        description: newDescription,
+      const suggestedKeywords = await suggestKeywords.mutateAsync({
+        subject,
+        description,
       });
-      // Add only unique keywords that aren't already in the list
       const uniqueKeywords = suggestedKeywords.filter(
-        (keyword: string) => !newKeywords.includes(keyword),
+        (keyword: string) => !keywords?.includes(keyword),
       );
-      setNewKeywords([...newKeywords, ...uniqueKeywords]);
+      updateSearch({
+        keywords: [...(keywords ?? []), ...uniqueKeywords],
+      });
       toast.success(t("keywords.suggest.success"));
     } catch (error) {
       console.error("Failed to suggest keywords:", error);
@@ -76,7 +95,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild>
           <Link to="/interests">
             <ArrowLeft className="h-4 w-4" />
           </Link>
@@ -99,8 +118,8 @@ function RouteComponent() {
           <Input
             type="text"
             placeholder={t("subject.placeholder")}
-            value={newSubject}
-            onChange={(e) => setNewSubject(e.target.value)}
+            value={subject ?? ""}
+            onChange={(e) => updateSearch({ subject: e.target.value })}
           />
         </div>
 
@@ -110,8 +129,8 @@ function RouteComponent() {
           </p>
           <Textarea
             placeholder={t("description.placeholder")}
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
+            value={description ?? ""}
+            onChange={(e) => updateSearch({ description: e.target.value })}
           />
         </div>
 
@@ -123,12 +142,12 @@ function RouteComponent() {
             <Input
               type="text"
               placeholder={t("keywords.placeholder")}
-              value={currentKeyword}
-              onChange={(e) => setCurrentKeyword(e.target.value)}
+              value={currentKeyword ?? ""}
+              onChange={(e) => updateSearch({ currentKeyword: e.target.value })}
             />
             <Button
               onClick={handleAddKeyword}
-              disabled={!currentKeyword.trim()}
+              disabled={!currentKeyword?.trim()}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -137,22 +156,26 @@ function RouteComponent() {
               variant="outline"
               className={cn(
                 "relative overflow-hidden",
-                isSuggesting &&
+                suggestKeywords.isPending &&
                   "animate-gradient bg-gradient-to-r from-purple-500 via-pink-500 to-sky-500",
               )}
-              disabled={isSuggesting}
+              disabled={suggestKeywords.isPending || !subject || !description}
             >
               <div className="relative flex items-center">
                 <Sparkles className="mr-1 h-4 w-4" />
                 <Trans
-                  id={isSuggesting ? "keywords.suggesting" : "keywords.suggest"}
+                  id={
+                    suggestKeywords.isPending
+                      ? "keywords.suggesting"
+                      : "keywords.suggest"
+                  }
                 />
               </div>
             </Button>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {newKeywords.map((keyword, index) => (
+            {keywords?.map((keyword, index) => (
               <div
                 key={index}
                 className="bg-secondary flex items-center gap-1 rounded-full px-3 py-1 text-sm"
@@ -174,7 +197,7 @@ function RouteComponent() {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={!newSubject.trim() || newKeywords.length === 0}
+            disabled={!subject?.trim() || keywords?.length === 0}
           >
             <Pickaxe className="h-4 w-4" />
             {t("interests.add")}
@@ -185,6 +208,28 @@ function RouteComponent() {
   );
 }
 
+const validateSearch = v.object({
+  subject: v.pipe(
+    v.optional(v.string()),
+    v.transform((input) => input || undefined),
+  ),
+  description: v.pipe(
+    v.optional(v.string()),
+    v.transform((input) => input || undefined),
+  ),
+  keywords: v.pipe(
+    v.optional(v.array(v.string())),
+    v.transform((input) => input || undefined),
+  ),
+  currentKeyword: v.pipe(
+    v.optional(v.string()),
+    v.transform((input) => input || undefined),
+  ),
+});
+
+type Search = v.InferOutput<typeof validateSearch>;
+
 export const Route = createFileRoute("/interests/create")({
   component: RouteComponent,
+  validateSearch,
 });

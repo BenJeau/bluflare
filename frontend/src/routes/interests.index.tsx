@@ -30,7 +30,7 @@ const InterestsComponent: React.FC = () => {
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex gap-2">
         <Input
-          placeholder={t("interests.search.placeholder") as string}
+          placeholder={t("interests.search.placeholder")}
           className="h-8"
           value={search ?? ""}
           onChange={(e) =>
@@ -40,12 +40,12 @@ const InterestsComponent: React.FC = () => {
             })
           }
         />
-        <Link to="/interests/create">
-          <Button size="sm">
+        <Button size="sm" asChild>
+          <Link to="/interests/create" search={{ subject: search }}>
             <Plus className="h-2 w-2" />
             <Trans id="interests.add" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <div className="flex flex-1 flex-col gap-2">
@@ -88,18 +88,18 @@ const InterestsComponent: React.FC = () => {
             </div>
           </Link>
         ))}
-        {filteredData.length == 0 && (
+        {filteredData.length == 0 && data.length != 0 && (
           <Empty
-            title="No interests"
-            description="Add an interest to get started"
+            title="no.interests.search"
+            description="no.interests.search.description"
             image={EmptyImg}
             imageWidth={400}
           />
         )}
         {data.length === 0 && (
           <Empty
-            title="No interests"
-            description="Add an interest to get started"
+            title="no.interests"
+            description="no.interests.description"
             image={EmptyImg}
             imageWidth={400}
           />

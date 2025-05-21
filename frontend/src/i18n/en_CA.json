@@ -1,4 +1,8 @@
 {
+  "no.interests": "No interests",
+  "no.interests.description": "Create an interest to get started",
+  "no.interests.search": "No interests found",
+  "no.interests.search.description": "Broaden your search or create a new interest",
   "change.to": "Change to",
   "component.stack": "Component stack",
   "create.interest.description": "Start tracking messages related to it and get notified when new ones are posted. Start digging into the latest trends and insights.",
@@ -17,7 +21,7 @@
   "home.welcome": "Welcome to {name}",
   "home.welcome.description": "The {openSourcePlatform} for getting insights on {socialNetwork}, see what people are talking about, and dig into specific topics",
   "interests": "Interests",
-  "interests.add": "Add Interest",
+  "interests.add": "Add interest",
   "interests.detail.created": "Created at",
   "interests.search.placeholder": "Search interests...",
   "keywords": "Keywords",
