@@ -97,6 +97,8 @@ export const interestOptions = (id: string) =>
   });
 
 export const useCreateInterest = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<Interest, Error, CreateInterest>({
     mutationFn: async (interest) => {
       const response = await fetch(`${config.rest_server_base_url}/interests`, {
@@ -110,6 +112,9 @@ export const useCreateInterest = () => {
         throw new Error("Failed to create interest");
       }
       return await response.json();
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["interests"] });
     },
   });
 };
