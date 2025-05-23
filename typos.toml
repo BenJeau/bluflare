@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["frontend/src/i18n/fr_CA.json"]
