@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM users ORDER BY created_at DESC LIMIT 20",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 1,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "did",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "aka",
+        "ordinal": 3,
+        "type_info": "Blob"
+      },
+      {
+        "name": "aka_retrieved_at",
+        "ordinal": 4,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "last_analysis",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_analysis_at",
+        "ordinal": 6,
+        "type_info": "Datetime"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "20e1ce5adc1e5bcf73c64a2a1c3a4eb9b02f953c145d05ab2cd10873be34924b"
+}

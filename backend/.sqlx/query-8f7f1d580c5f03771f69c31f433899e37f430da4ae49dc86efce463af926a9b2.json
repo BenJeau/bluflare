@@ -1,0 +1,68 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO interests (subject, slug, description, keywords)\n            VALUES (?, ?, ?, ?)\n            RETURNING *\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 1,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "enabled",
+        "ordinal": 2,
+        "type_info": "Bool"
+      },
+      {
+        "name": "slug",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "subject",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "keywords",
+        "ordinal": 6,
+        "type_info": "Blob"
+      },
+      {
+        "name": "last_analysis",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_analysis_at",
+        "ordinal": 8,
+        "type_info": "Datetime"
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "8f7f1d580c5f03771f69c31f433899e37f430da4ae49dc86efce463af926a9b2"
+}

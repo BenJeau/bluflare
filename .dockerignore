@@ -1,0 +1,9 @@
+.git
+backend/target/
+backend/target/
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+zstd_dictionary
+frontend/node_modules/
+frontend/dist/
