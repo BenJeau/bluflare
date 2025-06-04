@@ -3,17 +3,26 @@ resource "digitalocean_ssh_key" "default" {
   public_key = file("~/.ssh/id_ed25519.pub")
 }
 
+resource "digitalocean_project" "bluflare" {
+  name        = "bluflare"
+  description = "Bluesky post analyzer"
+  purpose     = "Web Application"
+  environment = "Production"
+  resources   = [digitalocean_droplet.bluflare.urn]
+}
+
 resource "digitalocean_droplet" "bluflare" {
   name     = "bluflare"
-  region   = "tor1"
+  region   = "nyc1"
   image    = "ubuntu-24-04-x64"
-  size     = "s-1vcpu-512mb"
+  size     = "s-1vcpu-512mb-10gb"
   ssh_keys = [resource.digitalocean_ssh_key.default.id]
   tags     = ["bluflare"]
+  monitoring = true
 }
 
 resource "digitalocean_firewall" "bluflare_fw" {
-  name = "only-22-80-443"
+  name = "bluflare-only-22-80-443"
 
   droplet_ids = [digitalocean_droplet.bluflare.id]
 

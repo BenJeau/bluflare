@@ -5,8 +5,17 @@ Want to deploy to DigitalOcean? Use the terraform and ansible files in this dire
 ## Prerequisites
 
 - Install [OpenTofu](https://opentofu.org/docs/intro/install/) or [Terraform](https://www.terraform.io/downloads.html)
+- Install [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html)
 - Get a DigitalOcean API token with read/write access and save it in the `TF_VAR_DO_TOKEN` environment variable (both terraform and ansible will use this variable)
 - Create an SSH key on your local machine in the `~/.ssh/id_ed25519.pub` file (both terraform and ansible will use this file)
+
+## Setup
+
+Make sure the DigitalOcean terraform provider is installed.
+
+```sh
+terraform -chdir=terraform init
+```
 
 ## Provision
 
