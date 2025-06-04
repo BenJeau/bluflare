@@ -64,8 +64,6 @@
   "unknown.error": "Erreur inconnue",
   "urls": "Liens",
   "users": "Utilisateurs",
-  "version.mismatch.description": "Les versions du frontend et du backend diffèrent. Veuillez {refresh} la page.",
-  "version.mismatch.title": "Incompatibilité de version",
   "view.all.interests": "Voir tous les {count} intérêts",
   "view.all.users": "Voir tous les {count} utilisateurs"
 }

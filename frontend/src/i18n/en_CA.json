@@ -64,8 +64,6 @@
   "unknown.error": "Unknown error",
   "urls": "URLs",
   "users": "Users",
-  "version.mismatch.description": "Frontend and backend versions differ. Please {refresh} the page.",
-  "version.mismatch.title": "Version mismatch",
   "view.all.interests": "View all {count} interests",
   "view.all.users": "View all {count} users"
 }
