@@ -110,6 +110,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase repository name
+        id: repo
+        run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6.18.0
@@ -117,8 +120,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/backend:${{ needs.create-tag.outputs.new_version }}
-            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/backend:latest
+            ghcr.io/${{ steps.repo.outputs.REPO_LOWER }}/backend:${{ needs.create-tag.outputs.new_version }}
+            ghcr.io/${{ steps.repo.outputs.REPO_LOWER }}/backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
   deploy-to-do:
