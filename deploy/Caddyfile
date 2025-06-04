@@ -1,0 +1,8 @@
+{$SERVER_DOMAIN} {
+  header /* {
+    -Server
+  }
+  handle {
+    reverse_proxy bluflare_backend:3000
+  }
+}

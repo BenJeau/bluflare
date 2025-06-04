@@ -1,0 +1,37 @@
+name: Rust CI - Cargo test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    env:
+      DATABASE_URL: sqlite://./database/test.db
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+      - name: Rust setup
+        run: rustup toolchain install stable --profile minimal
+      - name: Setup cache
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Create test database
+        run: touch ./database/test.db
+      - name: Run cargo test
+        run: cargo test --all -- --nocapture

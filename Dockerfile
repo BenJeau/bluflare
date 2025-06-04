@@ -13,12 +13,6 @@ COPY --from=rust-planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY /backend .
 
-ARG SERVER_VERSION
-ARG COMMIT_GIT_SHA
-
-ENV SERVER_VERSION=${SERVER_VERSION}
-ENV COMMIT_GIT_SHA=${COMMIT_GIT_SHA}
-
 RUN SQLX_OFFLINE=true cargo build --release
 # END -- Rust backend builder
 

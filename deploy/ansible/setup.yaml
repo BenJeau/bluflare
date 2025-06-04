@@ -1,0 +1,92 @@
+- name: Install dependencies to run Bluflare
+  hosts: bluflare
+  become: true
+  gather_facts: no
+  remote_user: root
+  serial: 1
+  tasks:
+    - name: Waiting for SSH connection
+      ansible.builtin.wait_for_connection:
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Update apt
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Docker related packages
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+
+    - name: Enable and start Docker services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - docker.service
+        - containerd.service
+
+    - name: Create ubuntu user
+      ansible.builtin.user:
+        name: ubuntu
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Create /bluflare directory
+      ansible.builtin.file:
+        path: /bluflare
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: 0755
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: ../docker-compose.yml
+        dest: /bluflare/docker-compose.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
+
+    - name: Copy Caddyfile
+      ansible.builtin.copy:
+        src: ../Caddyfile
+        dest: /bluflare/Caddyfile
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
+
+    - name: Create .env file
+      ansible.builtin.template:
+        src: ../.env
+        dest: /bluflare/.env
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
+
+    - name: Login to ghcr.io registry
+      ansible.builtin.command: docker login ghcr.io -u {{ lookup('ansible.builtin.env', 'GHCR_USER') }} -p {{ lookup('ansible.builtin.env', 'GHCR_TOKEN') }}

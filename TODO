@@ -45,9 +45,10 @@ frontend
 3. [ ] use debouncing when saving form data in search params
 3. [ ] home page data should all be SSEs
 3. [x] maybe add more animations with framer motion
+3. [ ] use toast.promise for sonner
 
 deployment
 
 1. [x] make sure Dockerfile works
-1. [ ] create ansible/teraform scripts
-1. [ ] create GH actions for deployment
+1. [in progress] create ansible/teraform scripts
+1. [in progress] create GH actions for deployment

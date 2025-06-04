@@ -1,0 +1,25 @@
+name: Rust CI - Cargo format
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+      - name: Rust setup
+        run: rustup toolchain install stable --profile minimal
+      - name: Add rustfmt to the toolchain
+        run: rustup component add rustfmt
+      - name: Run cargo format
+        run: cargo fmt --all -- --check

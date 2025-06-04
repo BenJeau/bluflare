@@ -1,0 +1,31 @@
+plugin: community.digitalocean.digitalocean
+oauth_token: '{{ lookup("ansible.builtin.env", "TF_VAR_DO_TOKEN") }}'
+attributes:
+  - id
+  - name
+  - memory
+  - vcpus
+  - disk
+  - size
+  - image
+  - networks
+  - volume_ids
+  - tags
+  - region
+keyed_groups:
+  - key: do_region.slug
+    prefix: "region"
+    separator: "_"
+  - key: do_tags | lower
+    prefix: ""
+    separator: ""
+groups:
+  bridge: "'bluflare' in (do_tags|list)"
+compose:
+  ansible_host_key_checking: false
+  ansible_host: do_networks.v4 | selectattr('type','eq','public')
+    | map(attribute='ip_address') | first
+  class: do_size.description | lower
+  distro: do_image.distribution | lower
+filters:
+  - '"bluflare" in do_tags'

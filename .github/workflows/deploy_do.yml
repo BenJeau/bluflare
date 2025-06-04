@@ -1,0 +1,30 @@
+name: Deploy to DigitalOcean
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+env:
+  TF_VAR_DO_TOKEN: ${{ secrets.TF_VAR_DO_TOKEN }}
+
+jobs:
+  deploy-to-do:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: Setup SSH
+        shell: bash
+        run: |
+          eval `ssh-agent -s`
+          mkdir -p /home/runner/.ssh/
+          touch /home/runner/.ssh/id_ed25519
+          echo -e "${{secrets.SSH_KEY}}" > /home/runner/.ssh/id_ed25519
+          chmod 700 /home/runner/.ssh/id_ed25519
+          ssh-keyscan -t rsa,dsa,ecdsa,ed25519 ${{secrets.SSH_HOST}} >> /home/runner/.ssh/known_hosts
+      - name: Run ansible script
+        shell: bash
+        run: |
+          service ssh status
+          cd deploy
+          ansible-playbook -vvv --private-key /home/runner/.ssh/id_ed25519 -i ansible/inv.digitalocean.yaml ansible/execute.yaml

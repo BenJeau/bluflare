@@ -1,0 +1,34 @@
+services:
+  bluflare_backend:
+    container_name: bluflare_backend
+    image: ghcr.io/benjeau/bluflare/backend:latest
+    restart: unless-stopped
+    hostname: bluflare_backend
+    networks:
+      - proxy-network
+    env_file:
+      - .env
+
+  caddy:
+    container_name: bluflare_caddy
+    image: caddy:2.10.0-alpine
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - proxy-network
+    environment:
+      - SERVER_DOMAIN=$SERVER_DOMAIN
+
+networks:
+  proxy-network:
+
+volumes:
+  caddy_data:
+  caddy_config:

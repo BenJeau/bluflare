@@ -1,0 +1,19 @@
+- name: Execute Bluflare
+  hosts: bluflare
+  become: true
+  gather_facts: no
+  remote_user: root
+  serial: 1
+  tasks:
+    - name: Waiting for SSH connection
+      ansible.builtin.wait_for_connection:
+
+    - name: Pull latest images
+      ansible.builtin.command: docker compose pull
+      args:
+        chdir: /bluflare
+
+    - name: Run docker compose
+      ansible.builtin.command: docker compose up -d
+      args:
+        chdir: /bluflare

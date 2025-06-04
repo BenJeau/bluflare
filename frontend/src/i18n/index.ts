@@ -10,7 +10,7 @@ const valueRegex = /{([^}]+)}/;
 export const useTranslation = () => {
   const [lang, setLang] = useAtom(languageAtom);
 
-  // Used to retrict the type to a string when no values are provided
+  // Used to restrict the type to a string when no values are provided
   function tHelper(id: TransId): string;
   function tHelper(
     id: TransId,
