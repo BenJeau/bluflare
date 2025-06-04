@@ -15,7 +15,7 @@ jobs:
       run:
         working-directory: ./backend
     env:
-      DATABASE_URL: sqlite://./database/test.db
+      DATABASE_URL: sqlite://bluflare.db
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -32,6 +32,6 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Create test database
-        run: touch test.db
+        run: touch bluflare.db
       - name: Run cargo test
         run: cargo test --all -- --nocapture
