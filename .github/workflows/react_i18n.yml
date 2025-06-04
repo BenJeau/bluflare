@@ -17,15 +17,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
-      - uses: pnpm/action-setup@v4.1.0
-        name: Install pnpm
-        with:
-          cwd: ./frontend
-          version: 10
       - uses: actions/setup-node@v4.4.0
         with:
           node-version: 22
           cache: "pnpm"
+      - uses: pnpm/action-setup@v4.1.0
+        name: Install pnpm
+        with:
+          version: 10
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run i18n sort
