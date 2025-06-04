@@ -32,6 +32,6 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Create test database
-        run: touch ./database/test.db
+        run: touch test.db
       - name: Run cargo test
         run: cargo test --all -- --nocapture
