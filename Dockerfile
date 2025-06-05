@@ -1,6 +1,6 @@
 # START -- Rust backend builder 
 FROM rust:1.87.0-alpine3.21 AS rust-builder-chef
-RUN apk add --no-cache musl-dev gcc libc-dev
+RUN apk add --no-cache musl-dev gcc libc-dev curl
 RUN cargo install --version 0.1.71 cargo-chef
 WORKDIR /app
 
