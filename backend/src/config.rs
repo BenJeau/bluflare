@@ -74,12 +74,18 @@ pub struct Gemini {
     pub user_agent: String,
 }
 
+#[derive(Deserialize, Clone, Default)]
+pub struct Frontend {
+    pub enabled: bool,
+}
+
 #[derive(Deserialize, Clone)]
 pub struct Config {
     pub database: Database,
     pub server: Server,
     pub jetstream: Jetstream,
     pub gemini: Gemini,
+    pub frontend: Frontend,
 }
 
 impl Config {

@@ -24,3 +24,6 @@ user_agent = "Blueflare Gemini Client"
 
 [database]
 url = "sqlite:bluflare.db"
+
+[frontend]
+enabled = false

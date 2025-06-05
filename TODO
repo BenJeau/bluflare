@@ -50,5 +50,6 @@ frontend
 deployment
 
 1. [x] make sure Dockerfile works
-1. [in progress] create ansible/teraform scripts
-1. [in progress] create GH actions for deployment
+1. [x] create ansible/teraform scripts
+1. [x] create GH actions for deployment
+3. [ ] fix DO deployment in GH actions
