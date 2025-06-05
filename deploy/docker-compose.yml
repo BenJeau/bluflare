@@ -8,6 +8,8 @@ services:
       - proxy-network
     env_file:
       - .env
+    volumes:
+      - ./bluflare.db:/bluflare.db
 
   caddy:
     container_name: bluflare_caddy

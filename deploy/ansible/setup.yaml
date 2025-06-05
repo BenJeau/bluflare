@@ -88,5 +88,10 @@
         group: ubuntu
         mode: 0644
 
-    - name: Login to ghcr.io registry
-      ansible.builtin.command: docker login ghcr.io -u {{ lookup('ansible.builtin.env', 'GHCR_USER') }} -p {{ lookup('ansible.builtin.env', 'GHCR_TOKEN') }}
+    - name: Create bluflare.db file
+      ansible.builtin.file:
+        path: /bluflare/bluflare.db
+        state: touch
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
