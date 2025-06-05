@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from "react";
 import {
-  LogOut,
   Languages,
   FlameKindling,
   Binoculars,
@@ -9,22 +8,26 @@ import {
   Github,
   MessageCircleMore,
   BookOpenText,
+  User,
+  Lock,
 } from "lucide-react";
 import { useRouterState, Link, Outlet } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAtomValue } from "jotai";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Nav, Trans } from "@/components";
+import { useTranslation } from "@/i18n";
 import { Button } from "@/components/ui/button";
+import { userAtom } from "@/atoms/user";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Nav, Trans } from "@/components";
-import config from "@/lib/config";
-import { useTranslation } from "@/i18n";
 
 type Page =
   | "home"
@@ -37,7 +40,8 @@ type Page =
 
 export const Layout: React.FC = () => {
   const { location } = useRouterState();
-  const { t, toggle, otherLang } = useTranslation();
+  const { t, toggle } = useTranslation();
+  const user = useAtomValue(userAtom);
 
   const page: Page | undefined = useMemo(() => {
     if (location.pathname.startsWith("/interests")) return "interests";
@@ -64,7 +68,7 @@ export const Layout: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="peer/nav fixed right-0 bottom-0 left-0 z-30 flex transition-[left,bottom,top] duration-500 sm:relative sm:right-full"
         >
-          <div className="group/nav bg-background/50 flex flex-1 justify-between overflow-hidden border shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[250px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[250px] md:w-14 md:min-w-14">
+          <div className="group/nav bg-background/75 flex flex-1 justify-between overflow-hidden border shadow-md backdrop-blur transition-all duration-300 ease-in hover:w-[250px] hover:shadow-2xl hover:ease-out sm:w-12 sm:min-w-12 sm:flex-col sm:rounded-2xl sm:hover:min-w-[250px] md:w-14 md:min-w-14">
             <div className="flex sm:flex-col">
               <Link
                 to="/"
@@ -122,6 +126,12 @@ export const Layout: React.FC = () => {
               <Nav
                 links={[
                   {
+                    title: "change.language",
+                    onClick: toggle,
+                    variant: "ghost",
+                    icon: Languages,
+                  },
+                  {
                     title: "docs",
                     to: "/docs",
                     variant: page === "docs" ? "default" : "ghost",
@@ -142,57 +152,6 @@ export const Layout: React.FC = () => {
                   },
                 ]}
               />
-              <Separator className="hidden sm:block" />
-              <Popover>
-                <PopoverTrigger className="bg-muted/50 hover:bg-muted/10 focus-visible:ring-ring dark:hover:bg-muted/90 flex w-full cursor-pointer items-center justify-center gap-2 px-2 transition-all duration-300 ring-inset hover:text-neutral-700 focus-visible:ring-1 focus-visible:outline-none sm:rounded-b-2xl sm:py-3 sm:group-hover/nav:justify-start sm:group-hover/nav:px-4 dark:hover:text-white">
-                  <Avatar className="border">
-                    <AvatarImage alt="@shadcn" />
-                    <AvatarFallback>BJ</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden flex-col sm:group-hover/nav:flex">
-                    <span className="text-start font-semibold whitespace-nowrap">
-                      Benoît Jeaurond
-                    </span>
-                    <span className="text-xs opacity-70">
-                      benoit@jeaurond.dev
-                    </span>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  side="top"
-                  className="ms-2 mb-1 w-48 overflow-hidden p-0"
-                >
-                  <div className="flex flex-col gap-1 p-2">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-2"
-                      onClick={toggle}
-                    >
-                      <Languages size={16} />
-                      <p className="text-xs">
-                        {t("change.to") + " " + otherLang.lang.lang}
-                      </p>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-2"
-                      asChild
-                    >
-                      <Link to="/" preload={false}>
-                        <LogOut size={16} />
-                        <p className="text-xs">
-                          <Trans id="logout" />
-                        </p>
-                      </Link>
-                    </Button>
-                  </div>
-                  <Separator />
-                  <div className="bg-background px-6 py-2 text-xs italic opacity-50">
-                    {config.commit_sha} - {config.version}
-                  </div>
-                </PopoverContent>
-              </Popover>
             </div>
           </div>
         </motion.div>
@@ -220,6 +179,47 @@ export const Layout: React.FC = () => {
                 {page && t(`layout.${page}.description`)}
               </p>
             </motion.div>
+
+            <Popover>
+              <PopoverTrigger className="flex cursor-pointer items-center gap-2 p-0 hover:bg-transparent dark:hover:bg-transparent">
+                <div className="flex flex-col items-end text-xs">
+                  {user}
+                  <p className="italic opacity-70">
+                    <Trans id={user ? "logout" : "not.logged.in"} />
+                  </p>
+                </div>
+                <Avatar className="h-8 w-8 border opacity-70 shadow">
+                  <AvatarFallback>
+                    <User size={16} />
+                  </AvatarFallback>
+                </Avatar>
+              </PopoverTrigger>
+              <PopoverContent align="end" sideOffset={10}>
+                {!user && (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <p className="text-sm opacity-70">
+                        Login to the platform to manage your interests and posts
+                      </p>
+                    </div>
+
+                    <div className="flex w-full flex-col gap-2">
+                      <Input type="text" placeholder="Username" />
+                      <Input type="password" placeholder="Password" />
+                      <Button className="mt-4">
+                        <Lock size={16} />
+                        <Trans id="login" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {user && (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+                    <p className="text-sm opacity-70">Logged in as {user}</p>
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
           </div>
           <main className="bg-background/30 flex h-full flex-1 flex-col gap-2 overflow-y-scroll rounded-2xl border shadow-md backdrop-blur-sm">
             <Outlet />

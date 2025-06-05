@@ -45,7 +45,7 @@ import { cn, getTagColor } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { useMutationSuggestKeywords } from "@/api/suggest";
 import { postsOptions, Post } from "@/api/posts";
-import { NotFound, PostCard } from "@/components";
+import { NotFound, PostCard, Trans } from "@/components";
 
 const InterestDetail: React.FC = () => {
   const { slug } = Route.useParams();
@@ -131,13 +131,13 @@ const InterestDetail: React.FC = () => {
             </Link>
           </Button>
           <h2 className="text-xl font-bold">
-            <span className="flex items-baseline gap-2">
+            <span className="flex flex-wrap items-baseline gap-x-2">
               {interest.subject}
               <p className="text-sm font-normal italic">
                 {interest.description}
               </p>
             </span>
-            <p className="text-muted-foreground text-sm font-normal">
+            <p className="text-sm font-normal opacity-70">
               {t("interests.detail.created")}:{" "}
               {new Date(interest.created_at).toLocaleString()}
             </p>
@@ -162,11 +162,11 @@ const InterestDetail: React.FC = () => {
           </Button>
         </div>
       </div>
-      <div className="rounded-lg border bg-white p-4">
+      <div className="bg-background/75 rounded-lg border p-4 shadow-xs">
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-2 text-sm font-semibold">
             <Bot className="h-4 w-4" /> Analysis{" "}
-            <span className="text-muted-foreground text-xs">
+            <span className="text-xs opacity-70">
               (
               {interest.last_analysis_at
                 ? new Date(interest.last_analysis_at).toLocaleString()
@@ -206,27 +206,30 @@ const InterestDetail: React.FC = () => {
       <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
       <StatsSection data={urls || {}} title="URLs" Icon={LinkIcon} />
       <StatsSection data={tags || {}} title="Tags" Icon={Hash} />
-      <div className="flex flex-col gap-2 rounded-lg border bg-white p-4">
+      <div className="bg-background/75 flex flex-col gap-2 rounded-lg border p-4 shadow-xs">
         <div className="flex justify-between gap-2">
           <p className="flex items-center gap-2 text-sm font-semibold">
             <Newspaper className="h-4 w-4" /> Posts{" "}
-            <span className="text-muted-foreground text-xs">
-              ({combinedPosts.length})
-            </span>
+            <span className="text-xs opacity-70">({combinedPosts.length})</span>
           </p>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold">Latest posts to show</p>
             <Select
               value={numberOfPostsToShow.toString()}
               onValueChange={(value) => setNumberOfPostsToShow(Number(value))}
             >
-              <SelectTrigger className="w-[100px]" size="sm">
+              <SelectTrigger className="w-[250px]" size="sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="30">30</SelectItem>
-                <SelectItem value="90">90</SelectItem>
-                <SelectItem value="150">150</SelectItem>
+                <SelectItem value="30">
+                  <Trans id="showing.latest.posts" count={30} />
+                </SelectItem>
+                <SelectItem value="90">
+                  <Trans id="showing.latest.posts" count={90} />
+                </SelectItem>
+                <SelectItem value="150">
+                  <Trans id="showing.latest.posts" count={150} />
+                </SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -319,11 +322,11 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border bg-white p-4">
+    <div className="bg-background/75 flex flex-col gap-2 rounded-lg border p-4 shadow-xs">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-semibold">
           <Tag className="h-4 w-4" /> Keywords{" "}
-          <span className="text-muted-foreground text-xs">
+          <span className="text-xs opacity-70">
             ({interest.keywords.length})
           </span>
         </p>
@@ -432,11 +435,11 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
   const [showAll, setShowAll] = useState(false);
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border bg-white p-4">
+    <div className="bg-background/75 flex flex-col gap-2 rounded-lg border p-4 shadow-xs">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-semibold">
           <Icon className="h-4 w-4" /> {title}{" "}
-          <span className="text-muted-foreground text-xs">
+          <span className="text-xs opacity-70">
             ({(data && Object.keys(data).length) ?? 0} unique{" "}
             {title.toLocaleLowerCase()})
           </span>
@@ -486,6 +489,10 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
                   </Badge>
                 );
               })}
+
+          {Object.entries(data).length === 0 && (
+            <p className="text-sm opacity-70">No data</p>
+          )}
         </div>
       </div>
     </div>

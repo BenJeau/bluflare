@@ -13,8 +13,8 @@ general
 
 backend
 
-1. [ ] normalize shape of post from SSE and API
 1. [ ] protect modify endpoints
+2. [ ] normalize shape of post from SSE and API
 2. [in progress] create user API endpoints
 2. [in progress] create post API endpoints
 2. [ ] maybe auto-generate OpenAPI specs
@@ -26,10 +26,10 @@ backend
 frontend
 
 1. [x] make homepage better, maybe show a carousel of posts being ingested in real time
-1. [ ] extract all strings to i18n files
+1. [in progress] extract all strings to i18n files
 2. [ ] add toggle to enable/disable interested
 2. [in progress] cleanup tanstack query invalidation
-2. [in progress] fix dark mode
+2. [x] fix dark mode
 2. [in progress] create smaller components
 2. [x] create dummy user pages
 2. [x] create dummy post pages

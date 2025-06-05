@@ -74,9 +74,9 @@ const IndexComponent: React.FC = () => {
                 <Link
                   key={user.id}
                   to="/users"
-                  className="bg-background/50 flex flex-col rounded-lg border p-2 text-sm shadow-xs hover:underline"
+                  className="group bg-background/75 hover:bg-background flex flex-col rounded-lg border p-2 text-sm shadow-xs transition-all active:shadow-inner"
                 >
-                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap">
+                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap group-hover:underline">
                     {handle}
                   </h3>
                   <span className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
@@ -103,10 +103,10 @@ const IndexComponent: React.FC = () => {
                 key={interest.id}
                 to="/interests/$slug"
                 params={{ slug: interest.slug }}
-                className="bg-background/50 flex flex-col rounded-lg border p-2 text-sm shadow-xs hover:underline"
+                className="bg-background/75 hover:bg-background group flex flex-col rounded-lg border p-2 text-sm shadow-xs transition-all active:shadow-inner"
               >
                 <div className="flex items-center justify-between gap-4">
-                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap">
+                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap group-hover:underline">
                     {interest.subject}
                   </h3>
                   <p className="text-xs whitespace-nowrap text-sky-300 opacity-70">
@@ -128,7 +128,7 @@ const IndexComponent: React.FC = () => {
           />
         </div>
       </div>
-      <div className="bg-background/50 flex-1 border-t border-l p-4 md:relative md:border-t-0">
+      <div className="bg-background/75 flex-1 border-t border-l p-4 md:relative md:border-t-0">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="-mb-1 flex items-center gap-1">

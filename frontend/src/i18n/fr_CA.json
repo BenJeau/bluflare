@@ -1,5 +1,5 @@
 {
-  "change.to": "Changer vers",
+  "change.language": "Changer vers l'anglais",
   "component.stack": "Pile de composantes",
   "create.interest.description": "Commencer à suivre les messages liés au sujet et recever une notification lorsque de nouveaux articles sont publiés. Commencer à plonger dans les dernières tendances et discussions.",
   "create.interest.error": "Échec de la création de l'intérêt",
@@ -46,6 +46,7 @@
   "no.interests.search": "Aucun intérêt trouvé",
   "no.interests.search.description": "Élargir votre recherche ou créer un nouvel intérêt",
   "no.users": "Aucun utilisateur ingéré",
+  "not.logged.in": "Non connecté",
   "opensource.platform": "plateforme open-source",
   "pause.live.updates": "Mettre en pause",
   "posts": "Articles",
@@ -55,6 +56,7 @@
   "recently.ingested.posts.description": "Activer les mises à jour en direct pour voir les articles récents",
   "refresh": "Rafraîchir",
   "resume.live.updates": "Reprendre",
+  "showing.latest.posts": "Afficher les {count} derniers articles",
   "stats": "Statistiques",
   "subject": "Sujet",
   "subject.placeholder": "Sujet principal pour l'intérêt, e.g. 'AI'",

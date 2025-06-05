@@ -54,14 +54,14 @@ const InterestsComponent: React.FC = () => {
             to="/interests/$slug"
             params={{ slug: interest.slug }}
             key={interest.id}
-            className="bg-card group flex justify-between rounded-lg border p-3"
+            className="bg-background/75 group hover:bg-background flex justify-between gap-4 rounded-lg border p-2 text-sm shadow-xs transition-all active:shadow-inner"
           >
-            <div className="ms-2 flex flex-col justify-center">
-              <div className="flex items-baseline gap-2">
+            <div className="ms-1 flex flex-col justify-center">
+              <div className="flex flex-wrap items-baseline gap-x-2">
                 <h2 className="font-medium group-hover:underline">
                   {interest.subject}
                 </h2>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs opacity-70">
                   {interest.description}
                 </span>
               </div>

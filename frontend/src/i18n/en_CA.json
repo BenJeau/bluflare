@@ -1,5 +1,5 @@
 {
-  "change.to": "Change to",
+  "change.language": "Change to French",
   "component.stack": "Component stack",
   "create.interest.description": "Start tracking messages related to it and get notified when new ones are posted. Start digging into the latest trends and insights.",
   "create.interest.error": "Failed to create interest",
@@ -46,6 +46,7 @@
   "no.interests.search": "No interests found",
   "no.interests.search.description": "Broaden your search or create a new interest",
   "no.users": "No users ingested yet",
+  "not.logged.in": "Not logged in",
   "opensource.platform": "open-source platform",
   "pause.live.updates": "Pause live updates",
   "posts": "Posts",
@@ -55,6 +56,7 @@
   "recently.ingested.posts.description": "Enable the live updates to see the latest posts",
   "refresh": "Refresh",
   "resume.live.updates": "Resume live updates",
+  "showing.latest.posts": "Showing {count} latest posts",
   "stats": "Statistics",
   "subject": "Subject",
   "subject.placeholder": "Main topic for the interest, e.g. 'AI'",
