@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT interests.*, COUNT(post_interests.post_id) as post_count\n            FROM interests\n            LEFT JOIN post_interests ON interests.id = post_interests.interest_id\n            GROUP BY interests.id\n            ORDER BY created_at DESC\n            ",
+  "query": "\n            SELECT interests.*, (\n                SELECT COUNT(*) FROM post_interests WHERE post_interests.interest_id = interests.id\n            ) as post_count\n            FROM interests\n            ORDER BY created_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -70,5 +70,5 @@
       false
     ]
   },
-  "hash": "f3f4affb41e2a3acafd191863ec554a252aae6d67edd5fc6a8304885476f9642"
+  "hash": "89a86fc582f392140beb624701c43c12d29ea81cd8f41acb5683dd0ce1b942ac"
 }

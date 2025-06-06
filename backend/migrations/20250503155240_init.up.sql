@@ -51,10 +51,37 @@ CREATE TABLE IF NOT EXISTS "post_mentions" (
     UNIQUE ("post_id", "user_id")
 );
 
-INSERT INTO "interests" ("subject", "slug", "description", "keywords")
+INSERT INTO
+    "interests" (
+        "subject",
+        "slug",
+        "description",
+        "keywords"
+    )
 VALUES (
-    'AI',
-    'ai',
-    'Artificial Intelligence - AI is the future of the world and the future of the world is AI 🤯',
-    json_array('AI', 'Artificial Intelligence', 'Machine Learning', 'Deep Learning', 'Neural Network', 'Chatbot', 'ChatGPT', 'GPT', 'LLM', 'Gemini', 'Claude', 'OpenAI')
-);
+        'AI',
+        'ai',
+        'Artificial Intelligence - AI is the future of the world and the future of the world is AI 🤯',
+        json_array(
+            'AI',
+            'Artificial Intelligence',
+            'Machine Learning',
+            'Deep Learning',
+            'Neural Network',
+            'Chatbot',
+            'ChatGPT',
+            'GPT',
+            'LLM',
+            'Gemini',
+            'Claude',
+            'OpenAI'
+        )
+    );
+
+CREATE INDEX IF NOT EXISTS idx_interests_created_at ON interests (created_at);
+
+CREATE INDEX IF NOT EXISTS idx_post_interests_interest_id ON post_interests (interest_id);
+
+CREATE INDEX IF NOT EXISTS idx_post_interests_post_id ON post_interests (post_id);
+
+CREATE INDEX IF NOT EXISTS idx_users_created_at ON users (created_at);

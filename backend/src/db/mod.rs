@@ -169,10 +169,10 @@ pub async fn get_all_interests_with_post_count<'e>(
     let db_interests = sqlx::query_as!(
         DbInterestWithPostCount,
         r#"
-            SELECT interests.*, COUNT(post_interests.post_id) as post_count
+            SELECT interests.*, (
+                SELECT COUNT(*) FROM post_interests WHERE post_interests.interest_id = interests.id
+            ) as post_count
             FROM interests
-            LEFT JOIN post_interests ON interests.id = post_interests.interest_id
-            GROUP BY interests.id
             ORDER BY created_at DESC
             "#,
     )
