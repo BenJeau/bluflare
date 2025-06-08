@@ -25,6 +25,7 @@ pub fn router(state: AppState) -> Router {
             delete(topics::delete_topic).patch(topics::update_topic),
         )
         .route("/topics/{id}/analyze", post(topics::analyze_topic))
+        .route("/auth/logout", post(auth::logout))
         .route_layer(from_fn_with_state(
             state.clone(),
             crate::auth::auth_middleware,

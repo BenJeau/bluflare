@@ -5,6 +5,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
+use time::OffsetDateTime;
 use tokio::sync::{
     RwLock,
     watch::{Receiver, Sender, channel},
@@ -37,11 +38,18 @@ impl From<StreamPost> for SsePost {
 }
 
 #[derive(Clone)]
+pub struct Session {
+    pub id: String,
+    pub expires_at: OffsetDateTime,
+}
+
+#[derive(Clone)]
 pub struct AppState {
     pub pool: SqlitePool,
     pub gemini: GeminiClient,
     pub config: config::Config,
     pub post_streams: Arc<RwLock<(Sender<Option<StreamPost>>, Receiver<Option<StreamPost>>)>>,
+    pub session_id: Arc<RwLock<Option<Session>>>,
 }
 
 impl AppState {
@@ -57,6 +65,7 @@ impl AppState {
             gemini,
             config,
             post_streams,
+            session_id: Arc::new(RwLock::new(None)),
         })
     }
 

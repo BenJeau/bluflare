@@ -106,7 +106,7 @@ impl IntoResponse for Error {
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, "Invalid credentials").into_response()
             }
-            Self::Unauthorized(message) => (StatusCode::UNAUTHORIZED, message).into_response(),
+            Self::Unauthorized(_) => (StatusCode::UNAUTHORIZED, "".to_string()).into_response(),
             _ => (StatusCode::INTERNAL_SERVER_ERROR, "".to_string()).into_response(),
         }
     }

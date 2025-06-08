@@ -84,8 +84,9 @@ pub struct Auth {
     pub enabled: bool,
     pub username: Option<String>,
     pub password_hash: Option<String>,
-    pub jwt_secret: Option<String>,
-    pub jwt_expiry_minutes: Option<u64>,
+    pub cookie_expiry_minutes: Option<u64>,
+    pub cookie_domain: Option<String>,
+    pub cookie_secure: Option<bool>,
 }
 
 #[derive(Deserialize, Clone)]
