@@ -45,6 +45,7 @@ export const useMutateTopic = (id: number) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(update),
+          credentials: "include",
         },
       );
       if (!response.ok) {
@@ -108,6 +109,7 @@ export const useCreateTopic = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(topic),
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error("Failed to create topic");
@@ -127,6 +129,7 @@ export const useDeleteTopic = () => {
         `${config.rest_server_base_url}/topics/${id}`,
         {
           method: "DELETE",
+          credentials: "include",
         },
       );
       if (!response.ok) {
@@ -145,6 +148,7 @@ export const useAnalyzeTopic = () => {
         `${config.rest_server_base_url}/topics/${id}/analyze`,
         {
           method: "POST",
+          credentials: "include",
         },
       );
       if (!response.ok) {

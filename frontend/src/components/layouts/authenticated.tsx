@@ -10,10 +10,11 @@ import {
   BookOpenText,
   User,
   Lock,
+  LogOut,
 } from "lucide-react";
 import { useRouterState, Link, Outlet } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -28,13 +29,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useLogin, useLogout } from "@/api/auth";
+import { toast } from "sonner";
 
 type Page = "home" | "topics" | "users" | "posts" | "stats" | "docs" | "github";
 
 export const Layout: React.FC = () => {
   const { location } = useRouterState();
   const { t, toggle } = useTranslation();
-  const user = useAtomValue(userAtom);
+  const [user, setUser] = useAtom(userAtom);
 
   const page: Page | undefined = useMemo(() => {
     if (location.pathname.startsWith("/topics")) return "topics";
@@ -50,6 +53,25 @@ export const Layout: React.FC = () => {
   useEffect(() => {
     document.title = page ? `${t(page)} - Bluflare` : "Bluflare";
   }, [page, t]);
+
+  const { mutateAsync: login } = useLogin();
+  const { mutate: logout } = useLogout();
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      await login({
+        username: e.target.username.value,
+        password: e.target.password.value,
+      });
+
+      toast.success("Logged in successfully");
+      setUser(e.target.username.value);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to login");
+    }
+  };
 
   return (
     <div className="relative flex h-full w-screen gap-2 px-2 sm:py-2 md:gap-4 md:p-4">
@@ -175,12 +197,9 @@ export const Layout: React.FC = () => {
 
             <Popover>
               <PopoverTrigger className="flex cursor-pointer items-center gap-2 p-0 hover:bg-transparent dark:hover:bg-transparent">
-                <div className="flex flex-col items-end text-xs">
-                  {user}
-                  <p className="italic opacity-70">
-                    <Trans id={user ? "logout" : "not.logged.in"} />
-                  </p>
-                </div>
+                <p className="text-xs italic opacity-70">
+                  {user ? user : <Trans id="not.logged.in" />}
+                </p>
                 <Avatar className="h-8 w-8 border opacity-70 shadow">
                   <AvatarFallback>
                     <User size={16} />
@@ -196,19 +215,45 @@ export const Layout: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="flex w-full flex-col gap-2">
-                      <Input type="text" placeholder="Username" />
-                      <Input type="password" placeholder="Password" />
-                      <Button className="mt-4">
+                    <form
+                      className="flex w-full flex-col gap-2"
+                      onSubmit={handleLogin}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="Username"
+                        name="username"
+                        minLength={1}
+                      />
+                      <Input
+                        type="password"
+                        placeholder="Password"
+                        name="password"
+                        minLength={1}
+                      />
+                      <Button className="mt-4 cursor-pointer" type="submit">
                         <Lock size={16} />
                         <Trans id="login" />
                       </Button>
-                    </div>
+                    </form>
                   </div>
                 )}
                 {user && (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-4">
-                    <p className="text-sm opacity-70">Logged in as {user}</p>
+                    <p className="text-sm opacity-70">
+                      Successfully logged in as <b>{user}</b>
+                    </p>
+                    <Button
+                      className="w-full cursor-pointer"
+                      variant="outline"
+                      onClick={() => {
+                        logout();
+                        setUser(null);
+                      }}
+                    >
+                      <LogOut size={16} />
+                      <Trans id="logout" />
+                    </Button>
                   </div>
                 )}
               </PopoverContent>

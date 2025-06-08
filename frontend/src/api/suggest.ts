@@ -18,6 +18,7 @@ export const useMutationSuggestKeywords = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ subject, description }),
+          credentials: "include",
         },
       );
       return response.json() as Promise<string[]>;
