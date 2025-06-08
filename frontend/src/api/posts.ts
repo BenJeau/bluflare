@@ -16,12 +16,12 @@ export interface Post {
   aka: Record<string, string[]>;
 }
 
-export const postsOptions = (interestId: string) =>
+export const postsOptions = (topicId: string) =>
   queryOptions<Post[]>({
-    queryKey: ["interets", interestId, "posts"],
+    queryKey: ["topics", topicId, "posts"],
     queryFn: async ({ signal }) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/${interestId}/posts`,
+        `${config.rest_server_base_url}/topics/${topicId}/posts`,
         { signal },
       );
       return response.json();

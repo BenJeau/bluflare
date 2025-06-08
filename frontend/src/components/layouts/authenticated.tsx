@@ -29,14 +29,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-type Page =
-  | "home"
-  | "interests"
-  | "users"
-  | "posts"
-  | "stats"
-  | "docs"
-  | "github";
+type Page = "home" | "topics" | "users" | "posts" | "stats" | "docs" | "github";
 
 export const Layout: React.FC = () => {
   const { location } = useRouterState();
@@ -44,7 +37,7 @@ export const Layout: React.FC = () => {
   const user = useAtomValue(userAtom);
 
   const page: Page | undefined = useMemo(() => {
-    if (location.pathname.startsWith("/interests")) return "interests";
+    if (location.pathname.startsWith("/topics")) return "topics";
     if (location.pathname.startsWith("/posts")) return "posts";
     if (location.pathname.startsWith("/users")) return "users";
     if (location.pathname.startsWith("/stats")) return "stats";
@@ -89,9 +82,9 @@ export const Layout: React.FC = () => {
               <Nav
                 links={[
                   {
-                    title: "interests",
-                    to: "/interests",
-                    variant: page === "interests" ? "default" : "ghost",
+                    title: "topics",
+                    to: "/topics",
+                    variant: page === "topics" ? "default" : "ghost",
                     icon: Binoculars,
                   },
                   {
@@ -199,7 +192,7 @@ export const Layout: React.FC = () => {
                   <div className="flex h-full w-full flex-col items-center justify-center gap-4">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className="text-sm opacity-70">
-                        Login to the platform to manage your interests and posts
+                        Login to the platform to manage your topics and posts
                       </p>
                     </div>
 

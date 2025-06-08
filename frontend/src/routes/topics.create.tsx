@@ -6,7 +6,7 @@ import * as v from "valibot";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCreateInterest } from "@/api/interests";
+import { useCreateTopic } from "@/api/topics";
 import { useMutationSuggestKeywords } from "@/api/suggest";
 import { useTranslation } from "@/i18n";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,7 @@ import { Trans } from "@/components";
 
 function RouteComponent() {
   const { t } = useTranslation();
-  const createInterest = useCreateInterest();
+  const createTopic = useCreateTopic();
   const suggestKeywords = useMutationSuggestKeywords();
 
   const navigate = Route.useNavigate();
@@ -34,22 +34,22 @@ function RouteComponent() {
     });
   };
 
-  const handleCreateInterest = async (e: FormEvent) => {
+  const handleCreateTopic = async (e: FormEvent) => {
     e.preventDefault();
     if (!subject || !keywords) return;
     if (!subject.trim() || keywords.length === 0) return;
 
     try {
-      const interest = await createInterest.mutateAsync({
+      const topic = await createTopic.mutateAsync({
         subject: subject.trim(),
         description: description?.trim() ?? "",
         keywords,
       });
-      navigate({ to: "/interests/$slug", params: { slug: interest.slug } });
-      toast.success(t("create.interest.success"));
+      navigate({ to: "/topics/$slug", params: { slug: topic.slug } });
+      toast.success(t("create.topic.success"));
     } catch (error) {
-      console.error("Failed to create interest:", error);
-      toast.error(t("create.interest.error"));
+      console.error("Failed to create topic:", error);
+      toast.error(t("create.topic.error"));
     }
   };
 
@@ -96,21 +96,21 @@ function RouteComponent() {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/interests">
+          <Link to="/topics">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div className="flex flex-col">
           <p className="text-3xl font-bold">
-            <Trans id="create.interest.title" />
+            <Trans id="create.topic.title" />
           </p>
           <p className="text-sm italic">
-            <Trans id="create.interest.description" />
+            <Trans id="create.topic.description" />
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleCreateInterest} className="flex flex-col gap-4">
+      <form onSubmit={handleCreateTopic} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium">
             <Trans id="subject" />
@@ -200,7 +200,7 @@ function RouteComponent() {
             disabled={!subject?.trim() || keywords?.length === 0}
           >
             <Pickaxe className="h-4 w-4" />
-            {t("interests.add")}
+            {t("topics.add")}
           </Button>
         </div>
       </form>
@@ -229,7 +229,7 @@ const validateSearch = v.object({
 
 type Search = v.InferOutput<typeof validateSearch>;
 
-export const Route = createFileRoute("/interests/create")({
+export const Route = createFileRoute("/topics/create")({
   component: RouteComponent,
   validateSearch,
 });

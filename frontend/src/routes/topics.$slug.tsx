@@ -32,14 +32,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
 import {
-  Interest,
-  useDeleteInterest,
-  useSSEInterestPosts,
-  useMutateInterest,
-  useAnalyzeInterest,
-  interestOptions,
-  interestSlugQueryOptions,
-} from "@/api/interests";
+  Topic,
+  useDeleteTopic,
+  useSSETopicPosts,
+  useMutateTopic,
+  useAnalyzeTopic,
+  topicOptions,
+  topicSlugQueryOptions,
+} from "@/api/topics";
 import { Badge } from "@/components/ui/badge";
 import { cn, getTagColor } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -47,35 +47,35 @@ import { useMutationSuggestKeywords } from "@/api/suggest";
 import { postsOptions, Post } from "@/api/posts";
 import { NotFound, PostCard, Trans } from "@/components";
 
-const InterestDetail: React.FC = () => {
+const TopicDetail: React.FC = () => {
   const { slug } = Route.useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
   const [numberOfPostsToShow, setNumberOfPostsToShow] = useState(30);
   const [isSSEActive, setIsSSEActive] = useState(true);
-  const { mutateAsync: analyzeInterest, isPending: isAnalyzing } =
-    useAnalyzeInterest();
+  const { mutateAsync: analyzeTopic, isPending: isAnalyzing } =
+    useAnalyzeTopic();
 
-  const { data: id } = useSuspenseQuery(interestSlugQueryOptions(slug));
-  const { data: interest } = useSuspenseQuery(interestOptions(id));
+  const { data: id } = useSuspenseQuery(topicSlugQueryOptions(slug));
+  const { data: topic } = useSuspenseQuery(topicOptions(id));
   const { data: posts } = useSuspenseQuery(postsOptions(id));
-  const { data: ssePosts } = useSSEInterestPosts(id, isSSEActive);
+  const { data: ssePosts } = useSSETopicPosts(id, isSSEActive);
 
-  const deleteInterest = useDeleteInterest();
+  const deleteTopic = useDeleteTopic();
 
-  const handleDeleteInterest = async (id: number) => {
-    await deleteInterest.mutateAsync(id);
-    toast.success("Interest deleted successfully");
-    navigate({ to: "/interests" });
+  const handleDeleteTopic = async (id: number) => {
+    await deleteTopic.mutateAsync(id);
+    toast.success("Topic deleted successfully");
+    navigate({ to: "/topics" });
   };
 
-  const handleAnalyzeInterest = async () => {
+  const handleAnalyzeTopic = async () => {
     try {
-      await analyzeInterest(Number(id));
+      await analyzeTopic(Number(id));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to analyze interest");
+      toast.error("Failed to analyze topic");
     }
   };
 
@@ -126,27 +126,25 @@ const InterestDetail: React.FC = () => {
       <div className="mb-2 flex justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
-            <Link to="/interests">
+            <Link to="/topics">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <h2 className="text-xl font-bold">
             <span className="flex flex-wrap items-baseline gap-x-2">
-              {interest.subject}
-              <p className="text-sm font-normal italic">
-                {interest.description}
-              </p>
+              {topic.subject}
+              <p className="text-sm font-normal italic">{topic.description}</p>
             </span>
             <p className="text-sm font-normal opacity-70">
-              {t("interests.detail.created")}:{" "}
-              {new Date(interest.created_at).toLocaleString()}
+              {t("topics.detail.created")}:{" "}
+              {new Date(topic.created_at).toLocaleString()}
             </p>
           </h2>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={handleAnalyzeInterest}
+            onClick={handleAnalyzeTopic}
             disabled={isAnalyzing}
           >
             <Sparkles className="h-4 w-4" />
@@ -155,7 +153,7 @@ const InterestDetail: React.FC = () => {
           <Button
             variant="destructive"
             size="icon"
-            onClick={() => handleDeleteInterest(Number(id))}
+            onClick={() => handleDeleteTopic(Number(id))}
             className="cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
@@ -168,13 +166,13 @@ const InterestDetail: React.FC = () => {
             <Bot className="h-4 w-4" /> Analysis{" "}
             <span className="text-xs opacity-70">
               (
-              {interest.last_analysis_at
-                ? new Date(interest.last_analysis_at).toLocaleString()
+              {topic.last_analysis_at
+                ? new Date(topic.last_analysis_at).toLocaleString()
                 : "Never analyzed"}
               )
             </span>
           </p>
-          {interest.last_analysis && (
+          {topic.last_analysis && (
             <Button
               variant="ghost"
               size="sm"
@@ -196,13 +194,13 @@ const InterestDetail: React.FC = () => {
         {isAnalysisExpanded && (
           <div className="prose prose-sm dark:prose-invert mt-2 max-w-none">
             <ReactMarkdown>
-              {interest.last_analysis ??
+              {topic.last_analysis ??
                 "No analysis results yet, start analyzing posts to get started!"}
             </ReactMarkdown>
           </div>
         )}
       </div>
-      <KeywordsSection interest={interest} />
+      <KeywordsSection topic={topic} />
       <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
       <StatsSection data={urls || {}} title="URLs" Icon={LinkIcon} />
       <StatsSection data={tags || {}} title="Tags" Icon={Hash} />
@@ -250,7 +248,7 @@ const InterestDetail: React.FC = () => {
             <PostCard
               key={post.id}
               post={post}
-              keywords={interest.keywords}
+              keywords={topic.keywords}
               offset={index}
             />
           ))}
@@ -260,16 +258,16 @@ const InterestDetail: React.FC = () => {
   );
 };
 
-const KeywordsSection = ({ interest }: { interest: Interest }) => {
+const KeywordsSection = ({ topic }: { topic: Topic }) => {
   const [isEditingKeywords, setIsEditingKeywords] = useState(false);
   const [currentKeyword, setCurrentKeyword] = useState("");
   const [editedKeywords, setEditedKeywords] = useState<string[]>([]);
-  const { mutateAsync: updateInterest } = useMutateInterest(interest.id);
+  const { mutateAsync: updateTopic } = useMutateTopic(topic.id);
   const { mutateAsync: suggestKeywords, isPending: isSuggesting } =
     useMutationSuggestKeywords();
 
   const handleStartEditing = () => {
-    setEditedKeywords([...interest.keywords]);
+    setEditedKeywords([...topic.keywords]);
     setIsEditingKeywords(true);
   };
 
@@ -281,7 +279,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
 
   const handleSaveKeywords = async () => {
     try {
-      await updateInterest({ keywords: editedKeywords });
+      await updateTopic({ keywords: editedKeywords });
       toast.success("Keywords updated successfully");
       setIsEditingKeywords(false);
     } catch (error) {
@@ -307,8 +305,8 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
   const handleSuggestKeywords = async () => {
     try {
       const suggestedKeywords = await suggestKeywords({
-        subject: interest.subject,
-        description: interest.description,
+        subject: topic.subject,
+        description: topic.description,
       });
       // Add only unique keywords that aren't already in the list
       const newKeywords = suggestedKeywords.filter(
@@ -326,9 +324,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-semibold">
           <Tag className="h-4 w-4" /> Keywords{" "}
-          <span className="text-xs opacity-70">
-            ({interest.keywords.length})
-          </span>
+          <span className="text-xs opacity-70">({topic.keywords.length})</span>
         </p>
         {!isEditingKeywords ? (
           <Button
@@ -416,7 +412,7 @@ const KeywordsSection = ({ interest }: { interest: Interest }) => {
         </div>
       ) : (
         <div className="flex flex-wrap gap-1">
-          {interest.keywords.map((keyword: string) => (
+          {topic.keywords.map((keyword: string) => (
             <Badge key={keyword}>{keyword}</Badge>
           ))}
         </div>
@@ -499,26 +495,24 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
   );
 };
 
-const NotFoundInterest: React.FC = () => {
+const NotFoundTopic: React.FC = () => {
   const { slug } = Route.useParams();
-  return <NotFound title="interest.not.found" data={slug} />;
+  return <NotFound title="topic.not.found" data={slug} />;
 };
 
-export const Route = createFileRoute("/interests/$slug")({
+export const Route = createFileRoute("/topics/$slug")({
   loader: async ({ params: { slug }, context: { queryClient } }) => {
-    const id = await queryClient.ensureQueryData(
-      interestSlugQueryOptions(slug),
-    );
+    const id = await queryClient.ensureQueryData(topicSlugQueryOptions(slug));
 
     if (!id) {
       return;
     }
 
     return Promise.all([
-      queryClient.ensureQueryData(interestOptions(id)),
+      queryClient.ensureQueryData(topicOptions(id)),
       queryClient.ensureQueryData(postsOptions(id)),
     ]);
   },
-  notFoundComponent: NotFoundInterest,
-  component: InterestDetail,
+  notFoundComponent: NotFoundTopic,
+  component: TopicDetail,
 });

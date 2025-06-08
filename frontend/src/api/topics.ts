@@ -8,7 +8,7 @@ import config from "@/lib/config";
 import { useSSE } from "@/api/sse";
 import { Post } from "@/api/posts";
 
-export interface Interest {
+export interface Topic {
   id: number;
   enabled: boolean;
   slug: string;
@@ -21,24 +21,24 @@ export interface Interest {
   post_count?: number;
 }
 
-export interface CreateInterest {
+export interface CreateTopic {
   subject: string;
   description: string;
   keywords: string[];
 }
 
-export interface UpdateInterest {
+export interface UpdateTopic {
   keywords?: string[];
   enabled?: boolean;
 }
 
-export const useMutateInterest = (id: number) => {
+export const useMutateTopic = (id: number) => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, UpdateInterest>({
+  return useMutation<void, Error, UpdateTopic>({
     mutationFn: async (update) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/${id}`,
+        `${config.rest_server_base_url}/topics/${id}`,
         {
           method: "PATCH",
           headers: {
@@ -48,19 +48,19 @@ export const useMutateInterest = (id: number) => {
         },
       );
       if (!response.ok) {
-        throw new Error("Failed to update interest keywords");
+        throw new Error("Failed to update topic keywords");
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["interests"] });
+      queryClient.invalidateQueries({ queryKey: ["topics"] });
     },
   });
 };
 
-export const interestsOptions = queryOptions<Interest[]>({
-  queryKey: ["interests"],
+export const topicsOptions = queryOptions<Topic[]>({
+  queryKey: ["topics"],
   queryFn: async ({ signal }) => {
-    const response = await fetch(`${config.rest_server_base_url}/interests`, {
+    const response = await fetch(`${config.rest_server_base_url}/topics`, {
       signal,
     });
     return response.json();
@@ -68,12 +68,12 @@ export const interestsOptions = queryOptions<Interest[]>({
   refetchInterval: 1000,
 });
 
-export function interestSlugQueryOptions(slug: string) {
+export function topicSlugQueryOptions(slug: string) {
   return queryOptions({
-    queryKey: ["interests", "slugs", slug],
+    queryKey: ["topics", "slugs", slug],
     queryFn: async ({ signal }) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/slugs/${slug}`,
+        `${config.rest_server_base_url}/topics/slugs/${slug}`,
         {
           signal,
         },
@@ -83,12 +83,12 @@ export function interestSlugQueryOptions(slug: string) {
   });
 }
 
-export const interestOptions = (id: string) =>
-  queryOptions<Interest>({
-    queryKey: ["interests", id],
+export const topicOptions = (id: string) =>
+  queryOptions<Topic>({
+    queryKey: ["topics", id],
     queryFn: async ({ signal }) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/${id}`,
+        `${config.rest_server_base_url}/topics/${id}`,
         {
           signal,
         },
@@ -97,69 +97,69 @@ export const interestOptions = (id: string) =>
     },
   });
 
-export const useCreateInterest = () => {
+export const useCreateTopic = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Interest, Error, CreateInterest>({
-    mutationFn: async (interest) => {
-      const response = await fetch(`${config.rest_server_base_url}/interests`, {
+  return useMutation<Topic, Error, CreateTopic>({
+    mutationFn: async (topic) => {
+      const response = await fetch(`${config.rest_server_base_url}/topics`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(interest),
+        body: JSON.stringify(topic),
       });
       if (!response.ok) {
-        throw new Error("Failed to create interest");
+        throw new Error("Failed to create topic");
       }
       return await response.json();
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["interests"] });
+      queryClient.invalidateQueries({ queryKey: ["topics"] });
     },
   });
 };
 
-export const useDeleteInterest = () => {
+export const useDeleteTopic = () => {
   return useMutation<void, Error, number>({
     mutationFn: async (id) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/${id}`,
+        `${config.rest_server_base_url}/topics/${id}`,
         {
           method: "DELETE",
         },
       );
       if (!response.ok) {
-        throw new Error("Failed to delete interest");
+        throw new Error("Failed to delete topic");
       }
     },
   });
 };
 
-export const useAnalyzeInterest = () => {
+export const useAnalyzeTopic = () => {
   const queryClient = useQueryClient();
 
   return useMutation<string, Error, number>({
     mutationFn: async (id) => {
       const response = await fetch(
-        `${config.rest_server_base_url}/interests/${id}/analyze`,
+        `${config.rest_server_base_url}/topics/${id}/analyze`,
         {
           method: "POST",
         },
       );
       if (!response.ok) {
-        throw new Error("Failed to analyze interest");
+        throw new Error("Failed to analyze topic");
       }
       const text = await response.text();
-      queryClient.invalidateQueries({ queryKey: ["interests", id] });
+      queryClient.invalidateQueries({ queryKey: ["topics", id] });
       return text;
     },
   });
 };
 
-export const useSSEInterestPosts = (id: string, active: boolean) => {
+export const useSSETopicPosts = (id: string, active: boolean) => {
   return useSSE<Post>({
-    url: `${config.rest_server_base_url}/interests/${id}/posts/sse`,
+    url: `${config.rest_server_base_url}/topics/${id}/posts/sse`,
     active,
     maxDataEntries: 150,
   });

@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { latestPostsOptions } from "@/api/posts";
 import { HomeSubSection, RecentlyIngestedPosts, Trans } from "@/components";
 import { Button } from "@/components/ui/button";
-import { interestsOptions } from "@/api/interests";
+import { topicsOptions } from "@/api/topics";
 import { latestUsersOptions } from "@/api/users";
 import { useTranslation } from "@/i18n";
 
@@ -15,8 +15,9 @@ const IndexComponent: React.FC = () => {
   const { t } = useTranslation();
   const [sseEnabled, setSseEnabled] = useState(true);
 
-  const { data: interests } = useSuspenseQuery(interestsOptions);
+  const { data: topics } = useSuspenseQuery(topicsOptions);
   const { data: users } = useSuspenseQuery(latestUsersOptions);
+
   return (
     <div className="flex flex-1 flex-col overflow-y-hidden md:flex-row">
       <div className="flex flex-1 flex-col">
@@ -91,32 +92,32 @@ const IndexComponent: React.FC = () => {
           />
           <div className="border-t" />
           <HomeSubSection
-            title="latest.interests"
-            description="latest.interests.description"
+            title="latest.topics"
+            description="latest.topics.description"
             Icon={BookOpenText}
-            data={interests}
-            viewAllLink="/interests"
-            emptyMessage="no.interests"
-            viewAllText="view.all.interests"
-            render={(interest) => (
+            data={topics}
+            viewAllLink="/topics"
+            emptyMessage="no.topics"
+            viewAllText="view.all.topics"
+            render={(topic) => (
               <Link
-                key={interest.id}
-                to="/interests/$slug"
-                params={{ slug: interest.slug }}
+                key={topic.id}
+                to="/topics/$slug"
+                params={{ slug: topic.slug }}
                 className="bg-background/75 hover:bg-background group flex flex-col rounded-lg border p-2 text-sm shadow-xs transition-all active:shadow-inner"
               >
                 <div className="flex items-center justify-between gap-4">
                   <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap group-hover:underline">
-                    {interest.subject}
+                    {topic.subject}
                   </h3>
                   <p className="text-xs whitespace-nowrap text-sky-300 opacity-70">
-                    {interest.post_count?.toLocaleString()}{" "}
+                    {topic.post_count?.toLocaleString()}{" "}
                     {t("posts").toLowerCase()}
                   </p>
                 </div>
-                {interest.description ? (
+                {topic.description ? (
                   <span className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
-                    {interest.description}
+                    {topic.description}
                   </span>
                 ) : (
                   <span className="text-xs italic opacity-35">
@@ -168,7 +169,7 @@ export const Route = createFileRoute("/")({
   loader: async ({ context: { queryClient } }) =>
     Promise.all([
       queryClient.ensureQueryData(latestPostsOptions),
-      queryClient.ensureQueryData(interestsOptions),
+      queryClient.ensureQueryData(topicsOptions),
       queryClient.ensureQueryData(latestUsersOptions),
     ]),
   component: IndexComponent,

@@ -13,12 +13,12 @@
 import { Route as rootRoute } from "./../routes/__root";
 import { Route as IndexImport } from "./../routes/index";
 import { Route as UsersIndexImport } from "./../routes/users.index";
+import { Route as TopicsIndexImport } from "./../routes/topics.index";
 import { Route as StatsIndexImport } from "./../routes/stats.index";
 import { Route as PostsIndexImport } from "./../routes/posts.index";
-import { Route as InterestsIndexImport } from "./../routes/interests.index";
 import { Route as DocsIndexImport } from "./../routes/docs.index";
-import { Route as InterestsCreateImport } from "./../routes/interests.create";
-import { Route as InterestsSlugImport } from "./../routes/interests.$slug";
+import { Route as TopicsCreateImport } from "./../routes/topics.create";
+import { Route as TopicsSlugImport } from "./../routes/topics.$slug";
 
 // Create/Update Routes
 
@@ -34,6 +34,12 @@ const UsersIndexRoute = UsersIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any);
 
+const TopicsIndexRoute = TopicsIndexImport.update({
+  id: "/topics/",
+  path: "/topics/",
+  getParentRoute: () => rootRoute,
+} as any);
+
 const StatsIndexRoute = StatsIndexImport.update({
   id: "/stats/",
   path: "/stats/",
@@ -46,27 +52,21 @@ const PostsIndexRoute = PostsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any);
 
-const InterestsIndexRoute = InterestsIndexImport.update({
-  id: "/interests/",
-  path: "/interests/",
-  getParentRoute: () => rootRoute,
-} as any);
-
 const DocsIndexRoute = DocsIndexImport.update({
   id: "/docs/",
   path: "/docs/",
   getParentRoute: () => rootRoute,
 } as any);
 
-const InterestsCreateRoute = InterestsCreateImport.update({
-  id: "/interests/create",
-  path: "/interests/create",
+const TopicsCreateRoute = TopicsCreateImport.update({
+  id: "/topics/create",
+  path: "/topics/create",
   getParentRoute: () => rootRoute,
 } as any);
 
-const InterestsSlugRoute = InterestsSlugImport.update({
-  id: "/interests/$slug",
-  path: "/interests/$slug",
+const TopicsSlugRoute = TopicsSlugImport.update({
+  id: "/topics/$slug",
+  path: "/topics/$slug",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -81,18 +81,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport;
       parentRoute: typeof rootRoute;
     };
-    "/interests/$slug": {
-      id: "/interests/$slug";
-      path: "/interests/$slug";
-      fullPath: "/interests/$slug";
-      preLoaderRoute: typeof InterestsSlugImport;
+    "/topics/$slug": {
+      id: "/topics/$slug";
+      path: "/topics/$slug";
+      fullPath: "/topics/$slug";
+      preLoaderRoute: typeof TopicsSlugImport;
       parentRoute: typeof rootRoute;
     };
-    "/interests/create": {
-      id: "/interests/create";
-      path: "/interests/create";
-      fullPath: "/interests/create";
-      preLoaderRoute: typeof InterestsCreateImport;
+    "/topics/create": {
+      id: "/topics/create";
+      path: "/topics/create";
+      fullPath: "/topics/create";
+      preLoaderRoute: typeof TopicsCreateImport;
       parentRoute: typeof rootRoute;
     };
     "/docs/": {
@@ -100,13 +100,6 @@ declare module "@tanstack/react-router" {
       path: "/docs";
       fullPath: "/docs";
       preLoaderRoute: typeof DocsIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/interests/": {
-      id: "/interests/";
-      path: "/interests";
-      fullPath: "/interests";
-      preLoaderRoute: typeof InterestsIndexImport;
       parentRoute: typeof rootRoute;
     };
     "/posts/": {
@@ -123,6 +116,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof StatsIndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/topics/": {
+      id: "/topics/";
+      path: "/topics";
+      fullPath: "/topics";
+      preLoaderRoute: typeof TopicsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     "/users/": {
       id: "/users/";
       path: "/users";
@@ -137,35 +137,35 @@ declare module "@tanstack/react-router" {
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
-  "/interests/$slug": typeof InterestsSlugRoute;
-  "/interests/create": typeof InterestsCreateRoute;
+  "/topics/$slug": typeof TopicsSlugRoute;
+  "/topics/create": typeof TopicsCreateRoute;
   "/docs": typeof DocsIndexRoute;
-  "/interests": typeof InterestsIndexRoute;
   "/posts": typeof PostsIndexRoute;
   "/stats": typeof StatsIndexRoute;
+  "/topics": typeof TopicsIndexRoute;
   "/users": typeof UsersIndexRoute;
 }
 
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
-  "/interests/$slug": typeof InterestsSlugRoute;
-  "/interests/create": typeof InterestsCreateRoute;
+  "/topics/$slug": typeof TopicsSlugRoute;
+  "/topics/create": typeof TopicsCreateRoute;
   "/docs": typeof DocsIndexRoute;
-  "/interests": typeof InterestsIndexRoute;
   "/posts": typeof PostsIndexRoute;
   "/stats": typeof StatsIndexRoute;
+  "/topics": typeof TopicsIndexRoute;
   "/users": typeof UsersIndexRoute;
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute;
   "/": typeof IndexRoute;
-  "/interests/$slug": typeof InterestsSlugRoute;
-  "/interests/create": typeof InterestsCreateRoute;
+  "/topics/$slug": typeof TopicsSlugRoute;
+  "/topics/create": typeof TopicsCreateRoute;
   "/docs/": typeof DocsIndexRoute;
-  "/interests/": typeof InterestsIndexRoute;
   "/posts/": typeof PostsIndexRoute;
   "/stats/": typeof StatsIndexRoute;
+  "/topics/": typeof TopicsIndexRoute;
   "/users/": typeof UsersIndexRoute;
 }
 
@@ -173,55 +173,55 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
-    | "/interests/$slug"
-    | "/interests/create"
+    | "/topics/$slug"
+    | "/topics/create"
     | "/docs"
-    | "/interests"
     | "/posts"
     | "/stats"
+    | "/topics"
     | "/users";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
-    | "/interests/$slug"
-    | "/interests/create"
+    | "/topics/$slug"
+    | "/topics/create"
     | "/docs"
-    | "/interests"
     | "/posts"
     | "/stats"
+    | "/topics"
     | "/users";
   id:
     | "__root__"
     | "/"
-    | "/interests/$slug"
-    | "/interests/create"
+    | "/topics/$slug"
+    | "/topics/create"
     | "/docs/"
-    | "/interests/"
     | "/posts/"
     | "/stats/"
+    | "/topics/"
     | "/users/";
   fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
-  InterestsSlugRoute: typeof InterestsSlugRoute;
-  InterestsCreateRoute: typeof InterestsCreateRoute;
+  TopicsSlugRoute: typeof TopicsSlugRoute;
+  TopicsCreateRoute: typeof TopicsCreateRoute;
   DocsIndexRoute: typeof DocsIndexRoute;
-  InterestsIndexRoute: typeof InterestsIndexRoute;
   PostsIndexRoute: typeof PostsIndexRoute;
   StatsIndexRoute: typeof StatsIndexRoute;
+  TopicsIndexRoute: typeof TopicsIndexRoute;
   UsersIndexRoute: typeof UsersIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  InterestsSlugRoute: InterestsSlugRoute,
-  InterestsCreateRoute: InterestsCreateRoute,
+  TopicsSlugRoute: TopicsSlugRoute,
+  TopicsCreateRoute: TopicsCreateRoute,
   DocsIndexRoute: DocsIndexRoute,
-  InterestsIndexRoute: InterestsIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
+  TopicsIndexRoute: TopicsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
 };
 
@@ -236,35 +236,35 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/interests/$slug",
-        "/interests/create",
+        "/topics/$slug",
+        "/topics/create",
         "/docs/",
-        "/interests/",
         "/posts/",
         "/stats/",
+        "/topics/",
         "/users/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/interests/$slug": {
-      "filePath": "interests.$slug.tsx"
+    "/topics/$slug": {
+      "filePath": "topics.$slug.tsx"
     },
-    "/interests/create": {
-      "filePath": "interests.create.tsx"
+    "/topics/create": {
+      "filePath": "topics.create.tsx"
     },
     "/docs/": {
       "filePath": "docs.index.tsx"
-    },
-    "/interests/": {
-      "filePath": "interests.index.tsx"
     },
     "/posts/": {
       "filePath": "posts.index.tsx"
     },
     "/stats/": {
       "filePath": "stats.index.tsx"
+    },
+    "/topics/": {
+      "filePath": "topics.index.tsx"
     },
     "/users/": {
       "filePath": "users.index.tsx"

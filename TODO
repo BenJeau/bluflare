@@ -8,7 +8,7 @@ general
 
 1. [ ] figure out how auth should work and what should be public by default
 - everything is public except update/create/delete actions?
-2. [ ] maybe rename "interests" to "topics"
+2. [x] maybe rename "interests" to "topics"
 3. [ ] write tests?
 
 backend
