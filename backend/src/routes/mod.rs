@@ -36,7 +36,7 @@ pub fn router(state: AppState) -> Router {
         .route("/topics/{id}", get(topics::get_topic))
         .route("/topics/{id}/posts", get(topics::get_posts))
         .route("/topics/{id}/posts/sse", get(topics::sse_posts))
-        .route("/slugs/{slug}", get(topics::get_topic_by_slug))
+        .route("/topics/slugs/{slug}", get(topics::get_topic_by_slug))
         .route("/users/latest", get(users::get_latest_users))
         .route("/auth/login", post(auth::login))
         .with_state(state.clone());
