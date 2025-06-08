@@ -59,14 +59,17 @@ export const Layout: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
     try {
       await login({
-        username: e.target.username.value,
-        password: e.target.password.value,
+        username: formData.get("username") as string,
+        password: formData.get("password") as string,
       });
 
       toast.success("Logged in successfully");
-      setUser(e.target.username.value);
+      setUser(formData.get("username") as string);
     } catch (error) {
       console.error(error);
       toast.error("Failed to login");
@@ -223,12 +226,14 @@ export const Layout: React.FC = () => {
                         type="text"
                         placeholder="Username"
                         name="username"
+                        required
                         minLength={1}
                       />
                       <Input
                         type="password"
                         placeholder="Password"
                         name="password"
+                        required
                         minLength={1}
                       />
                       <Button className="mt-4 cursor-pointer" type="submit">

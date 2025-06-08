@@ -6,14 +6,14 @@
 
 general
 
-1. [ ] figure out how auth should work and what should be public by default
+1. [x] figure out how auth should work and what should be public by default
 - everything is public except update/create/delete actions?
 2. [x] maybe rename "interests" to "topics"
 3. [ ] write tests?
 
 backend
 
-1. [ ] protect modify endpoints
+1. [x] protect modify endpoints
 2. [ ] normalize shape of post from SSE and API
 2. [in progress] create user API endpoints
 2. [in progress] create post API endpoints
