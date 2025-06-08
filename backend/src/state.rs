@@ -16,7 +16,7 @@ use crate::{Result, config, db, gemini::GeminiClient, models::post::Post};
 #[derive(Clone)]
 pub struct StreamPost {
     pub post: Post,
-    pub interest_ids: BTreeSet<i64>,
+    pub topic_ids: BTreeSet<i64>,
     pub akas: BTreeMap<String, Vec<String>>,
 }
 
@@ -63,17 +63,17 @@ impl AppState {
     pub async fn send_message(
         &self,
         post: Post,
-        interest_ids: BTreeSet<i64>,
+        topic_ids: BTreeSet<i64>,
         akas: BTreeMap<String, Vec<String>>,
     ) {
         let inner_stream = self.post_streams.write().await;
         let (sender, _) = inner_stream.clone();
         if let Err(err) = sender.send(Some(StreamPost {
             post,
-            interest_ids: interest_ids.clone(),
+            topic_ids: topic_ids.clone(),
             akas,
         })) {
-            error!("Error sending message to watch channel with interests {interest_ids:?}: {err}",);
+            error!("Error sending message to watch channel with topics {topic_ids:?}: {err}",);
         }
     }
 

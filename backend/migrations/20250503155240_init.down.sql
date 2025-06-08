@@ -1,5 +1,9 @@
 DROP TABLE IF EXISTS post_mentions;
-DROP TABLE IF EXISTS post_interests;
+
+DROP TABLE IF EXISTS post_topics;
+
 DROP TABLE IF EXISTS posts;
+
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS interests;
+
+DROP TABLE IF EXISTS topics;

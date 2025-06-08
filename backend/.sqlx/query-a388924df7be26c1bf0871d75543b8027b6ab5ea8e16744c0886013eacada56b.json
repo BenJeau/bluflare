@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            DELETE FROM topics\n            WHERE id = ?\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "a388924df7be26c1bf0871d75543b8027b6ab5ea8e16744c0886013eacada56b"
+}

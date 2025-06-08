@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT posts.* FROM posts\n            JOIN post_interests ON posts.id = post_interests.post_id AND post_interests.interest_id = ?\n            ORDER BY created_at DESC\n            ",
+  "query": "\n            SELECT posts.* FROM posts\n            JOIN post_topics ON posts.id = post_topics.post_id AND post_topics.topic_id = ?\n            ORDER BY created_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -64,5 +64,5 @@
       false
     ]
   },
-  "hash": "fb05653a1c77c10c6e7d65f5612068f7b70c757d525b93e263e349427d1d6435"
+  "hash": "0e7a158fd6df9d91f40842b40a50a31774e54485b3527a7c912fc42474d655b2"
 }

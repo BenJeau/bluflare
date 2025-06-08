@@ -50,7 +50,7 @@ async fn start_inner(state: AppState) -> Result<()> {
         info!("Starting jetstream processor");
 
         let mut interval = tokio::time::interval(Duration::from_secs(1));
-        let mut interests = db::get_all_interests(&state.pool).await?;
+        let mut topics = db::get_all_topics(&state.pool).await?;
         let mut counter = 0;
 
         loop {
@@ -60,7 +60,7 @@ async fn start_inner(state: AppState) -> Result<()> {
                 message = stream.next() => {
                     match message {
                         Some(Ok(message)) => {
-                            if let Err(err) = processor.process_message(message, interests.clone(), state.clone()) {
+                            if let Err(err) = processor.process_message(message, topics.clone(), state.clone()) {
                                 error!("Error processing message: {err}");
                             }
                         }
@@ -75,11 +75,11 @@ async fn start_inner(state: AppState) -> Result<()> {
                     }
                 }
                 _ = interval.tick() => {
-                    debug!("retrieving interests");
-                    match db::get_all_interests(&state.pool).await {
-                        Ok(data) => interests = data,
+                    debug!("retrieving topics");
+                    match db::get_all_topics(&state.pool).await {
+                        Ok(data) => topics = data,
                         Err(err) => {
-                            error!("Error retrieving interests: {err}");
+                            error!("Error retrieving topics: {err}");
                             continue;
                         }
                     };

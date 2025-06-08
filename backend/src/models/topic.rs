@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, FromRow)]
-pub struct DbInterest {
+pub struct DbTopic {
     pub id: i64,
     pub created_at: NaiveDateTime,
     pub enabled: bool,
@@ -16,7 +16,7 @@ pub struct DbInterest {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Interest {
+pub struct Topic {
     pub id: i64,
     pub created_at: NaiveDateTime,
     pub enabled: bool,
@@ -28,24 +28,24 @@ pub struct Interest {
     pub last_analysis_at: Option<NaiveDateTime>,
 }
 
-impl From<DbInterest> for Interest {
-    fn from(db_interest: DbInterest) -> Self {
+impl From<DbTopic> for Topic {
+    fn from(db_topic: DbTopic) -> Self {
         Self {
-            id: db_interest.id,
-            created_at: db_interest.created_at,
-            enabled: db_interest.enabled,
-            slug: db_interest.slug,
-            subject: db_interest.subject,
-            description: db_interest.description,
-            keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
-            last_analysis: db_interest.last_analysis,
-            last_analysis_at: db_interest.last_analysis_at,
+            id: db_topic.id,
+            created_at: db_topic.created_at,
+            enabled: db_topic.enabled,
+            slug: db_topic.slug,
+            subject: db_topic.subject,
+            description: db_topic.description,
+            keywords: serde_json::from_slice(&db_topic.keywords).unwrap(),
+            last_analysis: db_topic.last_analysis,
+            last_analysis_at: db_topic.last_analysis_at,
         }
     }
 }
 
 #[derive(Debug, FromRow)]
-pub struct DbInterestWithPostCount {
+pub struct DbTopicWithPostCount {
     pub id: i64,
     pub created_at: NaiveDateTime,
     pub enabled: bool,
@@ -59,7 +59,7 @@ pub struct DbInterestWithPostCount {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InterestWithPostCount {
+pub struct TopicWithPostCount {
     pub id: i64,
     pub created_at: NaiveDateTime,
     pub enabled: bool,
@@ -72,37 +72,37 @@ pub struct InterestWithPostCount {
     pub post_count: i64,
 }
 
-impl From<DbInterestWithPostCount> for InterestWithPostCount {
-    fn from(db_interest: DbInterestWithPostCount) -> Self {
+impl From<DbTopicWithPostCount> for TopicWithPostCount {
+    fn from(db_topic: DbTopicWithPostCount) -> Self {
         Self {
-            id: db_interest.id,
-            created_at: db_interest.created_at,
-            enabled: db_interest.enabled,
-            slug: db_interest.slug,
-            subject: db_interest.subject,
-            description: db_interest.description,
-            keywords: serde_json::from_slice(&db_interest.keywords).unwrap(),
-            last_analysis: db_interest.last_analysis,
-            last_analysis_at: db_interest.last_analysis_at,
-            post_count: db_interest.post_count,
+            id: db_topic.id,
+            created_at: db_topic.created_at,
+            enabled: db_topic.enabled,
+            slug: db_topic.slug,
+            subject: db_topic.subject,
+            description: db_topic.description,
+            keywords: serde_json::from_slice(&db_topic.keywords).unwrap(),
+            last_analysis: db_topic.last_analysis,
+            last_analysis_at: db_topic.last_analysis_at,
+            post_count: db_topic.post_count,
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CreateInterest {
+pub struct CreateTopic {
     pub subject: String,
     pub description: String,
     pub keywords: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateInterest {
+pub struct UpdateTopic {
     pub keywords: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateInterestAnalysis {
+pub struct UpdateTopicAnalysis {
     pub last_analysis: String,
     pub last_analysis_at: NaiveDateTime,
 }

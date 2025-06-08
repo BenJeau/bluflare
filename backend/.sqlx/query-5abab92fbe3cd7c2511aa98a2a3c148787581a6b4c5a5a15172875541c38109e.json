@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id FROM interests WHERE slug = ?",
+  "query": "SELECT id FROM topics WHERE slug = ?",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "cafef85204f45a5805a14b54c8a1d6d055a90e9e66a2d5cfa6d7cda0c4d1245e"
+  "hash": "5abab92fbe3cd7c2511aa98a2a3c148787581a6b4c5a5a15172875541c38109e"
 }

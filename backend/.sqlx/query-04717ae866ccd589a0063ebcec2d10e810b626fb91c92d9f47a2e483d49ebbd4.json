@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT *\n            FROM interests\n            ORDER BY created_at DESC\n            ",
+  "query": "\n            SELECT topics.*, (\n                SELECT COUNT(*) FROM post_topics WHERE post_topics.topic_id = topics.id\n            ) as post_count\n            FROM topics\n            ORDER BY created_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -47,6 +47,11 @@
         "name": "last_analysis_at",
         "ordinal": 8,
         "type_info": "Datetime"
+      },
+      {
+        "name": "post_count",
+        "ordinal": 9,
+        "type_info": "Integer"
       }
     ],
     "parameters": {
@@ -61,8 +66,9 @@
       false,
       false,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "0286332e766a83d8fa8b94c183b76179c4f5219b349889fe137dc070e59f047d"
+  "hash": "04717ae866ccd589a0063ebcec2d10e810b626fb91c92d9f47a2e483d49ebbd4"
 }

@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::collections::BTreeSet;
 use tracing::error;
 
-use crate::models::interest::Interest;
+use crate::models::topic::Topic;
 
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
@@ -113,16 +113,16 @@ impl JetstreamMessage {
         })
     }
 
-    pub fn matches_any_interest(&self, interests: &[Interest]) -> BTreeSet<i64> {
-        interests
+    pub fn matches_any_topic(&self, topics: &[Topic]) -> BTreeSet<i64> {
+        topics
             .iter()
-            .filter(|i| self.matches_interest(i))
+            .filter(|t| self.matches_topic(t))
             .map(|i| i.id)
             .collect()
     }
 
-    fn matches_interest(&self, interest: &Interest) -> bool {
-        interest.keywords.iter().any(|k| {
+    fn matches_topic(&self, topic: &Topic) -> bool {
+        topic.keywords.iter().any(|k| {
             let k_lower = k.to_lowercase();
             self.text_lower.split_whitespace().any(|w| w == k_lower)
         })

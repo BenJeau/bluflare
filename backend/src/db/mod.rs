@@ -9,11 +9,11 @@ use tracing::info;
 use crate::{
     Result,
     models::{
-        interest::{
-            CreateInterest, DbInterest, DbInterestWithPostCount, Interest, InterestWithPostCount,
-            UpdateInterestAnalysis,
-        },
         post::{CreatePost, DbPost, Post},
+        topic::{
+            CreateTopic, DbTopic, DbTopicWithPostCount, Topic, TopicWithPostCount,
+            UpdateTopicAnalysis,
+        },
         user::{CreateUser, DbUser, User},
     },
     slug::slugify,
@@ -59,20 +59,20 @@ pub async fn get_latest_posts<'e>(executor: impl SqliteExecutor<'e>) -> Result<V
     Ok(posts)
 }
 
-pub async fn get_interest_id_by_slug<'e>(
+pub async fn get_topic_id_by_slug<'e>(
     executor: impl SqliteExecutor<'e>,
     slug: &str,
 ) -> Result<Option<i64>> {
-    sqlx::query_scalar!(r#"SELECT id FROM interests WHERE slug = ?"#, slug)
+    sqlx::query_scalar!(r#"SELECT id FROM topics WHERE slug = ?"#, slug)
         .fetch_optional(executor)
         .await
         .map_err(Into::into)
 }
 
-pub async fn interest_exists<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<bool> {
+pub async fn topic_exists<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<bool> {
     let result = sqlx::query_scalar!(
         r#"
-            SELECT EXISTS(SELECT 1 FROM interests WHERE id = ?)
+            SELECT EXISTS(SELECT 1 FROM topics WHERE id = ?)
             "#,
         id,
     )
@@ -82,14 +82,14 @@ pub async fn interest_exists<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> 
     Ok(result == 1)
 }
 
-pub async fn update_interest_analysis<'e>(
+pub async fn update_topic_analysis<'e>(
     executor: impl SqliteExecutor<'e>,
     id: i64,
-    analysis: UpdateInterestAnalysis,
+    analysis: UpdateTopicAnalysis,
 ) -> Result<()> {
     sqlx::query_scalar!(
         r#"
-            UPDATE interests SET last_analysis = ?, last_analysis_at = ? WHERE id = ?
+            UPDATE topics SET last_analysis = ?, last_analysis_at = ? WHERE id = ?
             "#,
         analysis.last_analysis,
         analysis.last_analysis_at,
@@ -101,7 +101,7 @@ pub async fn update_interest_analysis<'e>(
     Ok(())
 }
 
-pub async fn update_interest_keywords<'e>(
+pub async fn update_topic_keywords<'e>(
     executor: impl SqliteExecutor<'e>,
     id: i64,
     keywords: Vec<String>,
@@ -110,7 +110,7 @@ pub async fn update_interest_keywords<'e>(
 
     sqlx::query_scalar!(
         r#"
-            UPDATE interests SET keywords = ? WHERE id = ?
+            UPDATE topics SET keywords = ? WHERE id = ?
             "#,
         keywords,
         id,
@@ -121,23 +121,23 @@ pub async fn update_interest_keywords<'e>(
     Ok(())
 }
 
-pub async fn create_interest<'e>(
+pub async fn create_topic<'e>(
     executor: impl SqliteExecutor<'e>,
-    interest: CreateInterest,
-) -> Result<Interest> {
-    let keywords = serde_json::to_value(interest.keywords.clone()).unwrap();
-    let slug = slugify(&interest.subject);
+    topic: CreateTopic,
+) -> Result<Topic> {
+    let keywords = serde_json::to_value(topic.keywords.clone()).unwrap();
+    let slug = slugify(&topic.subject);
 
     let result = sqlx::query_as!(
-        DbInterest,
+        DbTopic,
         r#"
-            INSERT INTO interests (subject, slug, description, keywords)
+            INSERT INTO topics (subject, slug, description, keywords)
             VALUES (?, ?, ?, ?)
             RETURNING *
             "#,
-        interest.subject,
+        topic.subject,
         slug,
-        interest.description,
+        topic.description,
         keywords,
     )
     .fetch_one(executor)
@@ -146,65 +146,65 @@ pub async fn create_interest<'e>(
     Ok(result.into())
 }
 
-pub async fn get_all_interests<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Interest>> {
-    let db_interests = sqlx::query_as!(
-        DbInterest,
+pub async fn get_all_topics<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Topic>> {
+    let db_topics = sqlx::query_as!(
+        DbTopic,
         r#"
             SELECT *
-            FROM interests
+            FROM topics
             ORDER BY created_at DESC
             "#,
     )
     .fetch_all(executor)
     .await?;
 
-    let interests = db_interests.into_iter().map(Interest::from).collect();
+    let topics = db_topics.into_iter().map(Topic::from).collect();
 
-    Ok(interests)
+    Ok(topics)
 }
 
-pub async fn get_all_interests_with_post_count<'e>(
+pub async fn get_all_topics_with_post_count<'e>(
     executor: impl SqliteExecutor<'e>,
-) -> Result<Vec<InterestWithPostCount>> {
-    let db_interests = sqlx::query_as!(
-        DbInterestWithPostCount,
+) -> Result<Vec<TopicWithPostCount>> {
+    let db_topics = sqlx::query_as!(
+        DbTopicWithPostCount,
         r#"
-            SELECT interests.*, (
-                SELECT COUNT(*) FROM post_interests WHERE post_interests.interest_id = interests.id
+            SELECT topics.*, (
+                SELECT COUNT(*) FROM post_topics WHERE post_topics.topic_id = topics.id
             ) as post_count
-            FROM interests
+            FROM topics
             ORDER BY created_at DESC
             "#,
     )
     .fetch_all(executor)
     .await?;
 
-    let interests = db_interests
+    let topics = db_topics
         .into_iter()
-        .map(InterestWithPostCount::from)
+        .map(TopicWithPostCount::from)
         .collect();
 
-    Ok(interests)
+    Ok(topics)
 }
 
-pub async fn get_interest<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<Interest> {
-    let interest = sqlx::query_as!(
-        DbInterest,
+pub async fn get_topic<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<Topic> {
+    let topic = sqlx::query_as!(
+        DbTopic,
         r#"
-            SELECT * FROM interests WHERE id = ?
+            SELECT * FROM topics WHERE id = ?
             "#,
         id,
     )
     .fetch_one(executor)
     .await?;
 
-    Ok(interest.into())
+    Ok(topic.into())
 }
 
-pub async fn delete_interest<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<bool> {
+pub async fn delete_topic<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Result<bool> {
     let result = sqlx::query!(
         r#"
-            DELETE FROM interests
+            DELETE FROM topics
             WHERE id = ?
             "#,
         id,
@@ -215,21 +215,21 @@ pub async fn delete_interest<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> 
     Ok(result.rows_affected() > 0)
 }
 
-pub async fn get_interest_posts<'e>(
+pub async fn get_topic_posts<'e>(
     executor: impl SqliteExecutor<'e>,
-    interest_id: i64,
+    topic_id: i64,
 ) -> Result<Vec<Post>> {
     let db_posts = sqlx::query_as!(
-            DbPost,
-            r#"
+        DbPost,
+        r#"
             SELECT posts.* FROM posts
-            JOIN post_interests ON posts.id = post_interests.post_id AND post_interests.interest_id = ?
+            JOIN post_topics ON posts.id = post_topics.post_id AND post_topics.topic_id = ?
             ORDER BY created_at DESC
             "#,
-            interest_id,
-        )
-        .fetch_all(executor)
-        .await?;
+        topic_id,
+    )
+    .fetch_all(executor)
+    .await?;
 
     let posts = db_posts.into_iter().map(Post::from).collect();
 
@@ -263,15 +263,15 @@ pub async fn create_post<'e>(executor: impl SqliteExecutor<'e>, post: CreatePost
     Ok(post.into())
 }
 
-pub async fn link_post_to_interests<'e>(
+pub async fn link_post_to_topics<'e>(
     executor: impl SqliteExecutor<'e>,
     post_id: i64,
-    interest_ids: &BTreeSet<i64>,
+    topic_ids: &BTreeSet<i64>,
 ) -> Result<()> {
-    let mut query_builder = QueryBuilder::new("INSERT INTO post_interests (post_id, interest_id) ");
+    let mut query_builder = QueryBuilder::new("INSERT INTO post_topics (post_id, topic_id) ");
 
-    query_builder.push_values(interest_ids, |mut b, interest_id| {
-        b.push_bind(post_id).push_bind(interest_id);
+    query_builder.push_values(topic_ids, |mut b, topic_id| {
+        b.push_bind(post_id).push_bind(topic_id);
     });
 
     let query = query_builder.build();
@@ -328,6 +328,7 @@ RETURNING *
 
     Ok(posts)
 }
+
 async fn connect_to_db(
     url: &str,
     max_connections: u32,

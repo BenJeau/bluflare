@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "interests" (
+CREATE TABLE IF NOT EXISTS "topics" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "created_at" DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "enabled" BOOLEAN NOT NULL DEFAULT TRUE,
@@ -33,26 +33,24 @@ CREATE TABLE IF NOT EXISTS "posts" (
     FOREIGN KEY ("author_id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "post_interests" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+CREATE TABLE IF NOT EXISTS "post_topics" (
     "post_id" INTEGER NOT NULL,
-    "interest_id" INTEGER NOT NULL,
+    "topic_id" INTEGER NOT NULL,
+    PRIMARY KEY ("post_id", "topic_id"),
     FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY ("interest_id") REFERENCES "interests" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    UNIQUE ("post_id", "interest_id")
+    FOREIGN KEY ("topic_id") REFERENCES "topics" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "post_mentions" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "post_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
+    PRIMARY KEY ("post_id", "user_id"),
     FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    UNIQUE ("post_id", "user_id")
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 INSERT INTO
-    "interests" (
+    "topics" (
         "subject",
         "slug",
         "description",
@@ -78,10 +76,10 @@ VALUES (
         )
     );
 
-CREATE INDEX IF NOT EXISTS idx_interests_created_at ON interests (created_at);
+CREATE INDEX IF NOT EXISTS idx_topics_created_at ON topics (created_at);
 
-CREATE INDEX IF NOT EXISTS idx_post_interests_interest_id ON post_interests (interest_id);
+CREATE INDEX IF NOT EXISTS idx_post_topics_topic_id ON post_topics (topic_id);
 
-CREATE INDEX IF NOT EXISTS idx_post_interests_post_id ON post_interests (post_id);
+CREATE INDEX IF NOT EXISTS idx_post_topics_post_id ON post_topics (post_id);
 
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users (created_at);

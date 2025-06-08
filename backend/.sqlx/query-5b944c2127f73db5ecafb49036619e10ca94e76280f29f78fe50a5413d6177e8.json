@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            INSERT INTO interests (subject, slug, description, keywords)\n            VALUES (?, ?, ?, ?)\n            RETURNING *\n            ",
+  "query": "\n            SELECT * FROM topics WHERE id = ?\n            ",
   "describe": {
     "columns": [
       {
@@ -50,7 +50,7 @@
       }
     ],
     "parameters": {
-      "Right": 4
+      "Right": 1
     },
     "nullable": [
       false,
@@ -64,5 +64,5 @@
       true
     ]
   },
-  "hash": "8f7f1d580c5f03771f69c31f433899e37f430da4ae49dc86efce463af926a9b2"
+  "hash": "5b944c2127f73db5ecafb49036619e10ca94e76280f29f78fe50a5413d6177e8"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT * FROM interests WHERE id = ?\n            ",
+  "query": "\n            SELECT *\n            FROM topics\n            ORDER BY created_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -50,7 +50,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 0
     },
     "nullable": [
       false,
@@ -64,5 +64,5 @@
       true
     ]
   },
-  "hash": "c9d77ad08a49910a77cba0d6358355d37a37945b5815f12ba74317f58ace330b"
+  "hash": "d680998995e82f028bd30ec13ca7b803cf93a9fd895ff18befef53bb630a23ef"
 }

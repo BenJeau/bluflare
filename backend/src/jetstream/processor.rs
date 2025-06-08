@@ -5,7 +5,7 @@ use tracing::{error, info};
 use crate::{
     Result, config, db,
     jetstream::{did::DidClient, message::JetstreamMessage},
-    models::{interest::Interest, post::CreatePost, user::CreateUser},
+    models::{post::CreatePost, topic::Topic, user::CreateUser},
     state::AppState,
 };
 
@@ -24,19 +24,19 @@ impl Processor {
     pub fn process_message(
         &self,
         message: JetstreamMessage,
-        interests: Vec<Interest>,
+        topics: Vec<Topic>,
         state: AppState,
     ) -> Result<()> {
         let pool = self.pool.clone();
         let did_client = self.did_client.clone();
 
         tokio::spawn(async move {
-            let interest_ids = message.matches_any_interest(&interests);
+            let topic_ids = message.matches_any_topic(&topics);
 
-            if !interest_ids.is_empty() {
+            if !topic_ids.is_empty() {
                 info!(
-                    "Found {} interests for post: {:?}",
-                    interest_ids.len(),
+                    "Found {} topics for post: {:?}",
+                    topic_ids.len(),
                     message.text
                 );
 
@@ -92,10 +92,10 @@ impl Processor {
                     e
                 })?;
 
-                db::link_post_to_interests(&mut *tx, post.id, &interest_ids)
+                db::link_post_to_topics(&mut *tx, post.id, &topic_ids)
                     .await
                     .map_err(|e| {
-                        error!("Error linking post to interests: {:?}", e);
+                        error!("Error linking post to topics: {:?}", e);
                         e
                     })?;
 
@@ -115,7 +115,7 @@ impl Processor {
                     e
                 })?;
 
-                state.send_message(post, interest_ids, akas).await;
+                state.send_message(post, topic_ids, akas).await;
             }
 
             Ok(())
