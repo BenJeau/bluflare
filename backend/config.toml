@@ -27,3 +27,6 @@ url = "sqlite:bluflare.db"
 
 [frontend]
 enabled = false
+
+[auth]
+enabled = false

@@ -80,12 +80,22 @@ pub struct Frontend {
 }
 
 #[derive(Deserialize, Clone)]
+pub struct Auth {
+    pub enabled: bool,
+    pub username: Option<String>,
+    pub password_hash: Option<String>,
+    pub jwt_secret: Option<String>,
+    pub jwt_expiry_minutes: Option<u64>,
+}
+
+#[derive(Deserialize, Clone)]
 pub struct Config {
     pub database: Database,
     pub server: Server,
     pub jetstream: Jetstream,
     pub gemini: Gemini,
     pub frontend: Frontend,
+    pub auth: Auth,
 }
 
 impl Config {

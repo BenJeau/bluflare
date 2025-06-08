@@ -17,6 +17,10 @@ pub enum Error {
     RequestWebSocket(reqwest_websocket::Error),
     NotFound(String),
     GeminiDisabled,
+    AuthDisabled,
+    InvalidCredentials,
+    Jwt(jsonwebtoken::errors::Error),
+    Unauthorized(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -81,6 +85,12 @@ impl From<reqwest_websocket::Error> for Error {
     }
 }
 
+impl From<jsonwebtoken::errors::Error> for Error {
+    fn from(error: jsonwebtoken::errors::Error) -> Self {
+        Self::Jwt(error)
+    }
+}
+
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         error!("Error: {}", self);
@@ -90,7 +100,14 @@ impl IntoResponse for Error {
             Self::GeminiDisabled => {
                 (StatusCode::SERVICE_UNAVAILABLE, "Gemini is disabled").into_response()
             }
-            _ => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response(),
+            Self::AuthDisabled => {
+                (StatusCode::UNAUTHORIZED, "Authentication is disabled").into_response()
+            }
+            Self::InvalidCredentials => {
+                (StatusCode::UNAUTHORIZED, "Invalid credentials").into_response()
+            }
+            Self::Unauthorized(message) => (StatusCode::UNAUTHORIZED, message).into_response(),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, "".to_string()).into_response(),
         }
     }
 }

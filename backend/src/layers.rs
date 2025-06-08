@@ -163,9 +163,9 @@ where
             router = router.layer(layer);
         }
 
-        // if let Some(layer) = self.sentry_layer {
-        //     router = router.layer(layer);
-        // }
+        if let Some(layer) = self.sentry_layer {
+            router = router.layer(layer);
+        }
 
         router
     }

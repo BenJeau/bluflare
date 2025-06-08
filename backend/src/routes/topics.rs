@@ -1,13 +1,12 @@
 use async_stream::try_stream;
 use axum::{
-    Json, Router,
+    Json,
     extract::{Path, State},
     http::StatusCode,
     response::{
         IntoResponse, Sse,
         sse::{Event, KeepAlive},
     },
-    routing::{get, post},
 };
 use chrono::Utc;
 use futures_util::Stream;
@@ -21,20 +20,7 @@ use crate::{
     state::{AppState, SsePost},
 };
 
-pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/", get(get_topics).post(create_topic))
-        .route(
-            "/{id}",
-            get(get_topic).delete(delete_topic).patch(update_topic),
-        )
-        .route("/{id}/analyze", post(analyze_topic))
-        .route("/{id}/posts", get(get_posts))
-        .route("/{id}/posts/sse", get(sse_posts))
-        .route("/slugs/{slug}", get(get_topic_by_slug))
-}
-
-async fn get_topic_by_slug(
+pub async fn get_topic_by_slug(
     State(pool): State<SqlitePool>,
     Path(slug): Path<String>,
 ) -> Result<impl IntoResponse> {
@@ -45,7 +31,7 @@ async fn get_topic_by_slug(
     Ok(topic_id.to_string())
 }
 
-async fn sse_posts(
+pub async fn sse_posts(
     State(state): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>> {
@@ -81,7 +67,7 @@ async fn sse_posts(
     Ok(Sse::new(stream).keep_alive(KeepAlive::default()))
 }
 
-async fn analyze_topic(
+pub async fn analyze_topic(
     State(pool): State<SqlitePool>,
     State(gemini): State<GeminiClient>,
     Path(id): Path<i64>,
@@ -106,7 +92,7 @@ async fn analyze_topic(
         .map(Json)
 }
 
-async fn update_topic(
+pub async fn update_topic(
     State(pool): State<SqlitePool>,
     Path(id): Path<i64>,
     Json(update_topic): Json<UpdateTopic>,
@@ -115,32 +101,32 @@ async fn update_topic(
     Ok(StatusCode::NO_CONTENT)
 }
 
-async fn get_posts(
+pub async fn get_posts(
     State(pool): State<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse> {
     db::get_topic_posts(&pool, id).await.map(Json)
 }
 
-async fn get_topics(State(pool): State<SqlitePool>) -> Result<impl IntoResponse> {
+pub async fn get_topics(State(pool): State<SqlitePool>) -> Result<impl IntoResponse> {
     db::get_all_topics_with_post_count(&pool).await.map(Json)
 }
 
-async fn get_topic(
+pub async fn get_topic(
     State(pool): State<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse> {
     db::get_topic(&pool, id).await.map(Json)
 }
 
-async fn create_topic(
+pub async fn create_topic(
     State(pool): State<SqlitePool>,
     Json(topic): Json<CreateTopic>,
 ) -> Result<impl IntoResponse> {
     db::create_topic(&pool, topic).await.map(Json)
 }
 
-async fn delete_topic(
+pub async fn delete_topic(
     State(pool): State<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse> {

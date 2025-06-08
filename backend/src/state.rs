@@ -94,3 +94,9 @@ impl FromRef<AppState> for GeminiClient {
         state.gemini.clone()
     }
 }
+
+impl FromRef<AppState> for config::Config {
+    fn from_ref(state: &AppState) -> Self {
+        state.config.clone()
+    }
+}

@@ -1,12 +1,11 @@
 use async_stream::try_stream;
 use axum::{
-    Json, Router,
+    Json,
     extract::State,
     response::{
         IntoResponse, Sse,
         sse::{Event, KeepAlive},
     },
-    routing::get,
 };
 use futures_util::Stream;
 use sqlx::SqlitePool;
@@ -17,18 +16,12 @@ use crate::{
     state::{AppState, SsePost},
 };
 
-pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/latest", get(get_latest_posts))
-        .route("/latest/sse", get(get_posts_sse))
-}
-
-async fn get_latest_posts(State(pool): State<SqlitePool>) -> Result<impl IntoResponse> {
+pub async fn get_latest_posts(State(pool): State<SqlitePool>) -> Result<impl IntoResponse> {
     let posts = db::get_latest_posts(&pool).await?;
     Ok(Json(posts))
 }
 
-async fn get_posts_sse(
+pub async fn get_posts_sse(
     State(state): State<AppState>,
 ) -> Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>> {
     let mut receiver = state.get_post_stream().await;
