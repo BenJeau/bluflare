@@ -1,6 +1,23 @@
-# Bluflare
+<div style="display: flex; align-items: center; gap: 1rem;">
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="./frontend/public/logo-light.svg">
+  <img height="64" alt="Fallback image description" src="./frontend/public/logo-dark.svg">
+</picture>
+<h1 style="flex-grow: 1;">Bluflare <a href="https://github.com/BenJeau/bluflare/pkgs/container/bluflare%2Fbackend">
+  <img src="https://ghcr-badge.egpl.dev/benjeau/bluflare%2Fbackend/latest_tag?color=%2344cc11&ignore=latest&label=Docker%20Image%20Version&trim=" alt="Docker Image Version (latest semver)">
+</a></h1>
+</div>
 
-Bluflare is an application that monitors the Bluesky Firehose via their Jetstream websocket service to track and analyze posts about specific subjects of interest.
+[![GitHub Actions Workflow Status - Rust Compilation](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/rust_check.yml?logo=github&label=Rust%20Compilation)](https://github.com/BenJeau/bluflare/actions/workflows/rust_check.yml)
+[![GitHub Actions Workflow Status - TypeScript Compilation](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/react_check.yml?logo=github&label=TypeScript%20Compilation)](https://github.com/BenJeau/bluflare/actions/workflows/react_check.yml)
+[![GitHub Actions Workflow Status - Rustfmt Check](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/rust_fmt.yml?logo=github&label=Rustfmt%20Check)](https://github.com/BenJeau/bluflare/actions/workflows/rust_fmt.yml)
+[![GitHub Actions Workflow Status - Prettier Check](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/react_fmt.yml?logo=github&label=Prettier%20Check)](https://github.com/BenJeau/bluflare/actions/workflows/react_fmt.yml)
+
+Monitor [Bluesky](https://bsky.app) posts and analyze trends in real-time.
+
+> Powered by the [Bluesky Firehose](https://docs.bsky.app/docs/advanced-guides/firehose) via their [Jetstream](https://github.com/bluesky-social/jetstream) websocket service using [Rust](https://www.rust-lang.org/) with a [React](https://react.dev/) frontend.
+
+![Bluflare Homepage Screenshot](./frontend/screenshot.png)
 
 ## Features
 
@@ -9,25 +26,6 @@ Bluflare is an application that monitors the Bluesky Firehose via their Jetstrea
 - View and manage interests/keywords
 - Analyze and summarize posts matching your interests
 - Sentiment analysis of posts
-- RAG-based querying over collected posts
-
-## Tech Stack
-
-### Backend
-
-- Rust
-- Axum (API server)
-- SQLx + SQLite (database)
-- Jetstream websocket client
-
-### Frontend
-
-- TypeScript
-- Vite.js
-- React.js
-- Tanstack Query
-- Tanstack Router
-- shadcn/ui + TailwindCSS
 
 ## Getting Started
 
@@ -38,7 +36,7 @@ Bluflare is an application that monitors the Bluesky Firehose via their Jetstrea
 - pnpm
 - SQLite
 
-### Installation
+### Running the Application
 
 1. Clone the repository:
 
@@ -50,7 +48,8 @@ cd bluflare
 2. Install backend dependencies:
 
 ```bash
-cargo build
+cd backend
+cargo run --bin backend
 ```
 
 3. Install frontend dependencies:
@@ -58,24 +57,10 @@ cargo build
 ```bash
 cd frontend
 pnpm install
-```
-
-### Running the Application
-
-1. Start the backend server:
-
-```bash
-cargo run
-```
-
-2. In a separate terminal, start the frontend development server:
-
-```bash
-cd frontend
 pnpm dev
 ```
 
-The application will be available at `http://localhost:5173` by default.
+The frontend will be available at `http://localhost:5173` by default and the backend at `http://localhost:3000`.
 
 ## Project Structure
 
