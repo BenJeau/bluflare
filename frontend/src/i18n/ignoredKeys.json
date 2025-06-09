@@ -5,5 +5,7 @@
   "layout.stats.description",
   "layout.posts.description",
   "layout.docs.description",
-  "layout.github.description"
+  "layout.github.description",
+  "layout.hashtags.description",
+  "layout.urls.description"
 ]

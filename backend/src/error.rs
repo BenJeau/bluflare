@@ -100,9 +100,11 @@ impl IntoResponse for Error {
             Self::GeminiDisabled => {
                 (StatusCode::SERVICE_UNAVAILABLE, "Gemini is disabled").into_response()
             }
-            Self::AuthDisabled => {
-                (StatusCode::UNAUTHORIZED, "Authentication is disabled").into_response()
-            }
+            Self::AuthDisabled => (
+                StatusCode::SERVICE_UNAVAILABLE,
+                "Authentication is disabled",
+            )
+                .into_response(),
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, "Invalid credentials").into_response()
             }

@@ -25,5 +25,4 @@ export const latestUsersOptions = queryOptions<LatestUsers>({
     );
     return response.json();
   },
-  refetchInterval: 1000,
 });

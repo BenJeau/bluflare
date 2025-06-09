@@ -13,9 +13,11 @@
 import { Route as rootRoute } from "./../routes/__root";
 import { Route as IndexImport } from "./../routes/index";
 import { Route as UsersIndexImport } from "./../routes/users.index";
+import { Route as UrlsIndexImport } from "./../routes/urls.index";
 import { Route as TopicsIndexImport } from "./../routes/topics.index";
 import { Route as StatsIndexImport } from "./../routes/stats.index";
 import { Route as PostsIndexImport } from "./../routes/posts.index";
+import { Route as HashtagsIndexImport } from "./../routes/hashtags.index";
 import { Route as DocsIndexImport } from "./../routes/docs.index";
 import { Route as TopicsCreateImport } from "./../routes/topics.create";
 import { Route as TopicsSlugImport } from "./../routes/topics.$slug";
@@ -34,6 +36,12 @@ const UsersIndexRoute = UsersIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any);
 
+const UrlsIndexRoute = UrlsIndexImport.update({
+  id: "/urls/",
+  path: "/urls/",
+  getParentRoute: () => rootRoute,
+} as any);
+
 const TopicsIndexRoute = TopicsIndexImport.update({
   id: "/topics/",
   path: "/topics/",
@@ -49,6 +57,12 @@ const StatsIndexRoute = StatsIndexImport.update({
 const PostsIndexRoute = PostsIndexImport.update({
   id: "/posts/",
   path: "/posts/",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const HashtagsIndexRoute = HashtagsIndexImport.update({
+  id: "/hashtags/",
+  path: "/hashtags/",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -102,6 +116,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DocsIndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/hashtags/": {
+      id: "/hashtags/";
+      path: "/hashtags";
+      fullPath: "/hashtags";
+      preLoaderRoute: typeof HashtagsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     "/posts/": {
       id: "/posts/";
       path: "/posts";
@@ -123,6 +144,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TopicsIndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/urls/": {
+      id: "/urls/";
+      path: "/urls";
+      fullPath: "/urls";
+      preLoaderRoute: typeof UrlsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     "/users/": {
       id: "/users/";
       path: "/users";
@@ -140,9 +168,11 @@ export interface FileRoutesByFullPath {
   "/topics/$slug": typeof TopicsSlugRoute;
   "/topics/create": typeof TopicsCreateRoute;
   "/docs": typeof DocsIndexRoute;
+  "/hashtags": typeof HashtagsIndexRoute;
   "/posts": typeof PostsIndexRoute;
   "/stats": typeof StatsIndexRoute;
   "/topics": typeof TopicsIndexRoute;
+  "/urls": typeof UrlsIndexRoute;
   "/users": typeof UsersIndexRoute;
 }
 
@@ -151,9 +181,11 @@ export interface FileRoutesByTo {
   "/topics/$slug": typeof TopicsSlugRoute;
   "/topics/create": typeof TopicsCreateRoute;
   "/docs": typeof DocsIndexRoute;
+  "/hashtags": typeof HashtagsIndexRoute;
   "/posts": typeof PostsIndexRoute;
   "/stats": typeof StatsIndexRoute;
   "/topics": typeof TopicsIndexRoute;
+  "/urls": typeof UrlsIndexRoute;
   "/users": typeof UsersIndexRoute;
 }
 
@@ -163,9 +195,11 @@ export interface FileRoutesById {
   "/topics/$slug": typeof TopicsSlugRoute;
   "/topics/create": typeof TopicsCreateRoute;
   "/docs/": typeof DocsIndexRoute;
+  "/hashtags/": typeof HashtagsIndexRoute;
   "/posts/": typeof PostsIndexRoute;
   "/stats/": typeof StatsIndexRoute;
   "/topics/": typeof TopicsIndexRoute;
+  "/urls/": typeof UrlsIndexRoute;
   "/users/": typeof UsersIndexRoute;
 }
 
@@ -176,9 +210,11 @@ export interface FileRouteTypes {
     | "/topics/$slug"
     | "/topics/create"
     | "/docs"
+    | "/hashtags"
     | "/posts"
     | "/stats"
     | "/topics"
+    | "/urls"
     | "/users";
   fileRoutesByTo: FileRoutesByTo;
   to:
@@ -186,9 +222,11 @@ export interface FileRouteTypes {
     | "/topics/$slug"
     | "/topics/create"
     | "/docs"
+    | "/hashtags"
     | "/posts"
     | "/stats"
     | "/topics"
+    | "/urls"
     | "/users";
   id:
     | "__root__"
@@ -196,9 +234,11 @@ export interface FileRouteTypes {
     | "/topics/$slug"
     | "/topics/create"
     | "/docs/"
+    | "/hashtags/"
     | "/posts/"
     | "/stats/"
     | "/topics/"
+    | "/urls/"
     | "/users/";
   fileRoutesById: FileRoutesById;
 }
@@ -208,9 +248,11 @@ export interface RootRouteChildren {
   TopicsSlugRoute: typeof TopicsSlugRoute;
   TopicsCreateRoute: typeof TopicsCreateRoute;
   DocsIndexRoute: typeof DocsIndexRoute;
+  HashtagsIndexRoute: typeof HashtagsIndexRoute;
   PostsIndexRoute: typeof PostsIndexRoute;
   StatsIndexRoute: typeof StatsIndexRoute;
   TopicsIndexRoute: typeof TopicsIndexRoute;
+  UrlsIndexRoute: typeof UrlsIndexRoute;
   UsersIndexRoute: typeof UsersIndexRoute;
 }
 
@@ -219,9 +261,11 @@ const rootRouteChildren: RootRouteChildren = {
   TopicsSlugRoute: TopicsSlugRoute,
   TopicsCreateRoute: TopicsCreateRoute,
   DocsIndexRoute: DocsIndexRoute,
+  HashtagsIndexRoute: HashtagsIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
+  UrlsIndexRoute: UrlsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
 };
 
@@ -239,9 +283,11 @@ export const routeTree = rootRoute
         "/topics/$slug",
         "/topics/create",
         "/docs/",
+        "/hashtags/",
         "/posts/",
         "/stats/",
         "/topics/",
+        "/urls/",
         "/users/"
       ]
     },
@@ -257,6 +303,9 @@ export const routeTree = rootRoute
     "/docs/": {
       "filePath": "docs.index.tsx"
     },
+    "/hashtags/": {
+      "filePath": "hashtags.index.tsx"
+    },
     "/posts/": {
       "filePath": "posts.index.tsx"
     },
@@ -265,6 +314,9 @@ export const routeTree = rootRoute
     },
     "/topics/": {
       "filePath": "topics.index.tsx"
+    },
+    "/urls/": {
+      "filePath": "urls.index.tsx"
     },
     "/users/": {
       "filePath": "users.index.tsx"

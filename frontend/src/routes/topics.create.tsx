@@ -178,13 +178,13 @@ function RouteComponent() {
             {keywords?.map((keyword, index) => (
               <div
                 key={index}
-                className="bg-secondary flex items-center gap-1 rounded-full px-3 py-1 text-sm"
+                className="bg-background/50 flex items-center gap-1 rounded-full border px-3 py-1 text-sm shadow-sm"
               >
                 <span>{keyword}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-4 w-4"
+                  className="h-4 w-4 cursor-pointer p-3"
                   onClick={() => handleRemoveKeyword(index)}
                 >
                   <X className="h-3 w-3" />
@@ -197,7 +197,7 @@ function RouteComponent() {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={!subject?.trim() || keywords?.length === 0}
+            disabled={!subject?.trim() || (keywords ?? []).length === 0}
           >
             <Pickaxe className="h-4 w-4" />
             {t("topics.add")}

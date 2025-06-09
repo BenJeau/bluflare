@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import * as v from "valibot";
+import { useAtomValue } from "jotai";
 
 import EmptyImg from "@/assets/adventure-1-70.svg";
 import { Button } from "@/components/ui/button";
@@ -10,21 +11,27 @@ import { useTranslation } from "@/i18n";
 import { Empty, Trans } from "@/components";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { serverAuthQueryOptions } from "@/api/auth";
+import { userAtom } from "@/atoms/user";
 
 const TopicsComponent: React.FC = () => {
   const { search } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { t } = useTranslation();
-  const { data } = useSuspenseQuery(topicsOptions);
+  const { data: topics } = useSuspenseQuery(topicsOptions);
+  const { data: serverAuth } = useSuspenseQuery(serverAuthQueryOptions);
+  const user = useAtomValue(userAtom);
 
   const searchLowercase = search?.toLocaleLowerCase() ?? "";
   const filteredData = search
-    ? data.filter(
+    ? topics.filter(
         (topic) =>
           topic.subject.toLowerCase().includes(searchLowercase) ||
           topic.description.toLowerCase().includes(searchLowercase),
       )
-    : data;
+    : topics;
+
+  const canCreate = !serverAuth.authEnabled || user;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -40,12 +47,14 @@ const TopicsComponent: React.FC = () => {
             })
           }
         />
-        <Button size="sm" asChild>
-          <Link to="/topics/create" search={{ subject: search }}>
-            <Plus className="h-2 w-2" />
-            <Trans id="topics.add" />
-          </Link>
-        </Button>
+        {canCreate && (
+          <Button size="sm" asChild>
+            <Link to="/topics/create" search={{ subject: search }}>
+              <Plus className="h-2 w-2" />
+              <Trans id="topics.add" />
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-2">
@@ -83,7 +92,7 @@ const TopicsComponent: React.FC = () => {
             </div>
           </Link>
         ))}
-        {filteredData.length == 0 && data.length != 0 && (
+        {filteredData.length == 0 && topics.length != 0 && (
           <Empty
             title="no.topics.search"
             description="no.topics.search.description"
@@ -91,7 +100,7 @@ const TopicsComponent: React.FC = () => {
             imageWidth={400}
           />
         )}
-        {data.length === 0 && (
+        {topics.length === 0 && (
           <Empty
             title="no.topics"
             description="no.topics.description"
@@ -106,8 +115,11 @@ const TopicsComponent: React.FC = () => {
 
 export const Route = createFileRoute("/topics/")({
   component: TopicsComponent,
-  loader: async ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(topicsOptions),
+  loader: ({ context: { queryClient } }) =>
+    Promise.all([
+      queryClient.ensureQueryData(topicsOptions),
+      queryClient.ensureQueryData(serverAuthQueryOptions),
+    ]),
   validateSearch: v.object({
     search: v.pipe(
       v.optional(v.string()),

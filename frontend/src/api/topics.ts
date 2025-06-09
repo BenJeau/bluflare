@@ -66,7 +66,6 @@ export const topicsOptions = queryOptions<Topic[]>({
     });
     return response.json();
   },
-  refetchInterval: 1000,
 });
 
 export function topicSlugQueryOptions(slug: string) {
