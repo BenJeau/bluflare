@@ -1,14 +1,6 @@
-<div style="display: flex; align-items: center; gap: 1rem;">
-<picture>
-  <source media="(prefers-color-scheme: light)" srcset="./frontend/public/logo-light.svg">
-  <img height="64" alt="Fallback image description" src="./frontend/public/logo-dark.svg">
-</picture>
-<h1 style="flex-grow: 1;">Bluflare <a href="https://github.com/BenJeau/bluflare/pkgs/container/bluflare%2Fbackend">
-  <img src="https://ghcr-badge.egpl.dev/benjeau/bluflare%2Fbackend/latest_tag?color=%2344cc11&ignore=latest&label=Docker%20Image%20Version&trim=" alt="Docker Image Version (latest semver)">
-</a></h1>
-</div>
+# ![Bluflare Logo](./frontend/public/logo-dark-small.png) Bluflare
 
-[![GitHub Actions Workflow Status - Rust Compilation](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/rust_check.yml?logo=github&label=Rust%20Compilation)](https://github.com/BenJeau/bluflare/actions/workflows/rust_check.yml)
+[![Docker Image Version (latest semver)](https://ghcr-badge.egpl.dev/benjeau/bluflare%2Fbackend/latest_tag?color=%2344cc11&ignore=latest&label=Docker%20Image%20Version&trim=)](https://github.com/BenJeau/bluflare/pkgs/container/bluflare%2Fbackend) [![GitHub Actions Workflow Status - Rust Compilation](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/rust_check.yml?logo=github&label=Rust%20Compilation)](https://github.com/BenJeau/bluflare/actions/workflows/rust_check.yml)
 [![GitHub Actions Workflow Status - TypeScript Compilation](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/react_check.yml?logo=github&label=TypeScript%20Compilation)](https://github.com/BenJeau/bluflare/actions/workflows/react_check.yml)
 [![GitHub Actions Workflow Status - Rustfmt Check](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/rust_fmt.yml?logo=github&label=Rustfmt%20Check)](https://github.com/BenJeau/bluflare/actions/workflows/rust_fmt.yml)
 [![GitHub Actions Workflow Status - Prettier Check](https://img.shields.io/github/actions/workflow/status/BenJeau/bluflare/react_fmt.yml?logo=github&label=Prettier%20Check)](https://github.com/BenJeau/bluflare/actions/workflows/react_fmt.yml)
@@ -45,14 +37,14 @@ git clone https://github.com/BenJeau/bluflare.git
 cd bluflare
 ```
 
-2. Install backend dependencies:
+2. Start the backend:
 
 ```bash
 cd backend
 cargo run --bin backend
 ```
 
-3. Install frontend dependencies:
+3. Start the frontend:
 
 ```bash
 cd frontend
@@ -61,6 +53,29 @@ pnpm dev
 ```
 
 The frontend will be available at `http://localhost:5173` by default and the backend at `http://localhost:3000`.
+
+### Development
+
+The backend is built with:
+
+- API Framework: [Axum](https://github.com/tokio-rs/axum)
+- Database: [SQLx](https://github.com/launchbadge/sqlx) + [SQLite](https://www.sqlite.org/index.html)
+- Websocket client: [Jetstream](https://github.com/bluesky-social/jetstream)
+- Logging: [tracing](https://github.com/tokio-rs/tracing)
+
+The frontend is built with:
+
+- Illustrations: [Manypixels](https://www.manypixels.co/gallery)
+- Icons: [Lucide](https://lucide.dev/)
+- Styling: [TailwindCSS](https://tailwindcss.com/)
+- UI Framework: [shadcn/ui](https://ui.shadcn.com/)
+- API Framework: [Tanstack Query](https://tanstack.com/query/latest)
+- Routing: [Tanstack Router](https://tanstack.com/router/latest)
+- State Management: [Jotai](https://jotai.org/)
+
+## Deployment
+
+Please refer to the [deployment documentation](./DEPLOYMENT.md) for more information to deploy to DigitalOcean.
 
 ## Project Structure
 
