@@ -75,7 +75,7 @@ The frontend is built with:
 
 ## Deployment
 
-Please refer to the [deployment documentation](./DEPLOYMENT.md) for more information to deploy to DigitalOcean.
+Please refer to the [deployment documentation](./deploy/README.md) for more information to deploy to DigitalOcean.
 
 ## Project Structure
 
