@@ -16,14 +16,14 @@ import { Trans } from "@/components";
 export type Props = {
   post: Post;
   offset?: number;
-  keywords: string[];
+  keywords?: string[];
   className?: string;
 };
 
 const PostCard: React.FC<Props> = ({
   post,
   offset = 0,
-  keywords,
+  keywords = [],
   className,
 }) => (
   <motion.div
