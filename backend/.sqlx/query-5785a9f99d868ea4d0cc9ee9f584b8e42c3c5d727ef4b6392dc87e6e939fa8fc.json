@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        UPDATE topics SET \n            keywords = COALESCE(?, keywords),\n            description = COALESCE(?, description),\n            enabled = COALESCE(?, enabled)\n        WHERE id = ?\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "5785a9f99d868ea4d0cc9ee9f584b8e42c3c5d727ef4b6392dc87e6e939fa8fc"
+}

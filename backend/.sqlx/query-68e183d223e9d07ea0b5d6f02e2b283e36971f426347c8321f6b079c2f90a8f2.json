@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        UPDATE topics SET last_analysis = ?, last_analysis_at = ? WHERE id = ?\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "68e183d223e9d07ea0b5d6f02e2b283e36971f426347c8321f6b079c2f90a8f2"
+}
