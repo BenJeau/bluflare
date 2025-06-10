@@ -62,6 +62,7 @@ const TopicDetail: React.FC = () => {
   const { data: posts } = useSuspenseQuery(postsOptions(id));
   const { data: ssePosts } = useSSETopicPosts(id, isSSEActive);
 
+  const updateTopic = useMutateTopic(topic.id);
   const deleteTopic = useDeleteTopic();
 
   const handleDeleteTopic = async (id: number) => {
@@ -76,6 +77,18 @@ const TopicDetail: React.FC = () => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to analyze topic");
+    }
+  };
+
+  const handleEnableTopic = async () => {
+    try {
+      await updateTopic.mutateAsync({
+        enabled: !topic.enabled,
+      });
+      toast.success("Topic enabled successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to enable topic");
     }
   };
 
@@ -149,6 +162,18 @@ const TopicDetail: React.FC = () => {
           >
             <Sparkles className="h-4 w-4" />
             {isAnalyzing ? "Analyzing..." : "Analyze Posts"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleEnableTopic}
+            disabled={updateTopic.isPending}
+          >
+            {topic.enabled ? (
+              <Pause className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+            {topic.enabled ? "Disable Ingestion" : "Enable Ingestion"}
           </Button>
           <Button
             variant="destructive"
