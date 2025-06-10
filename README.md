@@ -54,6 +54,10 @@ pnpm dev
 
 The frontend will be available at `http://localhost:5173` by default and the backend at `http://localhost:3000`.
 
+### Backend configuration
+
+[Figment](https://docs.rs/figment/latest/figment/) is used to define the configuration of the service. Default values are set within the [config.toml](./backend/config.toml) file and all fields can be overwritten using environment variables starting with `BLUFLARE__` and have sections in uppercase and separated with double underscores `__`. For example, to disable the Jetstream websocket client via an environment variable, you would use `BLUFLARE__JETSTREAM__ENABLED=false` as variable.
+
 ### Development
 
 The backend is built with:
