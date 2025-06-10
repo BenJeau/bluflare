@@ -2,12 +2,14 @@ import { ChevronLeft, Home, LogOut } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
+import { TransId } from "@/i18n";
+import { Trans } from "@/components";
 
 interface Props {
   emoji?: string;
   title: string;
   subtitle: string;
-  description: string;
+  description: TransId;
   otherButtons?: React.ReactNode;
   data?: string;
 }
@@ -34,7 +36,9 @@ const SimpleError: React.FC<Props> = ({
         <div className="text-lg font-semibold">
           {subtitle} <span className="italic opacity-50">{data}</span> not found
         </div>
-        <div className="text-sm">{description}</div>
+        <div className="text-sm">
+          <Trans id={description} />
+        </div>
       </div>
       <div className="flex flex-wrap gap-2">
         <Button className="px-3" variant="outline" asChild>

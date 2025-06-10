@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/i18n";
+import { TransId, useTranslation } from "@/i18n";
 import {
   Topic,
   useDeleteTopic,
@@ -66,8 +66,13 @@ const TopicDetail: React.FC = () => {
   const deleteTopic = useDeleteTopic();
 
   const handleDeleteTopic = async (id: number) => {
-    await deleteTopic.mutateAsync(id);
-    toast.success("Topic deleted successfully");
+    try {
+      await deleteTopic.mutateAsync(id);
+      toast.success(t("topic.deleted.success"));
+    } catch (error) {
+      console.error(error);
+      toast.error(t("topic.deleted.error"));
+    }
     navigate({ to: "/topics" });
   };
 
@@ -76,7 +81,7 @@ const TopicDetail: React.FC = () => {
       await analyzeTopic(Number(id));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to analyze topic");
+      toast.error(t("topic.analysis.failed"));
     }
   };
 
@@ -85,10 +90,14 @@ const TopicDetail: React.FC = () => {
       await updateTopic.mutateAsync({
         enabled: !topic.enabled,
       });
-      toast.success("Topic enabled successfully");
+      toast.success(
+        t(topic.enabled ? "topic.disabled.success" : "topic.enabled.success"),
+      );
     } catch (error) {
       console.error(error);
-      toast.error("Failed to enable topic");
+      toast.error(
+        t(topic.enabled ? "topic.disabled.error" : "topic.enabled.error"),
+      );
     }
   };
 
@@ -161,7 +170,9 @@ const TopicDetail: React.FC = () => {
             disabled={isAnalyzing}
           >
             <Sparkles className="h-4 w-4" />
-            {isAnalyzing ? "Analyzing..." : "Analyze Posts"}
+            <Trans
+              id={isAnalyzing ? "topic.analyzing" : "topic.analyze.posts"}
+            />
           </Button>
           <Button
             variant="outline"
@@ -173,7 +184,13 @@ const TopicDetail: React.FC = () => {
             ) : (
               <Play className="h-4 w-4" />
             )}
-            {topic.enabled ? "Disable Ingestion" : "Enable Ingestion"}
+            <Trans
+              id={
+                topic.enabled
+                  ? "topic.disable.ingestion"
+                  : "topic.enable.ingestion"
+              }
+            />
           </Button>
           <Button
             variant="destructive"
@@ -188,12 +205,14 @@ const TopicDetail: React.FC = () => {
       <div className="bg-background/75 rounded-lg border p-4 shadow-xs">
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-2 text-sm font-semibold">
-            <Bot className="h-4 w-4" /> Analysis{" "}
+            <Bot className="h-4 w-4" /> <Trans id="analysis" />{" "}
             <span className="text-xs opacity-70">
               (
-              {topic.last_analysis_at
-                ? new Date(topic.last_analysis_at).toLocaleString()
-                : "Never analyzed"}
+              {topic.last_analysis_at ? (
+                new Date(topic.last_analysis_at).toLocaleString()
+              ) : (
+                <Trans id="never.analyzed" />
+              )}
               )
             </span>
           </p>
@@ -206,11 +225,11 @@ const TopicDetail: React.FC = () => {
             >
               {isAnalysisExpanded ? (
                 <>
-                  Collapse <ChevronUp className="ml-1 h-3 w-3" />
+                  <Trans id="collapse" /> <ChevronUp className="ml-1 h-3 w-3" />
                 </>
               ) : (
                 <>
-                  Expand <ChevronDown className="ml-1 h-3 w-3" />
+                  <Trans id="expand" /> <ChevronDown className="ml-1 h-3 w-3" />
                 </>
               )}
             </Button>
@@ -219,20 +238,19 @@ const TopicDetail: React.FC = () => {
         {isAnalysisExpanded && (
           <div className="prose prose-sm dark:prose-invert mt-2 max-w-none">
             <ReactMarkdown>
-              {topic.last_analysis ??
-                "No analysis results yet, start analyzing posts to get started!"}
+              {topic.last_analysis ?? t("never.analyzed.description")}
             </ReactMarkdown>
           </div>
         )}
       </div>
       <KeywordsSection topic={topic} />
-      <StatsSection data={langs || {}} title="Languages" Icon={Languages} />
-      <StatsSection data={urls || {}} title="URLs" Icon={LinkIcon} />
-      <StatsSection data={tags || {}} title="Tags" Icon={Hash} />
+      <StatsSection data={langs || {}} title="languages" Icon={Languages} />
+      <StatsSection data={urls || {}} title="urls" Icon={LinkIcon} />
+      <StatsSection data={tags || {}} title="hashtags" Icon={Hash} />
       <div className="bg-background/75 flex flex-col gap-2 rounded-lg border p-4 shadow-xs">
         <div className="flex justify-between gap-2">
           <p className="flex items-center gap-2 text-sm font-semibold">
-            <Newspaper className="h-4 w-4" /> Posts{" "}
+            <Newspaper className="h-4 w-4" /> <Trans id="posts" />{" "}
             <span className="text-xs opacity-70">({combinedPosts.length})</span>
           </p>
           <div className="flex items-center gap-2">
@@ -291,6 +309,8 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
   const { mutateAsync: suggestKeywords, isPending: isSuggesting } =
     useMutationSuggestKeywords();
 
+  const { t } = useTranslation();
+
   const handleStartEditing = () => {
     setEditedKeywords([...topic.keywords]);
     setIsEditingKeywords(true);
@@ -305,11 +325,11 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
   const handleSaveKeywords = async () => {
     try {
       await updateTopic({ keywords: editedKeywords });
-      toast.success("Keywords updated successfully");
+      toast.success(t("keywords.updated.success"));
       setIsEditingKeywords(false);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update keywords");
+      toast.error(t("keywords.updated.error"));
     }
   };
 
@@ -333,14 +353,14 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
         subject: topic.subject,
         description: topic.description,
       });
-      // Add only unique keywords that aren't already in the list
       const newKeywords = suggestedKeywords.filter(
         (keyword) => !editedKeywords.includes(keyword),
       );
       setEditedKeywords([...editedKeywords, ...newKeywords]);
+      toast.success(t("keywords.suggest.success"));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to suggest keywords");
+      toast.error(t("keywords.suggest.error"));
     }
   };
 
@@ -348,7 +368,7 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
     <div className="bg-background/75 flex flex-col gap-2 rounded-lg border p-4 shadow-xs">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-semibold">
-          <Tag className="h-4 w-4" /> Keywords{" "}
+          <Tag className="h-4 w-4" /> <Trans id="keywords" />{" "}
           <span className="text-xs opacity-70">({topic.keywords.length})</span>
         </p>
         {!isEditingKeywords ? (
@@ -368,7 +388,7 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
               onClick={handleCancelEditing}
               className="h-6"
             >
-              Cancel
+              <Trans id="cancel" />
             </Button>
             <Button
               variant="default"
@@ -376,7 +396,7 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
               onClick={handleSaveKeywords}
               className="h-6"
             >
-              Save
+              <Trans id="save" />
             </Button>
           </div>
         )}
@@ -412,7 +432,9 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
             >
               <div className="relative flex items-center">
                 <Sparkles className="mr-1 h-3 w-3" />
-                {isSuggesting ? "Suggesting..." : "Suggest AI Keywords"}
+                <Trans
+                  id={isSuggesting ? "suggesting" : "suggest.ai.keywords"}
+                />
               </div>
             </Button>
           </div>
@@ -448,21 +470,27 @@ const KeywordsSection = ({ topic }: { topic: Topic }) => {
 
 type StatsSectionProps = {
   data: Record<string, number>;
-  title: string;
+  title: TransId;
   Icon: React.ElementType;
 };
 
 const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
   const [showAll, setShowAll] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="bg-background/75 flex flex-col gap-2 rounded-lg border p-4 shadow-xs">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-semibold">
-          <Icon className="h-4 w-4" /> {title}{" "}
+          <Icon className="h-4 w-4" /> <Trans id={title} />{" "}
           <span className="text-xs opacity-70">
-            ({(data && Object.keys(data).length) ?? 0} unique{" "}
-            {title.toLocaleLowerCase()})
+            (
+            <Trans
+              id="count.unique.data"
+              count={(data && Object.keys(data).length) ?? 0}
+              data={t(title).toLocaleLowerCase()}
+            />
+            )
           </span>
         </p>
 
@@ -474,11 +502,12 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
           >
             {showAll ? (
               <>
-                Show Less <ChevronUp className="ml-1 h-3 w-3" />
+                <Trans id="show.less" /> <ChevronUp className="ml-1 h-3 w-3" />
               </>
             ) : (
               <>
-                View More <ChevronDown className="ml-1 h-3 w-3" />
+                <Trans id="view.more" />{" "}
+                <ChevronDown className="ml-1 h-3 w-3" />
               </>
             )}
           </Button>
@@ -512,7 +541,9 @@ const StatsSection = ({ data, title, Icon }: StatsSectionProps) => {
               })}
 
           {Object.entries(data).length === 0 && (
-            <p className="text-sm opacity-70">No data</p>
+            <p className="text-sm opacity-70">
+              <Trans id="no.data" />
+            </p>
           )}
         </div>
       </div>

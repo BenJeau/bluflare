@@ -38,10 +38,6 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
             alt={t("this.is.fine.image.alt")}
             className="shadow-primary/20 dark:shadow-primary/5 h-fit w-fit rounded-3xl object-cover text-white shadow-lg"
           />
-
-          <div className="hidden flex-wrap items-center justify-between gap-4 xl:flex">
-            {/* <Layouts.Public.Footer /> */}
-          </div>
         </div>
       )}
 
@@ -128,10 +124,6 @@ const ErrorComponent: React.FC<Props> = ({ info, error, showImage }) => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 xl:hidden">
-          {/* <Layouts.Public.Footer /> */}
-        </div>
       </div>
     </div>
   );

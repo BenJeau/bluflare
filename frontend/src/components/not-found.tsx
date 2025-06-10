@@ -11,7 +11,7 @@ const NotFound: React.FC<Props> = ({ title = "Page", data }) => (
     title="404"
     subtitle={title}
     data={data ?? window.location.pathname}
-    description="The page you are looking for does not exist."
+    description="not.found.description"
   />
 );
 

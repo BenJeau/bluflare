@@ -251,7 +251,7 @@ export const RootComponent: React.FC = () => {
                     <div className="flex h-full w-full flex-col items-center justify-center gap-4">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <p className="text-sm opacity-70">
-                          Login to the platform to manage your topics and posts
+                          <Trans id="login.description" />
                         </p>
                       </div>
 
@@ -261,14 +261,14 @@ export const RootComponent: React.FC = () => {
                       >
                         <Input
                           type="text"
-                          placeholder="Username"
+                          placeholder={t("username")}
                           name="username"
                           required
                           minLength={1}
                         />
                         <Input
                           type="password"
-                          placeholder="Password"
+                          placeholder={t("password")}
                           name="password"
                           required
                           minLength={1}
@@ -283,7 +283,7 @@ export const RootComponent: React.FC = () => {
                   {user && (
                     <div className="flex h-full w-full flex-col items-center justify-center gap-4">
                       <p className="text-sm opacity-70">
-                        Successfully logged in as <b>{user}</b>
+                        <Trans id="logged.in.as" username={<b>{user}</b>} />
                       </p>
                       <Button
                         className="w-full cursor-pointer"
