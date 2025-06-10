@@ -18,6 +18,7 @@ Monitor [Bluesky](https://bsky.app) posts and analyze trends in real-time.
 - View and manage interests/keywords
 - Analyze and summarize posts matching your interests
 - Sentiment analysis of posts
+- Simple authentication and authorization
 
 ## Getting Started
 
@@ -57,6 +58,18 @@ The frontend will be available at `http://localhost:5173` by default and the bac
 ### Backend configuration
 
 [Figment](https://docs.rs/figment/latest/figment/) is used to define the configuration of the service. Default values are set within the [config.toml](./backend/config.toml) file and all fields can be overwritten using environment variables starting with `BLUFLARE__` and have sections in uppercase and separated with double underscores `__`. For example, to disable the Jetstream websocket client via an environment variable, you would use `BLUFLARE__JETSTREAM__ENABLED=false` as variable.
+
+### Authentication
+
+By default, authentication is disabled and anyone can hit all endpoints (create/delete/update). To enabled authentication, you need to set the `BLUFLARE__AUTH__ENABLED` environment variable to `true` and set the `BLUFLARE__AUTH__PASSWORD_HASH` and `BLUFLARE__AUTH__USERNAME` environment variables to the password hash and username of the admin user.
+
+The password hash can be generated using the following command:
+
+```bash
+cd backend && cargo run --bin gen-auth 'PASSWORD'
+```
+
+Authentication is done via a cookie and only a single session is allowed at a time. If you log in multiple times, only the last session will be valid.
 
 ### Development
 
