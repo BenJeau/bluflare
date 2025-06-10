@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT * FROM posts ORDER BY created_at DESC LIMIT 20",
+  "query": "SELECT posts.*, users.aka, users.did FROM posts\n        JOIN users ON posts.author_id = users.id\n        ORDER BY created_at DESC LIMIT 20",
   "describe": {
     "columns": [
       {
@@ -47,6 +47,16 @@
         "name": "author_id",
         "ordinal": 8,
         "type_info": "Integer"
+      },
+      {
+        "name": "aka",
+        "ordinal": 9,
+        "type_info": "Blob"
+      },
+      {
+        "name": "did",
+        "ordinal": 10,
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -61,8 +71,10 @@
       false,
       false,
       false,
+      false,
+      false,
       false
     ]
   },
-  "hash": "1398720a2e5525a0d47ff5353fa332f09a20336038064fd6d2f7633d5028e8fc"
+  "hash": "74595348aacd33c6fb59c9da1d29a59d98077d6d49ca7da9ad23f0370f067bbf"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT posts.* FROM posts\n            JOIN post_topics ON posts.id = post_topics.post_id AND post_topics.topic_id = ?\n            ORDER BY created_at DESC\n            ",
+  "query": "\n            SELECT posts.*, users.aka, users.did FROM posts\n            JOIN users ON posts.author_id = users.id\n            JOIN post_topics ON posts.id = post_topics.post_id AND post_topics.topic_id = ?\n            ORDER BY created_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -47,6 +47,16 @@
         "name": "author_id",
         "ordinal": 8,
         "type_info": "Integer"
+      },
+      {
+        "name": "aka",
+        "ordinal": 9,
+        "type_info": "Blob"
+      },
+      {
+        "name": "did",
+        "ordinal": 10,
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -61,8 +71,10 @@
       false,
       false,
       false,
+      false,
+      false,
       false
     ]
   },
-  "hash": "0e7a158fd6df9d91f40842b40a50a31774e54485b3527a7c912fc42474d655b2"
+  "hash": "17a1789dd70ff77450d995e3bab9eeac0fcca245497b0a314004e594b40435a6"
 }
