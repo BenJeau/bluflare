@@ -49,3 +49,35 @@ pub async fn auth_middleware(
     }
     Ok(next.run(request).await)
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AuthPermission {
+    AuthDisabled,
+    Authenticated,
+    InvalidSession,
+}
+
+pub async fn auth_permission(state: &AppState, jar: &CookieJar) -> AuthPermission {
+    if !state.config.auth.enabled {
+        return AuthPermission::AuthDisabled;
+    }
+
+    let Some(session_id) = jar.get("session_id") else {
+        return AuthPermission::InvalidSession;
+    };
+
+    let Some(state_session_id) = state.session_id.read().await.clone() else {
+        return AuthPermission::InvalidSession;
+    };
+
+    if state_session_id.expires_at < OffsetDateTime::now_utc() {
+        return AuthPermission::InvalidSession;
+    }
+
+    if session_id.value() != state_session_id.id {
+        return AuthPermission::InvalidSession;
+    }
+
+    AuthPermission::Authenticated
+}

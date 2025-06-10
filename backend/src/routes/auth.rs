@@ -67,6 +67,13 @@ pub async fn login(
     Ok(jar.add(cookie))
 }
 
+pub async fn auth_permission(
+    State(state): State<AppState>,
+    jar: CookieJar,
+) -> Result<impl IntoResponse> {
+    Ok(Json(crate::auth::auth_permission(&state, &jar).await))
+}
+
 pub async fn logout(State(state): State<AppState>, jar: CookieJar) -> Result<impl IntoResponse> {
     *state.session_id.write().await = None;
 

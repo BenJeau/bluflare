@@ -1,6 +1,6 @@
 import { createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import React, { useEffect, useMemo } from "react";
 import {
   Languages,
@@ -34,7 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useLogin, useLogout } from "@/api/auth";
+import { authQueryOptions, useLogin, useLogout } from "@/api/auth";
 import { toast } from "sonner";
 
 type Page =
@@ -52,6 +52,7 @@ export const RootComponent: React.FC = () => {
   const { location } = useRouterState();
   const { t, toggle } = useTranslation();
   const [user, setUser] = useAtom(userAtom);
+  const auth = useSuspenseQuery(authQueryOptions);
 
   const page: Page | undefined = useMemo(() => {
     if (location.pathname.startsWith("/topics")) return "topics";
@@ -235,71 +236,73 @@ export const RootComponent: React.FC = () => {
                 </p>
               </motion.div>
 
-              <Popover>
-                <PopoverTrigger className="flex cursor-pointer items-center gap-2 p-0 hover:bg-transparent dark:hover:bg-transparent">
-                  <p className="text-xs italic opacity-70">
-                    {user ? user : <Trans id="not.logged.in" />}
-                  </p>
-                  <Avatar className="h-8 w-8 border opacity-70 shadow">
-                    <AvatarFallback>
-                      <User size={16} />
-                    </AvatarFallback>
-                  </Avatar>
-                </PopoverTrigger>
-                <PopoverContent align="end" sideOffset={10}>
-                  {!user && (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-4">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <p className="text-sm opacity-70">
-                          <Trans id="login.description" />
-                        </p>
-                      </div>
+              {auth.data.enabled && (
+                <Popover>
+                  <PopoverTrigger className="flex cursor-pointer items-center gap-2 p-0 hover:bg-transparent dark:hover:bg-transparent">
+                    <p className="text-xs italic opacity-70">
+                      {user ? user : <Trans id="not.logged.in" />}
+                    </p>
+                    <Avatar className="h-8 w-8 border opacity-70 shadow">
+                      <AvatarFallback>
+                        <User size={16} />
+                      </AvatarFallback>
+                    </Avatar>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={10}>
+                    {!user && (
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <p className="text-sm opacity-70">
+                            <Trans id="login.description" />
+                          </p>
+                        </div>
 
-                      <form
-                        className="flex w-full flex-col gap-2"
-                        onSubmit={handleLogin}
-                      >
-                        <Input
-                          type="text"
-                          placeholder={t("username")}
-                          name="username"
-                          required
-                          minLength={1}
-                        />
-                        <Input
-                          type="password"
-                          placeholder={t("password")}
-                          name="password"
-                          required
-                          minLength={1}
-                        />
-                        <Button className="mt-4 cursor-pointer" type="submit">
-                          <Lock size={16} />
-                          <Trans id="login" />
+                        <form
+                          className="flex w-full flex-col gap-2"
+                          onSubmit={handleLogin}
+                        >
+                          <Input
+                            type="text"
+                            placeholder={t("username")}
+                            name="username"
+                            required
+                            minLength={1}
+                          />
+                          <Input
+                            type="password"
+                            placeholder={t("password")}
+                            name="password"
+                            required
+                            minLength={1}
+                          />
+                          <Button className="mt-4 cursor-pointer" type="submit">
+                            <Lock size={16} />
+                            <Trans id="login" />
+                          </Button>
+                        </form>
+                      </div>
+                    )}
+                    {user && (
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+                        <p className="text-sm opacity-70">
+                          <Trans id="logged.in.as" username={<b>{user}</b>} />
+                        </p>
+                        <Button
+                          className="w-full cursor-pointer"
+                          variant="outline"
+                          onClick={() => {
+                            logout();
+                            setUser(null);
+                          }}
+                        >
+                          <LogOut size={16} />
+                          <Trans id="logout" />
                         </Button>
-                      </form>
-                    </div>
-                  )}
-                  {user && (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-4">
-                      <p className="text-sm opacity-70">
-                        <Trans id="logged.in.as" username={<b>{user}</b>} />
-                      </p>
-                      <Button
-                        className="w-full cursor-pointer"
-                        variant="outline"
-                        onClick={() => {
-                          logout();
-                          setUser(null);
-                        }}
-                      >
-                        <LogOut size={16} />
-                        <Trans id="logout" />
-                      </Button>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
             <main className="bg-background/30 flex h-full flex-1 flex-col gap-2 overflow-y-scroll rounded-2xl border shadow-md backdrop-blur-sm">
               <Outlet />
@@ -315,5 +318,7 @@ export const RootComponent: React.FC = () => {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     component: RootComponent,
+    loader: ({ context: { queryClient } }) =>
+      queryClient.ensureQueryData(authQueryOptions),
   },
 );

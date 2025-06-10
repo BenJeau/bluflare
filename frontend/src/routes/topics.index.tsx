@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import * as v from "valibot";
-import { useAtomValue } from "jotai";
 
 import EmptyImg from "@/assets/adventure-1-70.svg";
 import { Button } from "@/components/ui/button";
@@ -11,18 +10,15 @@ import { useTranslation } from "@/i18n";
 import { Empty, Trans } from "@/components";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { serverAuthQueryOptions } from "@/api/auth";
-import { userAtom } from "@/atoms/user";
+import { authQueryOptions } from "@/api/auth";
 
 const TopicsComponent: React.FC = () => {
   const { search } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { t } = useTranslation();
   const { data: topics } = useSuspenseQuery(topicsOptions);
-  const { data: serverAuth } = useSuspenseQuery(serverAuthQueryOptions);
-  const user = useAtomValue(userAtom);
+  const serverAuth = useSuspenseQuery(authQueryOptions);
 
-  const canCreate = !serverAuth.authEnabled || user;
   const searchLowercase = search?.toLocaleLowerCase() ?? "";
   const filteredData = search
     ? topics.filter(
@@ -46,7 +42,7 @@ const TopicsComponent: React.FC = () => {
             })
           }
         />
-        {canCreate && (
+        {serverAuth.data.canEdit && (
           <Button size="sm" asChild>
             <Link to="/topics/create" search={{ subject: search }}>
               <Plus className="h-2 w-2" />
@@ -117,7 +113,7 @@ export const Route = createFileRoute("/topics/")({
   loader: ({ context: { queryClient } }) =>
     Promise.all([
       queryClient.ensureQueryData(topicsOptions),
-      queryClient.ensureQueryData(serverAuthQueryOptions),
+      queryClient.ensureQueryData(authQueryOptions),
     ]),
   validateSearch: v.object({
     search: v.pipe(

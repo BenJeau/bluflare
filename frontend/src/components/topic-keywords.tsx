@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   topic: Topic;
+  canEdit: boolean;
 };
 
-const TopicKeywords: React.FC<Props> = ({ topic }) => {
+const TopicKeywords: React.FC<Props> = ({ topic, canEdit }) => {
   const [isEditingKeywords, setIsEditingKeywords] = useState(false);
   const [currentKeyword, setCurrentKeyword] = useState("");
   const [editedKeywords, setEditedKeywords] = useState<string[]>([]);
@@ -92,6 +93,7 @@ const TopicKeywords: React.FC<Props> = ({ topic }) => {
             size="icon"
             onClick={handleStartEditing}
             className="h-6 w-6"
+            disabled={!canEdit}
           >
             <Edit2 className="h-3 w-3" />
           </Button>

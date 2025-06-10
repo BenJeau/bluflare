@@ -44,6 +44,7 @@ import {
   TopicStats,
 } from "@/components";
 import { countOccurrences } from "@/lib/utils";
+import { authQueryOptions } from "@/api/auth";
 
 const TopicDetail: React.FC = () => {
   const { slug } = Route.useParams();
@@ -52,9 +53,9 @@ const TopicDetail: React.FC = () => {
   const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
   const [numberOfPostsToShow, setNumberOfPostsToShow] = useState(30);
   const [isSSEActive, setIsSSEActive] = useState(true);
-  const { mutateAsync: analyzeTopic, isPending: isAnalyzing } =
-    useAnalyzeTopic();
+  const analyzeTopic = useAnalyzeTopic();
 
+  const { data: auth } = useSuspenseQuery(authQueryOptions);
   const { data: id } = useSuspenseQuery(topicSlugQueryOptions(slug));
   const { data: topic } = useSuspenseQuery(topicOptions(id));
   const { data: posts } = useSuspenseQuery(postsOptions(id));
@@ -76,7 +77,7 @@ const TopicDetail: React.FC = () => {
 
   const handleAnalyzeTopic = async () => {
     try {
-      await analyzeTopic(Number(id));
+      await analyzeTopic.mutateAsync(id);
     } catch (error) {
       console.error(error);
       toast.error(t("topic.analysis.failed"));
@@ -142,17 +143,21 @@ const TopicDetail: React.FC = () => {
           <Button
             variant="outline"
             onClick={handleAnalyzeTopic}
-            disabled={isAnalyzing}
+            disabled={analyzeTopic.isPending || !auth.canEdit}
           >
             <Sparkles className="h-4 w-4" />
             <Trans
-              id={isAnalyzing ? "topic.analyzing" : "topic.analyze.posts"}
+              id={
+                analyzeTopic.isPending
+                  ? "topic.analyzing"
+                  : "topic.analyze.posts"
+              }
             />
           </Button>
           <Button
             variant="outline"
             onClick={handleEnableTopic}
-            disabled={updateTopic.isPending}
+            disabled={updateTopic.isPending || !auth.canEdit}
           >
             {topic.enabled ? (
               <Pause className="h-4 w-4" />
@@ -172,6 +177,7 @@ const TopicDetail: React.FC = () => {
             size="icon"
             onClick={() => handleDeleteTopic(Number(id))}
             className="cursor-pointer"
+            disabled={!auth.canEdit}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -218,7 +224,7 @@ const TopicDetail: React.FC = () => {
           </div>
         )}
       </div>
-      <TopicKeywords topic={topic} />
+      <TopicKeywords topic={topic} canEdit={auth.canEdit} />
       <TopicStats data={langs || {}} title="languages" Icon={Languages} />
       <TopicStats data={urls || {}} title="urls" Icon={LinkIcon} />
       <TopicStats data={tags || {}} title="hashtags" Icon={Hash} />
@@ -292,6 +298,7 @@ export const Route = createFileRoute("/topics/$slug")({
     return Promise.all([
       queryClient.ensureQueryData(topicOptions(id)),
       queryClient.ensureQueryData(postsOptions(id)),
+      queryClient.ensureQueryData(authQueryOptions),
     ]);
   },
   notFoundComponent: NotFoundTopic,

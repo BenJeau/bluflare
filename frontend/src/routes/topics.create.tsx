@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowLeft, Pickaxe, Plus, X, Sparkles } from "lucide-react";
 import { FormEvent } from "react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { useTranslation } from "@/i18n";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Trans } from "@/components";
+import { authQueryOptions } from "@/api/auth";
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -231,5 +232,12 @@ type Search = v.InferOutput<typeof validateSearch>;
 
 export const Route = createFileRoute("/topics/create")({
   component: RouteComponent,
+  loader: async ({ context: { queryClient } }) => {
+    const auth = await queryClient.ensureQueryData(authQueryOptions);
+
+    if (!auth.canEdit) {
+      throw redirect({ to: "/topics" });
+    }
+  },
   validateSearch,
 });

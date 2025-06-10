@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import config from "@/lib/config";
 
-export const useMutationSuggestKeywords = () => {
-  return useMutation({
+export const useMutationSuggestKeywords = () =>
+  useMutation({
     mutationFn: async ({
       subject,
       description,
@@ -24,4 +24,3 @@ export const useMutationSuggestKeywords = () => {
       return response.json() as Promise<string[]>;
     },
   });
-};

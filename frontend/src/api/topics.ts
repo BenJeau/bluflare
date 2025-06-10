@@ -68,8 +68,8 @@ export const topicsOptions = queryOptions<Topic[]>({
   },
 });
 
-export function topicSlugQueryOptions(slug: string) {
-  return queryOptions({
+export const topicSlugQueryOptions = (slug: string) =>
+  queryOptions<string>({
     queryKey: ["topics", "slugs", slug],
     queryFn: async ({ signal }) => {
       const response = await fetch(
@@ -81,7 +81,6 @@ export function topicSlugQueryOptions(slug: string) {
       return response.json();
     },
   });
-}
 
 export const topicOptions = (id: string) =>
   queryOptions<Topic>({
@@ -121,8 +120,8 @@ export const useCreateTopic = () => {
   });
 };
 
-export const useDeleteTopic = () => {
-  return useMutation<void, Error, number>({
+export const useDeleteTopic = () =>
+  useMutation<void, Error, number>({
     mutationFn: async (id) => {
       const response = await fetch(
         `${config.rest_server_base_url}/topics/${id}`,
@@ -136,12 +135,11 @@ export const useDeleteTopic = () => {
       }
     },
   });
-};
 
 export const useAnalyzeTopic = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<string, Error, number>({
+  return useMutation<string, Error, string>({
     mutationFn: async (id) => {
       const response = await fetch(
         `${config.rest_server_base_url}/topics/${id}/analyze`,
@@ -160,10 +158,9 @@ export const useAnalyzeTopic = () => {
   });
 };
 
-export const useSSETopicPosts = (id: string, active: boolean) => {
-  return useSSE<Post>({
+export const useSSETopicPosts = (id: string, active: boolean) =>
+  useSSE<Post>({
     url: `${config.rest_server_base_url}/topics/${id}/posts/sse`,
     active,
     maxDataEntries: 150,
   });
-};

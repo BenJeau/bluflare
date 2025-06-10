@@ -39,6 +39,7 @@ pub fn router(state: AppState) -> Router {
         .route("/topics/slugs/{slug}", get(topics::get_topic_by_slug))
         .route("/users/latest", get(users::get_latest_users))
         .route("/auth/login", post(auth::login))
+        .route("/auth/permission", get(auth::auth_permission))
         .with_state(state.clone());
 
     let versioned_router = Router::new().nest("/api/v1", router);
