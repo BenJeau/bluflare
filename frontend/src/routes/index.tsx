@@ -1,18 +1,21 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { BookOpenText, Pause, Play, Radio, Speech } from "lucide-react";
 import { useState } from "react";
-import dayjs from "dayjs";
 
 import { latestPostsOptions } from "@/api/posts";
-import { HomeSubSection, RecentlyIngestedPosts, Trans } from "@/components";
+import {
+  HomeSubSection,
+  HomeTopicCard,
+  HomeUserCard,
+  RecentlyIngestedPosts,
+  Trans,
+} from "@/components";
 import { Button } from "@/components/ui/button";
 import { topicsOptions } from "@/api/topics";
 import { latestUsersOptions } from "@/api/users";
-import { useTranslation } from "@/i18n";
 
 const IndexComponent: React.FC = () => {
-  const { t } = useTranslation();
   const [sseEnabled, setSseEnabled] = useState(true);
 
   const { data: topics } = useSuspenseQuery(topicsOptions);
@@ -68,27 +71,7 @@ const IndexComponent: React.FC = () => {
             viewAllLink="/users"
             emptyMessage="no.users"
             viewAllText="view.all.users"
-            render={(user) => {
-              const handle = user.aka ? user.aka[0].split("://")[1] : user.did;
-
-              return (
-                <Link
-                  key={user.id}
-                  to="/users"
-                  className="group bg-background/75 hover:bg-background flex flex-col rounded-lg border p-2 text-sm shadow-xs transition-all active:shadow-inner"
-                >
-                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap group-hover:underline">
-                    {handle}
-                  </h3>
-                  <span className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
-                    First seen{" "}
-                    <span className="font-medium italic">
-                      {dayjs(user.createdAt).format("LL LTS")}
-                    </span>
-                  </span>
-                </Link>
-              );
-            }}
+            render={(user) => <HomeUserCard user={user} />}
           />
           <div className="border-t" />
           <HomeSubSection
@@ -99,33 +82,7 @@ const IndexComponent: React.FC = () => {
             viewAllLink="/topics"
             emptyMessage="no.topics"
             viewAllText="view.all.topics"
-            render={(topic) => (
-              <Link
-                key={topic.id}
-                to="/topics/$slug"
-                params={{ slug: topic.slug }}
-                className="bg-background/75 hover:bg-background group flex flex-col rounded-lg border p-2 text-sm shadow-xs transition-all active:shadow-inner"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="overflow-hidden font-medium overflow-ellipsis whitespace-nowrap group-hover:underline">
-                    {topic.subject}
-                  </h3>
-                  <p className="text-xs whitespace-nowrap text-sky-300 opacity-70">
-                    {topic.post_count?.toLocaleString()}{" "}
-                    {t("posts").toLowerCase()}
-                  </p>
-                </div>
-                {topic.description ? (
-                  <span className="overflow-hidden text-xs overflow-ellipsis whitespace-nowrap opacity-70">
-                    {topic.description}
-                  </span>
-                ) : (
-                  <span className="text-xs italic opacity-35">
-                    <Trans id="no.description" />
-                  </span>
-                )}
-              </Link>
-            )}
+            render={(topic) => <HomeTopicCard topic={topic} />}
           />
         </div>
       </div>

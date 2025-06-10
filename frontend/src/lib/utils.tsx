@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { Post } from "@/api/posts";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -32,4 +34,19 @@ export const highlightKeywords = (text: string, keywords: string[]) => {
     }
     return part;
   });
+};
+
+export const countOccurrences = (
+  posts: Post[],
+  field: "urls" | "tags" | "langs",
+): Record<string, number> => {
+  return posts.reduce(
+    (acc, post) => {
+      post[field].forEach((item) => {
+        acc[item] = (acc[item] || 0) + 1;
+      });
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 };

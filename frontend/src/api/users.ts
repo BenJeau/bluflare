@@ -1,7 +1,7 @@
 import config from "@/lib/config";
 import { queryOptions } from "@tanstack/react-query";
 
-type User = {
+export type User = {
   id: string;
   createdAt: string;
   did: string;

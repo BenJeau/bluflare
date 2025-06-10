@@ -9,3 +9,7 @@ export { default as Nav } from "./nav";
 export { default as PostCard } from "./post-card";
 export { default as HomeSubSection } from "./home-sub-section";
 export { default as RecentlyIngestedPosts } from "./recently-ingested-posts";
+export { default as HomeUserCard } from "./home-user-card";
+export { default as HomeTopicCard } from "./home-topic-card";
+export { default as TopicStats } from "./topic-stats";
+export { default as TopicKeywords } from "./topic-keywords";

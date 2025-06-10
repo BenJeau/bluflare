@@ -22,6 +22,7 @@ const TopicsComponent: React.FC = () => {
   const { data: serverAuth } = useSuspenseQuery(serverAuthQueryOptions);
   const user = useAtomValue(userAtom);
 
+  const canCreate = !serverAuth.authEnabled || user;
   const searchLowercase = search?.toLocaleLowerCase() ?? "";
   const filteredData = search
     ? topics.filter(
@@ -30,8 +31,6 @@ const TopicsComponent: React.FC = () => {
           topic.description.toLowerCase().includes(searchLowercase),
       )
     : topics;
-
-  const canCreate = !serverAuth.authEnabled || user;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
