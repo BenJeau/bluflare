@@ -171,6 +171,24 @@ pub async fn get_all_topics<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec
     Ok(topics)
 }
 
+pub async fn get_all_enabled_topics<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Topic>> {
+    let db_topics = sqlx::query_as!(
+        DbTopic,
+        r#"
+            SELECT *
+            FROM topics
+            WHERE enabled = 1
+            ORDER BY created_at DESC
+            "#,
+    )
+    .fetch_all(executor)
+    .await?;
+
+    let topics = db_topics.into_iter().map(Topic::from).collect();
+
+    Ok(topics)
+}
+
 pub async fn get_all_topics_with_post_count<'e>(
     executor: impl SqliteExecutor<'e>,
 ) -> Result<Vec<TopicWithPostCount>> {

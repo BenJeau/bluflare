@@ -76,7 +76,7 @@ async fn start_inner(state: AppState) -> Result<()> {
                 }
                 _ = interval.tick() => {
                     debug!("retrieving topics");
-                    match db::get_all_topics(&state.pool).await {
+                    match db::get_all_enabled_topics(&state.pool).await {
                         Ok(data) => topics = data,
                         Err(err) => {
                             error!("Error retrieving topics: {err}");

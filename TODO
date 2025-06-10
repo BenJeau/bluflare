@@ -6,15 +6,10 @@
 
 general
 
-1. [x] figure out how auth should work and what should be public by default
-- everything is public except update/create/delete actions?
-2. [x] maybe rename "interests" to "topics"
 3. [ ] write tests?
 
 backend
 
-1. [x] protect modify endpoints
-2. [ ] normalize shape of post from SSE and API
 2. [in progress] create user API endpoints
 2. [in progress] create post API endpoints
 2. [ ] maybe auto-generate OpenAPI specs
@@ -25,31 +20,16 @@ backend
 
 frontend
 
-1. [x] make homepage better, maybe show a carousel of posts being ingested in real time
-1. [in progress] extract all strings to i18n files
-2. [ ] add toggle to enable/disable interested
 2. [in progress] cleanup tanstack query invalidation
-2. [x] fix dark mode
-2. [in progress] create smaller components
-2. [x] create dummy user pages
-2. [x] create dummy post pages
-2. [x] fix queryClient type in router
-2. [x] fix height change of sidenav on expand for user section
-2. [x] fix type errors
-2. [x] cleanup i18n keys
 3. [ ] maybe port over custom fetch with better tanstack query integration
 3. [ ] create user pages
 3. [ ] create post pages
 3. [ ] create stats page
+3. [ ] create hashtag page
 3. [ ] create docs page and display openapi spec with scalar
 3. [ ] use debouncing when saving form data in search params
-3. [ ] home page data should all be SSEs
-3. [x] maybe add more animations with framer motion
 3. [ ] use toast.promise for sonner
 
 deployment
 
-1. [x] make sure Dockerfile works
-1. [x] create ansible/teraform scripts
-1. [x] create GH actions for deployment
 3. [ ] fix DO deployment in GH actions
