@@ -95,7 +95,7 @@ VALUES (
             'DDoS',
             'Botnet',
             'Zero-day',
-            'Exploit',
+            'Exploit'
         )
     );
 
