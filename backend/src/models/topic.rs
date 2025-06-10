@@ -98,7 +98,9 @@ pub struct CreateTopic {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateTopic {
-    pub keywords: Vec<String>,
+    pub description: Option<String>,
+    pub keywords: Option<Vec<String>>,
+    pub enabled: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -11,7 +11,7 @@ use crate::{
     models::{
         post::{CreatePost, DbPost, Post},
         topic::{
-            CreateTopic, DbTopic, DbTopicWithPostCount, Topic, TopicWithPostCount,
+            CreateTopic, DbTopic, DbTopicWithPostCount, Topic, TopicWithPostCount, UpdateTopic,
             UpdateTopicAnalysis,
         },
         user::{CreateUser, DbUser, User},
@@ -89,8 +89,8 @@ pub async fn update_topic_analysis<'e>(
 ) -> Result<()> {
     sqlx::query_scalar!(
         r#"
-            UPDATE topics SET last_analysis = ?, last_analysis_at = ? WHERE id = ?
-            "#,
+        UPDATE topics SET last_analysis = ?, last_analysis_at = ? WHERE id = ?
+        "#,
         analysis.last_analysis,
         analysis.last_analysis_at,
         id,
@@ -101,18 +101,26 @@ pub async fn update_topic_analysis<'e>(
     Ok(())
 }
 
-pub async fn update_topic_keywords<'e>(
+pub async fn update_topic<'e>(
     executor: impl SqliteExecutor<'e>,
     id: i64,
-    keywords: Vec<String>,
+    topic: UpdateTopic,
 ) -> Result<()> {
-    let keywords = serde_json::to_value(keywords.clone()).unwrap();
+    let keywords = topic
+        .keywords
+        .map(|keywords| serde_json::to_value(keywords).unwrap());
 
     sqlx::query_scalar!(
         r#"
-            UPDATE topics SET keywords = ? WHERE id = ?
-            "#,
+        UPDATE topics SET 
+            keywords = COALESCE(?, keywords),
+            description = COALESCE(?, description),
+            enabled = COALESCE(?, enabled)
+        WHERE id = ?
+        "#,
         keywords,
+        topic.description,
+        topic.enabled,
         id,
     )
     .execute(executor)

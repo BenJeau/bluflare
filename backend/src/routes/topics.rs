@@ -97,7 +97,7 @@ pub async fn update_topic(
     Path(id): Path<i64>,
     Json(update_topic): Json<UpdateTopic>,
 ) -> Result<impl IntoResponse> {
-    db::update_topic_keywords(&pool, id, update_topic.keywords).await?;
+    db::update_topic(&pool, id, update_topic).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
