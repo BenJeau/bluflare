@@ -31,6 +31,14 @@ impl HttpSerer {
 #[derive(Deserialize, Clone)]
 pub struct Server {
     pub http: HttpSerer,
+    pub cors: Cors,
+    pub frontend: Frontend,
+    pub auth: Auth,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct Cors {
+    pub allowed_origin: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -95,8 +103,6 @@ pub struct Config {
     pub server: Server,
     pub jetstream: Jetstream,
     pub gemini: Gemini,
-    pub frontend: Frontend,
-    pub auth: Auth,
 }
 
 impl Config {

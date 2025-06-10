@@ -44,13 +44,13 @@ pub fn router(state: AppState) -> Router {
 
     let versioned_router = Router::new().nest("/api/v1", router);
 
-    let router_with_frontend = if state.config.frontend.enabled {
+    let router_with_frontend = if state.config.server.frontend.enabled {
         versioned_router.fallback_service(frontend_router())
     } else {
         versioned_router
     };
 
-    CommonTowerLayerBuilder::new()
+    CommonTowerLayerBuilder::new(state.config.server.cors.allowed_origin)
         .build()
         .apply_middlewares(router_with_frontend)
 }

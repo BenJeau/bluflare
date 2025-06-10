@@ -25,7 +25,7 @@ pub async fn auth_middleware(
     request: Request,
     next: Next,
 ) -> Result<Response> {
-    if state.config.auth.enabled {
+    if state.config.server.auth.enabled {
         let Some(session_id) = jar.get("session_id") else {
             return Err(Error::Unauthorized("No session id in cookies".to_string()));
         };
@@ -59,7 +59,7 @@ pub enum AuthPermission {
 }
 
 pub async fn auth_permission(state: &AppState, jar: &CookieJar) -> AuthPermission {
-    if !state.config.auth.enabled {
+    if !state.config.server.auth.enabled {
         return AuthPermission::AuthDisabled;
     }
 

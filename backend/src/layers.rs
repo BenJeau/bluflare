@@ -3,7 +3,7 @@ use axum::{
     body::Body,
     extract::{DefaultBodyLimit, Request},
 };
-use http::{HeaderName, Method};
+use http::{HeaderName, HeaderValue, Method};
 use sentry::Hub;
 use sentry_tower::{NewFromTopProvider, SentryHttpLayer, SentryLayer};
 use std::{sync::Arc, time::Duration};
@@ -17,7 +17,7 @@ use tower_http::{
         CompressionLayer, CompressionLevel, Predicate,
         predicate::{And, NotForContentType, SizeAbove},
     },
-    cors::{AllowOrigin, Any, CorsLayer},
+    cors::{AllowOrigin, CorsLayer},
     normalize_path::NormalizePathLayer,
     timeout::TimeoutLayer,
     trace::TraceLayer,
@@ -39,10 +39,10 @@ pub struct CommonTowerLayerBuilder {
 }
 
 impl CommonTowerLayerBuilder {
-    pub fn new() -> Self {
+    pub fn new(allowed_origin: String) -> Self {
         Self {
             allowed_methods: vec![Method::GET, Method::POST, Method::PATCH, Method::DELETE],
-            allowed_origins: Any.into(),
+            allowed_origins: AllowOrigin::exact(HeaderValue::from_str(&allowed_origin).unwrap()),
             allowed_headers: vec![HeaderName::from_static("content-type")],
             exposed_headers: vec![],
             compression_level: CompressionLevel::Fastest,
@@ -62,7 +62,8 @@ impl CommonTowerLayerBuilder {
             .allow_methods(self.allowed_methods)
             .allow_origin(self.allowed_origins)
             .expose_headers(self.exposed_headers)
-            .allow_headers(self.allowed_headers);
+            .allow_headers(self.allowed_headers)
+            .allow_credentials(true);
 
         let compression_layer = CompressionLayer::new()
             .quality(self.compression_level)

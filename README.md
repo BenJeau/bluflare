@@ -16,8 +16,10 @@ Monitor [Bluesky](https://bsky.app) posts and analyze trends in real-time.
 - Track and filter Bluesky posts based on custom keywords
 - Real-time monitoring of the Bluesky Firehose
 - View and manage interests/keywords
-- Analyze and summarize posts matching your interests
+- Analyze and summarize posts matching your interests with Gemini
 - Sentiment analysis of posts
+- French and English user interface
+- Light and dark mode
 - Simple authentication and authorization
 
 ## Getting Started
@@ -61,7 +63,7 @@ The frontend will be available at `http://localhost:5173` by default and the bac
 
 ### Authentication
 
-By default, authentication is disabled and anyone can hit all endpoints (create/delete/update). To enabled authentication, you need to set the `BLUFLARE__AUTH__ENABLED` environment variable to `true` and set the `BLUFLARE__AUTH__PASSWORD_HASH` and `BLUFLARE__AUTH__USERNAME` environment variables to the password hash and username of the admin user.
+By default, authentication is disabled and anyone can hit all endpoints (create/delete/update). To enabled authentication, you need to set the `BLUFLARE__SERVER__AUTH__ENABLED` environment variable to `true` and set the `BLUFLARE__SERVER__AUTH__PASSWORD_HASH` and `BLUFLARE__SERVER__AUTH__USERNAME` environment variables to the password hash and username of the admin user.
 
 The password hash can be generated using the following command:
 

@@ -24,23 +24,25 @@ pub async fn login(
     jar: CookieJar,
     Json(credentials): Json<LoginRequest>,
 ) -> Result<impl IntoResponse> {
-    if !state.config.auth.enabled {
+    if !state.config.server.auth.enabled {
         return Err(Error::AuthDisabled);
     }
 
     let admin_username = state
         .config
+        .server
         .auth
         .username
         .clone()
         .ok_or(Error::AuthDisabled)?;
     let admin_password_hash = state
         .config
+        .server
         .auth
         .password_hash
         .clone()
         .ok_or(Error::AuthDisabled)?;
-    let cookie_expiry_minutes = state.config.auth.cookie_expiry_minutes.unwrap_or(30);
+    let cookie_expiry_minutes = state.config.server.auth.cookie_expiry_minutes.unwrap_or(30);
 
     if credentials.username != admin_username {
         return Err(Error::InvalidCredentials);
@@ -81,13 +83,14 @@ pub async fn logout(State(state): State<AppState>, jar: CookieJar) -> Result<imp
 }
 
 fn build_cookie<'a>(state: AppState, session_id: String) -> Cookie<'a> {
-    let cookie_expiry_minutes = state.config.auth.cookie_expiry_minutes.unwrap_or(30);
+    let cookie_expiry_minutes = state.config.server.auth.cookie_expiry_minutes.unwrap_or(30);
     let cookie_domain = state
         .config
+        .server
         .auth
         .cookie_domain
         .unwrap_or("localhost".to_string());
-    let cookie_secure = state.config.auth.cookie_secure.unwrap_or(false);
+    let cookie_secure = state.config.server.auth.cookie_secure.unwrap_or(false);
     let expires_at = OffsetDateTime::now_utc() + Duration::minutes(cookie_expiry_minutes as i64);
 
     Cookie::build(("session_id", session_id))
