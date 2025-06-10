@@ -25,50 +25,58 @@ const PostCard: React.FC<Props> = ({
   offset = 0,
   keywords = [],
   className,
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -10 }}
-    transition={{ duration: 0.2, delay: 0.05 * offset }}
-    className={cn(
-      "dark:bg-card/30 flex flex-col overflow-hidden rounded-lg border bg-green-50 shadow-xs",
-      className,
-    )}
-  >
-    <div className="text-muted-foreground bg-card flex items-center justify-between gap-1 border-b p-2 text-xs">
-      <div className="flex flex-col">
-        {/* <a
-              href={`https://bsky.app/profile/${post.aka[0].split("//")[1]}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <p className="text-xs text-primary font-bold hover:underline">
-                {post.aka[0].split("//")[1]}
-              </p>
-            </a> */}
-        {dayjs(post.created_at).format("LLL")}
+}) => {
+  let author = post.did;
+
+  if (post.aka && post.aka.length > 0) {
+    author = post.aka[0].split("//")[1];
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2, delay: 0.05 * offset }}
+      className={cn(
+        "dark:bg-card/30 flex flex-col overflow-hidden rounded-lg border bg-green-50 shadow-xs",
+        className,
+      )}
+    >
+      <div className="text-muted-foreground bg-card flex items-center justify-between gap-1 border-b p-2 text-xs">
+        <div className="flex flex-wrap gap-x-2">
+          <a
+            href={`https://bsky.app/profile/${author}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p className="text-primary text-xs font-bold hover:underline">
+              @{author}
+            </p>
+          </a>
+          {dayjs(post.created_at).format("LLL")}
+        </div>
+        <div className="flex gap-2">
+          <Tag data={post.urls} Icon={LinkIcon} title="urls" />
+          <Tag data={post.tags} Icon={Hash} title="hashtags" />
+        </div>
       </div>
-      <div className="flex gap-2">
-        <Tag data={post.urls} Icon={LinkIcon} title="urls" />
-        <Tag data={post.tags} Icon={Hash} title="hashtags" />
+      <div className="flex items-stretch justify-between gap-2">
+        <div>
+          <a
+            href={`https://bsky.app/profile/${post.did}/post/${post.rkey}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p className="p-2 text-sm font-semibold hover:underline">
+              {highlightKeywords(post.text, keywords)}
+            </p>
+          </a>
+        </div>
       </div>
-    </div>
-    <div className="flex items-stretch justify-between gap-2">
-      <div>
-        {/* <a
-              href={`https://bsky.app/profile/${did}/post/${rkey}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            > */}
-        <p className="p-2 text-sm font-semibold hover:underline">
-          {highlightKeywords(post.text, keywords)}
-        </p>
-        {/* </a> */}
-      </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 type TagProps = {
   data: string[];

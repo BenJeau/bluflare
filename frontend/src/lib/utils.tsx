@@ -27,7 +27,7 @@ export const highlightKeywords = (text: string, keywords: string[]) => {
   return parts.map((part, i) => {
     if (i % 2 === 1) {
       return (
-        <span key={i} className="bg-green-300">
+        <span key={i} className="bg-green-300 dark:text-green-950">
           {part}
         </span>
       );

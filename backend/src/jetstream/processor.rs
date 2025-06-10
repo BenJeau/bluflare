@@ -115,7 +115,7 @@ impl Processor {
                     e
                 })?;
 
-                state.send_message(post, topic_ids, akas).await;
+                state.send_message(post, topic_ids, akas, message.did).await;
             }
 
             Ok(())

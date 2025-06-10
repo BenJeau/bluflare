@@ -11,10 +11,7 @@ use futures_util::Stream;
 use sqlx::SqlitePool;
 use std::convert::Infallible;
 
-use crate::{
-    Result, db,
-    state::{AppState, SsePost},
-};
+use crate::{Result, db, models::post::PostWithAuthor, state::AppState};
 
 pub async fn get_latest_posts(State(pool): State<SqlitePool>) -> Result<impl IntoResponse> {
     let posts = db::get_latest_posts(&pool).await?;
@@ -40,7 +37,7 @@ pub async fn get_posts_sse(
             yield Event::default()
                 .id(&message.post.cid)
                 .event("post")
-                .json_data(SsePost::from(message))
+                .json_data(PostWithAuthor::from(message))
                 .unwrap();
         }
     };

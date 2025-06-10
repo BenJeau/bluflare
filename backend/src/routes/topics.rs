@@ -16,8 +16,11 @@ use std::convert::Infallible;
 use crate::{
     Error, Result, db,
     gemini::GeminiClient,
-    models::topic::{CreateTopic, UpdateTopic, UpdateTopicAnalysis},
-    state::{AppState, SsePost},
+    models::{
+        post::PostWithAuthor,
+        topic::{CreateTopic, UpdateTopic, UpdateTopicAnalysis},
+    },
+    state::AppState,
 };
 
 pub async fn get_topic_by_slug(
@@ -59,7 +62,7 @@ pub async fn sse_posts(
             yield Event::default()
                 .id(&message.post.cid)
                 .event("post")
-                .json_data(SsePost::from(message))
+                .json_data(PostWithAuthor::from(message))
                 .unwrap();
         }
     };
@@ -75,7 +78,7 @@ pub async fn analyze_topic(
     let posts = db::get_topic_posts(&pool, id)
         .await?
         .into_iter()
-        .map(|p| p.text)
+        .map(|p| p.post.text)
         .collect::<Vec<String>>();
 
     let Some(summary) = gemini.analyze_posts(&posts).await? else {

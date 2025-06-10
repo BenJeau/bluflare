@@ -42,14 +42,16 @@ const TopicsComponent: React.FC = () => {
             })
           }
         />
-        {serverAuth.data.canEdit && (
-          <Button size="sm" asChild>
-            <Link to="/topics/create" search={{ subject: search }}>
-              <Plus className="h-2 w-2" />
-              <Trans id="topics.add" />
-            </Link>
-          </Button>
-        )}
+        <Button size="sm" disabled={!serverAuth.data.canEdit}>
+          <Link
+            to="/topics/create"
+            search={{ subject: search }}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-2 w-2" />
+            <Trans id="topics.add" />
+          </Link>
+        </Button>
       </div>
 
       <div className="flex flex-1 flex-col gap-2">

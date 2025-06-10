@@ -9,7 +9,7 @@ use tracing::info;
 use crate::{
     Result,
     models::{
-        post::{CreatePost, DbPost, Post},
+        post::{CreatePost, DbPost, DbPostWithAuthor, Post, PostWithAuthor},
         topic::{
             CreateTopic, DbTopic, DbTopicWithPostCount, Topic, TopicWithPostCount, UpdateTopic,
             UpdateTopicAnalysis,
@@ -46,15 +46,19 @@ pub async fn get_users_count<'e>(executor: impl SqliteExecutor<'e>) -> Result<i6
     Ok(count)
 }
 
-pub async fn get_latest_posts<'e>(executor: impl SqliteExecutor<'e>) -> Result<Vec<Post>> {
+pub async fn get_latest_posts<'e>(
+    executor: impl SqliteExecutor<'e>,
+) -> Result<Vec<PostWithAuthor>> {
     let db_posts = sqlx::query_as!(
-        DbPost,
-        r#"SELECT * FROM posts ORDER BY created_at DESC LIMIT 20"#,
+        DbPostWithAuthor,
+        r#"SELECT posts.*, users.aka, users.did FROM posts
+        JOIN users ON posts.author_id = users.id
+        ORDER BY created_at DESC LIMIT 20"#,
     )
     .fetch_all(executor)
     .await?;
 
-    let posts = db_posts.into_iter().map(Post::from).collect();
+    let posts = db_posts.into_iter().map(PostWithAuthor::from).collect();
 
     Ok(posts)
 }
@@ -244,11 +248,12 @@ pub async fn delete_topic<'e>(executor: impl SqliteExecutor<'e>, id: i64) -> Res
 pub async fn get_topic_posts<'e>(
     executor: impl SqliteExecutor<'e>,
     topic_id: i64,
-) -> Result<Vec<Post>> {
+) -> Result<Vec<PostWithAuthor>> {
     let db_posts = sqlx::query_as!(
-        DbPost,
+        DbPostWithAuthor,
         r#"
-            SELECT posts.* FROM posts
+            SELECT posts.*, users.aka, users.did FROM posts
+            JOIN users ON posts.author_id = users.id
             JOIN post_topics ON posts.id = post_topics.post_id AND post_topics.topic_id = ?
             ORDER BY created_at DESC
             "#,
@@ -257,7 +262,7 @@ pub async fn get_topic_posts<'e>(
     .fetch_all(executor)
     .await?;
 
-    let posts = db_posts.into_iter().map(Post::from).collect();
+    let posts = db_posts.into_iter().map(PostWithAuthor::from).collect();
 
     Ok(posts)
 }

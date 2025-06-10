@@ -74,6 +74,29 @@ VALUES (
             'Claude',
             'OpenAI'
         )
+    ),
+    (
+        'Cybersecurity',
+        'cybersecurity',
+        'Security vulnerabilities and threats',
+        json_array(
+            'Cybersecurity',
+            'Security',
+            'Vulnerabilities',
+            'Threats',
+            'Defense',
+            'Protection',
+            'Attack',
+            'Hacking',
+            'CVE',
+            'Ransomware',
+            'Malware',
+            'Phishing',
+            'DDoS',
+            'Botnet',
+            'Zero-day',
+            'Exploit',
+        )
     );
 
 CREATE INDEX IF NOT EXISTS idx_topics_created_at ON topics (created_at);

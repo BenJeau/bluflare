@@ -1,5 +1,4 @@
 use axum::extract::FromRef;
-use serde::Serialize;
 use sqlx::SqlitePool;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -12,27 +11,31 @@ use tokio::sync::{
 };
 use tracing::error;
 
-use crate::{Result, config, db, gemini::GeminiClient, models::post::Post};
+use crate::{
+    Result, config, db,
+    gemini::GeminiClient,
+    models::post::{Post, PostWithAuthor},
+};
 
 #[derive(Clone)]
 pub struct StreamPost {
     pub post: Post,
     pub topic_ids: BTreeSet<i64>,
     pub akas: BTreeMap<String, Vec<String>>,
+    pub did: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
-pub struct SsePost {
-    #[serde(flatten)]
-    post: Post,
-    akas: BTreeMap<String, Vec<String>>,
-}
-
-impl From<StreamPost> for SsePost {
+impl From<StreamPost> for PostWithAuthor {
     fn from(post: StreamPost) -> Self {
         Self {
             post: post.post,
-            akas: post.akas,
+            aka: post
+                .akas
+                .get(&post.did)
+                .cloned()
+                .unwrap_or_default()
+                .clone(),
+            did: post.did,
         }
     }
 }
@@ -74,6 +77,7 @@ impl AppState {
         post: Post,
         topic_ids: BTreeSet<i64>,
         akas: BTreeMap<String, Vec<String>>,
+        did: String,
     ) {
         let inner_stream = self.post_streams.write().await;
         let (sender, _) = inner_stream.clone();
@@ -81,6 +85,7 @@ impl AppState {
             post,
             topic_ids: topic_ids.clone(),
             akas,
+            did,
         })) {
             error!("Error sending message to watch channel with topics {topic_ids:?}: {err}",);
         }

@@ -13,7 +13,8 @@ export interface Post {
   langs: string[];
   tags: string[];
   author_id: string;
-  aka: Record<string, string[]>;
+  aka: string[];
+  did: string;
 }
 
 export const postsOptions = (topicId: string) =>
